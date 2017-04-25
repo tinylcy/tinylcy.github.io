@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-04-04T13:02:46.000Z</updated>
+  <updated>2017-04-25T04:46:39.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://tinylcy.me/2017/04/04/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/"/>
     <id>http://tinylcy.me/2017/04/04/理解Golang中的defer/</id>
     <published>2017-04-04T13:01:21.000Z</published>
-    <updated>2017-04-04T13:02:46.000Z</updated>
+    <updated>2017-04-25T04:46:39.000Z</updated>
     
     <content type="html"><![CDATA[<p>关键字<code>defer</code>用于实现延迟调用，根据<code>Golang</code>官方的定义：<em>A defer statement defers the execution of a function until the surrounding function returns.</em> 。但是，当返回值与<code>defer</code>相互关联时，如果没有正确理解<code>defer</code>与<code>return</code>真正的执行顺序，那么容易出现一些不可描述的现象。</p>
 <p>我们先运行如下代码，根据运行结果来理解<code>defer</code>，在查看运行结果之前，不妨先想想<code>main</code>函数的输出是什么。</p>
@@ -56,7 +56,7 @@
     <link href="http://tinylcy.me/2017/02/24/%E8%B0%88%E8%B0%88ThreadLocal/"/>
     <id>http://tinylcy.me/2017/02/24/谈谈ThreadLocal/</id>
     <published>2017-02-24T14:21:03.000Z</published>
-    <updated>2017-02-24T14:23:42.000Z</updated>
+    <updated>2017-04-25T04:47:10.000Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://book.douban.com/subject/10484692/" target="_blank" rel="external">Java并发编程实战</a> 一书在介绍<code>ThreadLocal</code>类时（第<code>3</code>章），书中有这么两段话，在我初次阅读时不知道如何去理解。</p>
 <blockquote>
@@ -112,7 +112,7 @@
     <link href="http://tinylcy.me/2017/02/12/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAJava-Class%E8%A7%A3%E6%9E%90%E5%99%A8/"/>
     <id>http://tinylcy.me/2017/02/12/如何实现一个Java-Class解析器/</id>
     <published>2017-02-12T15:26:08.000Z</published>
-    <updated>2017-04-04T13:04:52.000Z</updated>
+    <updated>2017-04-25T04:45:36.000Z</updated>
     
     <content type="html"><![CDATA[<p>最近在写一个私人项目，名字叫做<code>ClassAnalyzer</code>，<code>ClassAnalyzer</code>的目的是能让我们对<code>Java Class</code>文件的设计与结构能够有一个深入的理解。主体框架与基本功能已经完成，还有一些细节功能日后再增加。实际上<code>JDK</code>已经提供了命令行工具<code>javap</code>来反编译<code>Class</code>文件，但本篇文章将阐明我实现解析器的思路。</p>
 <h2 id="Class文件"><a href="#Class文件" class="headerlink" title="Class文件"></a>Class文件</h2><p>作为类或者接口信息的载体，每个<code>Class</code>文件都完整的定义了一个类。为了使<code>Java</code>程序可以“编写一次，处处运行”，<a href="http://files.cnblogs.com/files/zhuYears/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%A7%84%E8%8C%83%EF%BC%88JavaSE7%EF%BC%89.pdf" target="_blank" rel="external">Java虚拟机规范</a>对<code>Class</code>文件进行了严格的规定。构成<code>Class</code>文件的基本数据单位是字节，这些字节之间不存在任何分隔符，这使得整个<code>Class</code>文件中存储的内容几乎全部是程序运行的必要数据，单个字节无法表示的数据由多个连续的字节来表示。</p>
@@ -158,7 +158,7 @@
     <link href="http://tinylcy.me/2017/01/10/CSAPP-Shell-Lab/"/>
     <id>http://tinylcy.me/2017/01/10/CSAPP-Shell-Lab/</id>
     <published>2017-01-10T08:13:11.000Z</published>
-    <updated>2017-01-10T08:15:12.000Z</updated>
+    <updated>2017-04-25T04:47:32.000Z</updated>
     
     <content type="html"><![CDATA[<p>这个<a href="http://csapp.cs.cmu.edu/3e/shlab.pdf" target="_blank" rel="external">实验</a>通过实现一个支持作业控制的<code>Unix Shell</code>，让我们对进程控制和信号控制更加熟悉。课程<code>Lab</code>已经帮助我们搭建起了<code>Shell</code>的整体框架，并实现了与本次实验不太相关的代码，核心部分需要我们自己完成。</p>
 <h2 id="整体框架"><a href="#整体框架" class="headerlink" title="整体框架"></a>整体框架</h2><p><code>Shell</code>从标准输入（<code>stdin</code>）读取用户输入的命令，然后解析命令，<code>Shell</code>支持两种类型的命令：如果用户输入的是的内置命令（如<code>quit</code>、<code>jobs</code>等），那么直接执行该命令；如果用户输入的是某个可执行文件的路径，那么通过<code>fork</code>一个子进程，在子进程中加载并执行命令。<code>Shell</code>把每次用户输入的命令抽象为一个<code>job</code>，一个<code>job</code>可以包含多个进程（例如管道）。每个<code>job</code>有两种运行方式，如果用户输入的命令以’<code>&amp;</code>‘结尾，那么<code>job</code>将会在后台（<code>background</code>）运行，否则，<code>job</code>运行在前台（<code>foreground</code>）。在任意时刻，只允许存在<code>0</code>或<code>1</code>个前台<code>job</code>，但是可以有<code>0</code>或多个后台<code>job</code>运行。最后，为了支持用户能够向<code>Shell</code>发送信号，我们还需要实现<code>3</code>个信号处理程序，分别处理信号<code>SIGCHLD</code>、<code>SIGINT</code>和<code>SIGTSTP</code>。</p>
@@ -186,7 +186,7 @@
     <link href="http://tinylcy.me/2017/01/07/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"/>
     <id>http://tinylcy.me/2017/01/07/MapReduce论文阅读/</id>
     <published>2017-01-07T13:03:08.000Z</published>
-    <updated>2017-01-07T13:32:00.000Z</updated>
+    <updated>2017-04-25T04:48:38.000Z</updated>
     
     <content type="html"><![CDATA[<p>大四时曾经粗略的阅读过这篇<a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/mapreduce-osdi04.pdf" target="_blank" rel="external">论文</a>，并且已经写过不少的<code>MapReduce</code>程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进<a href="http://nil.csail.mit.edu/6.824/2015/index.html" target="_blank" rel="external">MIT 6.824: Distributed Systems</a>，而完成这门课程的第一个<code>lab</code>的前提便是阅读这篇论文。</p>
 <p>这篇笔记重点分析了<code>MapReduce</code>的<strong>执行流程</strong>以及<strong>容错机制</strong>，因为是个人理解，若有分析不妥之处欢迎发送邮件至<code>tinylcy (at) gmail.com</code>讨论交流。</p>
@@ -251,7 +251,7 @@
     <link href="http://tinylcy.me/2017/01/04/Bigtable%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"/>
     <id>http://tinylcy.me/2017/01/04/Bigtable论文阅读/</id>
     <published>2017-01-04T11:53:17.000Z</published>
-    <updated>2017-01-04T12:12:10.000Z</updated>
+    <updated>2017-04-25T04:47:27.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文是我对Bigtable论文进行第一轮阅读所做的笔记。对于理解欠妥的地方，欢迎发送邮件至<code>tinylcy (at) gmail.com</code>讨论。</p>
 <h2 id="Data-Model"><a href="#Data-Model" class="headerlink" title="Data Model"></a>Data Model</h2><blockquote>
@@ -393,7 +393,7 @@
     <link href="http://tinylcy.me/2017/01/01/2016%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E5%8F%8A2017%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/"/>
     <id>http://tinylcy.me/2017/01/01/2016年度总结及2017年度计划/</id>
     <published>2016-12-31T18:24:14.000Z</published>
-    <updated>2017-02-12T15:51:16.000Z</updated>
+    <updated>2017-04-25T04:47:15.000Z</updated>
     
     <content type="html"><![CDATA[<p>从<code>2016</code>年<code>12</code>月开始持续使用<a href="https://pomotodo.com/" target="_blank" rel="external">Pomotodo</a>起，我逐渐意识到给自己定下量化计划是一件能够提升学习效率的事情。<code>2017</code>年的核心目标依然是提高自己，但是会采用具体的量化的指标来代替模糊性描述。其实这就类似于我们在<code>git commit</code>时候，如果以<code>git commit -m &quot;fix some bugs&quot;</code>的形式<code>commit</code>，那么在后期这些<code>descriptions</code>并不会带给我们任何帮助。</p>
 <h3 id="2016总结"><a href="#2016总结" class="headerlink" title="2016总结"></a>2016总结</h3><ul>
@@ -434,7 +434,7 @@
     <link href="http://tinylcy.me/2016/12/07/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96%E2%80%94Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
     <id>http://tinylcy.me/2016/12/07/Spring-IoC容器初始化—Resource定位源码分析/</id>
     <published>2016-12-07T07:53:56.000Z</published>
-    <updated>2016-12-07T08:09:48.000Z</updated>
+    <updated>2017-04-25T04:48:50.000Z</updated>
     
     <content type="html"><![CDATA[<p>在<code>Spring IoC</code>容器的设计中，有两个主要的容器系列。一个是实现了<code>BeanFactory</code>接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是<code>ApplicationContext</code>应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。</p>
 <h2 id="IoC容器的初始化过程"><a href="#IoC容器的初始化过程" class="headerlink" title="IoC容器的初始化过程"></a>IoC容器的初始化过程</h2><p><code>Spring IoC</code>容器的初始化过程分为三个阶段：<code>Resource</code>定位、<code>BeanDefinition</code>的载入和向<code>IoC</code>容器注册<code>BeanDefinition</code>。<code>Spring</code>把这三个阶段分离，并使用不同的模块来完成，这样可以让用户更加灵活的对这三个阶段进行扩展。</p>
@@ -488,7 +488,7 @@
     <link href="http://tinylcy.me/2016/12/04/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
     <id>http://tinylcy.me/2016/12/04/HashMap源码分析/</id>
     <published>2016-12-04T03:46:58.000Z</published>
-    <updated>2016-12-04T06:26:12.000Z</updated>
+    <updated>2017-04-25T04:47:37.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="HashMap简介"><a href="#HashMap简介" class="headerlink" title="HashMap简介"></a>HashMap简介</h2><p>本文针对<code>HashMap</code>的源码分析基于<code>JDK 7</code>，<code>JDK 8</code>在<code>HashMap</code>的实现上有着较大幅度的改进和优化，这部分优化我将另起一篇来阐述。另外，本文仅分析<code>HashMap</code>众多方法中最常用的方法，其余方法有需要时再研究 :smile:。</p>
 <p><code>HashMap</code>的继承关系如下。</p>
@@ -558,7 +558,7 @@
     <link href="http://tinylcy.me/2016/12/02/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
     <id>http://tinylcy.me/2016/12/02/Vector源码分析/</id>
     <published>2016-12-02T13:00:08.000Z</published>
-    <updated>2016-12-04T03:48:36.000Z</updated>
+    <updated>2017-04-25T04:49:02.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="Vector简介"><a href="#Vector简介" class="headerlink" title="Vector简介"></a>Vector简介</h2><p><code>Vector</code>在<code>JDK 1.0</code>被引入，基于数组实现，并且是一个动态数组，其容量可以自动增长。在很多方法的实现上，<code>Vector</code>加入了同步语句，因此一般来说<code>Vector</code>是线程安全的，可以在多线程环境中运用。</p>
 <p>本文对<code>Vector</code>源码的分析基于<code>JDK 1.8.0_111</code>，并仅对常用的方法进行分析。</p>
@@ -611,7 +611,7 @@
     <link href="http://tinylcy.me/2016/11/30/Java%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80/"/>
     <id>http://tinylcy.me/2016/11/30/Java对象内存布局/</id>
     <published>2016-11-30T10:58:18.000Z</published>
-    <updated>2016-11-30T10:59:32.000Z</updated>
+    <updated>2017-04-25T04:47:45.000Z</updated>
     
     <content type="html"><![CDATA[<p><code>JVM</code>将内存划分为程序计数器（<code>Program Counter Register</code>）、虚拟机栈（<code>VM Stack</code>）、本地方法栈（<code>Native Method Stack</code>）、堆（<code>Heap</code>）以及方法区（<code>Method Area</code>）。作为开发者，我们最关注的是虚拟机栈以及堆这两块区域。虚拟机栈所需要的内存空间在编译期间即可明确，而堆内存所需要的空间需要在运行时才可确定。堆内存用于存放我们在程序中创建的对象，一旦没有足够的空间用于存放这些对象，即会抛出<code>OutOfMemoryError</code>异常。在这种情况下，我们可以调整堆内存的大小，或者对程序进行优化。当我们采用后一种方式时，我们需要了解一个对象是如何占据堆内存空间的，或者说是了解一个对象是由哪些部分组成的。</p>
 <h2 id="对象的内存布局"><a href="#对象的内存布局" class="headerlink" title="对象的内存布局"></a>对象的内存布局</h2><p>在<code>HotSpot</code>虚拟机中，对象在内存中的布局划分为<code>3</code>个区域：对象头（<code>Header</code>），实例数据（<code>Instance Data</code>）以及对齐填充（<code>Padding</code>）。</p>
@@ -666,7 +666,7 @@
     <link href="http://tinylcy.me/2016/11/17/Linux-C-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%AE%9E%E7%8E%B0/"/>
     <id>http://tinylcy.me/2016/11/17/Linux-C-线程池实现/</id>
     <published>2016-11-17T09:15:35.000Z</published>
-    <updated>2016-11-17T09:48:58.000Z</updated>
+    <updated>2017-04-25T04:48:33.000Z</updated>
     
     <content type="html"><![CDATA[<p>学习网络编程时，自己动手实现一个<code>Web Server</code>是一个很有意思的经历。大多数<code>Web Server</code>都有一个特点：在单位时间内需要处理大量的请求，并且处理这些请求的时间往往还很短。《深入理解计算机系统》 (<code>CSAPP</code>) 在讲解网络编程时实现了一个经典的<code>Web Server</code>，这个<code>Web Server</code>不仅满足了静态请求，同时还满足了动态请求 (<code>CGI</code>)。虽然这个<code>Web Server</code>能够正常使用，但是仍存在一个明显的缺陷：它是一个迭代式的<code>Web Server</code>，这意味着在一个请求处理完毕前，不能同时处理另一个请求，而我们之前提到<code>Web Server</code>的一个重要特点就是在单位时间内可能会有大量的请求，所以如果投入工业界，这种情况自然是无法容忍的。</p>
 <h2 id="多进程-Web-Server-模型"><a href="#多进程-Web-Server-模型" class="headerlink" title="多进程 Web Server 模型"></a>多进程 Web Server 模型</h2><p>解决上面提到的<code>Web Server</code>只能一个接着一个处理请求的第一个方案是：当<code>accept</code>到一个请求时，<code>fork</code>一个子进程去处理这个请求，而主进程仍然在监听是否有新的连接请求。多进程模型在表面上看似乎解决了问题，但是我们都知道<code>fork</code>一个进程的开销是非常大的，基于以下几个事实。</p>
@@ -717,7 +717,7 @@
     <link href="http://tinylcy.me/2016/10/03/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/"/>
     <id>http://tinylcy.me/2016/10/03/Java泛型总结/</id>
     <published>2016-10-03T13:51:39.000Z</published>
-    <updated>2016-10-03T18:17:40.000Z</updated>
+    <updated>2017-04-25T04:47:49.000Z</updated>
     
     <content type="html"><![CDATA[<p><code>Java</code>泛型是<code>JDK5</code>引入的一个新特性，允许在定义类和接口的时候使用类型参数（<code>type parameter</code>）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在<code>JDK5</code>中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不好的方面说，为了保证与旧版本的兼容性，<code>Java</code>泛型的实现上还存在着不够优雅的地方。</p>
 <h2 id="类型擦除"><a href="#类型擦除" class="headerlink" title="类型擦除"></a>类型擦除</h2><p>正确理解泛型概念的首要前提是理解类型擦除（<code>type erasure</code>）。<code>Java</code>中的泛型基本上都是在编译器这个层次来实现的。在生成的<code>Java</code>字节码中是不包含泛型中的类型信息的。使用泛型的时候加上的类型参数，会被编译器在编译的时候去掉。这个过程就称为类型擦除。比如在代码中定义的<code>List&lt;Object&gt;</code>和<code>List&lt;String&gt;</code>等类型，在编译之后都会变成<code>List</code>。<code>JVM</code>看到的只是<code>List</code>，而由泛型附加的类型信息对<code>JVM</code>来说是不可见的。<code>Java</code>编译器会在编译时尽可能的发现可能出错的地方，但是仍然无法避免在运行时刻出现类型转换异常的情况。</p>
@@ -795,7 +795,7 @@
     <link href="http://tinylcy.me/2016/08/19/IO%E9%87%8D%E5%AE%9A%E5%90%91%E5%92%8C%E7%AE%A1%E9%81%93/"/>
     <id>http://tinylcy.me/2016/08/19/IO重定向和管道/</id>
     <published>2016-08-18T16:01:24.000Z</published>
-    <updated>2016-08-18T16:09:42.000Z</updated>
+    <updated>2017-04-25T04:47:41.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="标准I-O与重定向的若干概念"><a href="#标准I-O与重定向的若干概念" class="headerlink" title="标准I/O与重定向的若干概念"></a>标准I/O与重定向的若干概念</h2><h3 id="3个标准文件描述符"><a href="#3个标准文件描述符" class="headerlink" title="3个标准文件描述符"></a>3个标准文件描述符</h3><p>所有的<code>Unix</code>工具都使用文件描述符<code>0</code>、<code>1</code>和<code>2</code>。如下图所示，标准输入文件的描述符是<code>0</code>，标准输出的文件描述符是<code>1</code>，标准错误输出的文件描述符则是<code>2</code>。<code>Unix</code>假设文件描述符<code>0</code>、<code>1</code>和<code>2</code>都已经被打开，可以分别进行读、写和写的操作。</p>
 <p><img src="/img/2016-08-18-Image 1.png" alt="Alt text"></p>
@@ -879,7 +879,7 @@
     <link href="http://tinylcy.me/2016/08/14/TCP%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/"/>
     <id>http://tinylcy.me/2016/08/14/TCP拥塞控制/</id>
     <published>2016-08-14T03:25:21.000Z</published>
-    <updated>2016-08-14T06:49:40.000Z</updated>
+    <updated>2017-04-25T04:48:58.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="TCP基础"><a href="#TCP基础" class="headerlink" title="TCP基础"></a>TCP基础</h2><p>网络的传输层有两种方式——<code>TCP</code>和<code>UDP</code>，其中<code>TCP</code>是基于连接的，而<code>UDP</code>不需要连接。它们各自支持一些应用层协议，但也有些协议是两者都支持的，比如<code>DNS</code>，我们通过<code>DNS</code>来比较<code>TCP</code>和<code>UDP</code>的差别。当前我的计算机的<code>ip</code>为<code>192.168.199.134</code>，向<code>DNS</code>服务器发起一个<code>DNS</code>查询，以期获得<code>tinylcy.me</code>所对应的<code>ip</code>地址。<code>DNS</code>默认使用<code>UDP</code>的情况如下所示：</p>
 <p><img src="/img/2016-08-14-Image 1.png" alt="Alt text"></p>
@@ -939,7 +939,7 @@
     <link href="http://tinylcy.me/2016/07/30/%E7%9B%AE%E5%BD%95%E4%B8%8E%E6%96%87%E4%BB%B6%E5%B1%9E%E6%80%A7%EF%BC%9A%E7%BC%96%E5%86%99ls/"/>
     <id>http://tinylcy.me/2016/07/30/目录与文件属性：编写ls/</id>
     <published>2016-07-29T17:12:33.000Z</published>
-    <updated>2016-08-14T03:33:02.000Z</updated>
+    <updated>2017-04-25T04:47:06.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p><code>ls</code>命令可以列出目录中所有文件的名字，以及这些文件的其它信息。注意，<code>ls</code>对文件和目录所做的操作是不同的，<code>ls</code>能判定参数指定的是文件还是目录。如果要自己编写<code>ls</code>，需要掌握三点：</p>
 <ul>
@@ -1004,7 +1004,7 @@
     <link href="http://tinylcy.me/2016/06/25/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89/"/>
     <id>http://tinylcy.me/2016/06/25/用机器指令和汇编指令编程（三）/</id>
     <published>2016-06-25T15:12:42.000Z</published>
-    <updated>2016-12-31T18:28:38.000Z</updated>
+    <updated>2017-04-25T04:46:54.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="程序执行过程的跟踪"><a href="#程序执行过程的跟踪" class="headerlink" title="程序执行过程的跟踪"></a>程序执行过程的跟踪</h2><p>可以使用<code>Debug</code>来跟踪一个程序的执行过程，示例程序<code>1.asm</code>如下所示。</p>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">assume</span> cs:codesg</div><div class="line"></div><div class="line"><span class="symbol">codesg</span> segment</div><div class="line"></div><div class="line">    <span class="keyword">mov </span>ax,<span class="number">0123</span>h</div><div class="line">    <span class="keyword">mov </span><span class="keyword">bx,0456h</span></div><div class="line">    <span class="keyword">add </span>ax,<span class="keyword">bx</span></div><div class="line">    <span class="keyword">add </span>ax,ax</div><div class="line"></div><div class="line">    <span class="keyword">mov </span>ax,<span class="number">4</span>c00h</div><div class="line">    int <span class="number">21</span>h</div><div class="line"></div><div class="line"><span class="symbol">codesg</span> ends</div><div class="line"><span class="symbol">end</span></div></pre></td></tr></table></figure>
@@ -1070,7 +1070,7 @@
     <link href="http://tinylcy.me/2016/06/21/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/"/>
     <id>http://tinylcy.me/2016/06/21/Spring-IoC-Context启动过程解析/</id>
     <published>2016-06-21T13:57:12.000Z</published>
-    <updated>2016-12-07T07:56:26.000Z</updated>
+    <updated>2017-04-25T04:48:54.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="ServletContext"><a href="#ServletContext" class="headerlink" title="ServletContext"></a>ServletContext</h2><p><code>Web</code>容器在启动的过程中，会为每个<code>Web</code>应用程序创建一个对应的<code>ServletContext</code>对象，它代表了当前的<code>Web</code>应用，为<code>Spring IoC</code>容器提供宿主环境。</p>
 <p>在部署<code>Web</code>工程的时候，<code>Web</code>容器会读取<code>web.xml</code>，创建<code>ServletContext</code>，当前<code>Web</code>工程所有部分都共享这个<code>Context</code>。<code>context-param</code>为<code>ServletContext</code>提供键值对，即<code>Servlet</code>上下文的信息，这些信息<code>Listener</code>、<code>Filter</code>和<code>Servlet</code>都有可能使用到，因此先加载<code>context-param</code>，创建<code>ServletContext</code>，然后加载<code>Listener</code>，再加载<code>Filter</code>，最后加载<code>Servlet</code>。</p>
@@ -1110,7 +1110,7 @@
     <link href="http://tinylcy.me/2016/06/10/LinkedList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
     <id>http://tinylcy.me/2016/06/10/LinkedList源码分析/</id>
     <published>2016-06-10T13:48:56.000Z</published>
-    <updated>2016-12-04T03:48:58.000Z</updated>
+    <updated>2017-04-25T04:47:54.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文涉及的<code>JDK</code>源码版本为<code>1.7.0_79</code>。</p>
 <h2 id="LinkedList类定义"><a href="#LinkedList类定义" class="headerlink" title="LinkedList类定义"></a>LinkedList类定义</h2><p><code>LinkedList</code>是基于双向链表实现的，<code>LinkedList</code>除了被当做数组来使用，还可以作为栈、队列来使用。由于<code>LinkedList</code>内部采用链表的形式存储元素，因此随机访问会比较慢，但是插入、删除元素比较快。</p>
@@ -1160,7 +1160,7 @@
     <link href="http://tinylcy.me/2016/06/09/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89/"/>
     <id>http://tinylcy.me/2016/06/09/用机器指令和汇编指令编程（二）/</id>
     <published>2016-06-09T09:56:09.000Z</published>
-    <updated>2016-12-31T18:28:08.000Z</updated>
+    <updated>2017-04-25T04:47:01.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="物理地址"><a href="#物理地址" class="headerlink" title="物理地址"></a>物理地址</h2><p><code>CPU</code>访问内存空间时，要给出内存单元的地址。所有的内存单元构成的存储空间是一个一维的线性空间，每一个内存单元在这个空间中都有唯一的地址，将这个唯一的地址称为物理地址。</p>
 <p><code>CPU</code>通过地址总线送入存储器的，必须是一个内存单元的物理地址。而在<code>CPU</code>向地址总线上发出物理地址之前，必须要在内部形成这个物理地址。不同的<code>CPU</code>有不同的形成物理地址的方式，此处依旧讨论<code>8086CPU</code>如何在内部形成内存单元的物理地址。</p>
