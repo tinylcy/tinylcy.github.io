@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-04-26T11:26:02.000Z</updated>
+  <updated>2017-04-26T11:31:49.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,9 +20,10 @@
     <link href="http://tinylcy.me/2017/04/26/CSAPP-Bomb-Lab/"/>
     <id>http://tinylcy.me/2017/04/26/CSAPP-Bomb-Lab/</id>
     <published>2017-04-26T11:14:51.000Z</published>
-    <updated>2017-04-26T11:26:02.000Z</updated>
+    <updated>2017-04-26T11:31:49.000Z</updated>
     
     <content type="html"><![CDATA[<p>通过<code>objdump</code>对<code>bome</code>进行反编译（<code>objdump -d bomb &gt; bomb.txt</code>），获取所有的汇编代码。提取每个阶段对应的代码并进行分析，逐一拆弹。</p>
+<a id="more"></a>
 <h2 id="Phase-1"><a href="#Phase-1" class="headerlink" title="Phase 1"></a>Phase 1</h2><p><code>phase_1</code>对应的代码如下所示。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">0000000000400ee0 &lt;phase_1&gt;:</div><div class="line">  400ee0:	48 83 ec 08          	sub    $0x8,%rsp</div><div class="line">  400ee4:	be 00 24 40 00       	mov    $0x402400,%esi</div><div class="line">  400ee9:	e8 4a 04 00 00       	callq  401338 &lt;strings_not_equal&gt;</div><div class="line">  400eee:	85 c0                	test   %eax,%eax</div><div class="line">  400ef0:	74 05                	je     400ef7 &lt;phase_1+0x17&gt;</div><div class="line">  400ef2:	e8 43 05 00 00       	callq  40143a &lt;explode_bomb&gt;</div><div class="line">  400ef7:	48 83 c4 08          	add    $0x8,%rsp</div><div class="line">  400efb:	c3                   	retq</div></pre></td></tr></table></figure>
 <p>由<code>callq</code>指令可以得知，<code>phase_1</code>调用了<code>strings_not_equal</code>，并将返回值存储于<code>%eax</code>中，<code>test</code>指令计算<code>%eax</code>的值是否等于<code>0</code>，<code>je</code>指令决定是否跳转，若<code>%eax</code>的值等于<code>0</code>，则跳转至<code>0x400ef7</code>处，也就是安全区域，拆弹成功，否则不跳转，即执行<code>explode_bomb</code>，拆弹失败。通过以上分析，可以得知<code>phase_1</code>的关键在于控制<code>strings_not_equal</code>的返回值。</p>
@@ -76,7 +77,6 @@
     <summary type="html">
     
       &lt;p&gt;通过&lt;code&gt;objdump&lt;/code&gt;对&lt;code&gt;bome&lt;/code&gt;进行反编译（&lt;code&gt;objdump -d bomb &amp;gt; bomb.txt&lt;/code&gt;），获取所有的汇编代码。提取每个阶段对应的代码并进行分析，逐一拆弹。&lt;/p&gt;
-&lt;h2 id=&quot;Ph
     
     </summary>
     
@@ -321,14 +321,15 @@
     <link href="http://tinylcy.me/2017/01/04/Bigtable%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"/>
     <id>http://tinylcy.me/2017/01/04/Bigtable论文阅读/</id>
     <published>2017-01-04T11:53:17.000Z</published>
-    <updated>2017-04-25T04:47:27.000Z</updated>
+    <updated>2017-04-26T11:33:15.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文是我对Bigtable论文进行第一轮阅读所做的笔记。对于理解欠妥的地方，欢迎发送邮件至<code>tinylcy (at) gmail.com</code>讨论。</p>
+<a id="more"></a>
 <h2 id="Data-Model"><a href="#Data-Model" class="headerlink" title="Data Model"></a>Data Model</h2><blockquote>
 <p>A Bigtable is a sparse, distributed, persistent multi-dimensional sorted map. The map is indexed by a row key, column key, and a timestamp; each value in the map is an uninterpreted arrays of bytes.</p>
 </blockquote>
 <p>Bigtable是稀疏的、分布式的、持久化的、多维度的、顺序的map，我们可以将Bigtable的数据模型抽象为一系列的键值对，满足的映射关系为：<code>(row:string, column:string, time:int64) -&gt; string</code>。</p>
-<p><img src="/img/2017-01-04-Image 1.png" alt="Alt text"></p>
+<p><img src="/img/2017-01-04-Image 1.png" alt=""></p>
 <blockquote>
 <p>A slice of an example table that stores Web pages. The row name is a reversed URL. The contents column family contains the page contents, and the anchor column family contains the text of any anchors that reference the page. CNN’s home page is referenced by both the Sports Illustrated and the MY-look home pages, so the row contains columns named anchor:cnnsi.com and anchor:my.look.ca. Each anchor cell has one version; the contents column has three versions, at timestamps t3 , t5 , and t6.</p>
 </blockquote>
@@ -382,7 +383,7 @@
 </blockquote>
 <p>Chubby是一个高可靠用于分布式的锁服务，其目的是解决分布式一致性的问题，通过Paxos算法实现。</p>
 <h2 id="Implementation"><a href="#Implementation" class="headerlink" title="Implementation"></a>Implementation</h2><p>Bigtable的系统结构由三个部分组成，包括客户端中用于通信的Library、一个主节点（master server）和一系列从节点（tablet servers）。整个架构可以从下图清晰的体现出来。</p>
-<p><img src="/img/2017-01-04-Image 2.jpg" alt="Alt text"></p>
+<p><img src="/img/2017-01-04-Image 2.jpg" alt=""></p>
 <blockquote>
 <ul>
 <li>The master is responsible for assigning tablets to tablet servers, detecting the addition and expiration of tablet servers, balancing tablet-server load, and garbage collection of files in GFS.</li>
@@ -391,7 +392,7 @@
 </blockquote>
 <p>需要注意的是，客户端在读写数据时直接和tablet server通信，不需要经过master server，而且在Bigtable中，客户端获取tablet位置信息也不依赖于master server。因此在大多数情况下，客户端都不会和master server通信，这就大大降低了由单个master server造成的单点故障的可能性。关于这点我们从上图也可以得知。</p>
 <h3 id="Tablet-Location"><a href="#Tablet-Location" class="headerlink" title="Tablet Location"></a>Tablet Location</h3><p>前面已经提到，客户端在获取tablet位置信息时并不需要经过master server，那么tablet的位置信息时如何定位的？首先，需要了解tablet的位置信息是如何存储的。Bigtable通过类似B+树的结构来存储tablet的位置信息，如下图所示。</p>
-<p><img src="/img/2017-01-04-Image 3.png" alt="Alt text"></p>
+<p><img src="/img/2017-01-04-Image 3.png" alt=""></p>
 <blockquote>
 <ul>
 <li>The first level is a file stored in Chubby that contains the location of the root tablet. The root tablet contains the location of all tablets in a special METADATA table.</li>
@@ -438,7 +439,7 @@
 <p>The tablet server commits the split by recording information for the new tablet in the METADATA table. When the split has committed, it notifies the master.</p>
 </blockquote>
 <h3 id="Tablet-Serving"><a href="#Tablet-Serving" class="headerlink" title="Tablet Serving"></a>Tablet Serving</h3><p>tablet的持久化是通过存储为GFS文件的形式实现的，下图描述了tablet更新操作的实现。</p>
-<p><img src="/img/2017-01-04-Image 4.png" alt="Alt text"></p>
+<p><img src="/img/2017-01-04-Image 4.png" alt=""></p>
 <p>当发生更新时，首先将更新操作写到tablet log日志文件中去，然后把待更新的内容先写到memtable中，memtable是内存中一个排序的缓冲，保存了最近的一次更新操作的内容。更早的更新内容会被持久化到SSTable文件中。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf" target="_blank" rel="external">Bigtable: A Distributed Storage System for Structured Data</a></li>
@@ -449,7 +450,6 @@
     <summary type="html">
     
       &lt;p&gt;本文是我对Bigtable论文进行第一轮阅读所做的笔记。对于理解欠妥的地方，欢迎发送邮件至&lt;code&gt;tinylcy (at) gmail.com&lt;/code&gt;讨论。&lt;/p&gt;
-&lt;h2 id=&quot;Data-Model&quot;&gt;&lt;a href=&quot;#Data-Model&quot; class=&quot;
     
     </summary>
     
