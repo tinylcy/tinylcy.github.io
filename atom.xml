@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-05-03T14:39:44.000Z</updated>
+  <updated>2017-05-03T15:06:43.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,9 +20,9 @@
     <link href="http://tinylcy.me/2017/05/03/6-824-Lab-1-MapReduce/"/>
     <id>http://tinylcy.me/2017/05/03/6-824-Lab-1-MapReduce/</id>
     <published>2017-05-03T14:25:41.000Z</published>
-    <updated>2017-05-03T14:39:44.000Z</updated>
+    <updated>2017-05-03T15:06:43.000Z</updated>
     
-    <content type="html"><![CDATA[<p>开始学习大名鼎鼎的<a href="http://nil.csail.mit.edu/6.824/2016/index.html" target="_blank" rel="external">MIT 6.824: Distributed Systems</a>课程，我跟的是<code>2016</code>年的课程，课程的主要内容是读<code>Paper</code>和做<code>Lab</code>，使用的语言为<code>Go</code>。五一假期期间我基本做完了<code>Lab 1</code>，感觉难度还是相当大的。本篇文章是我对<code>Lab 1</code>的一个总结。</p>
+    <content type="html"><![CDATA[<p>开始学习大名鼎鼎的<a href="http://nil.csail.mit.edu/6.824/2016/index.html" target="_blank" rel="external">MIT 6.824: Distributed Systems</a>课程，我跟的是<code>2016</code>年的课程，课程的主要内容是读<code>Paper</code>和做<code>Lab</code>，使用的语言为<code>Go</code>。五一假期期间我基本做完了<a href="http://nil.csail.mit.edu/6.824/2016/labs/lab-1.html" target="_blank" rel="external">Lab 1</a>，感觉难度还是相当大的。本篇文章是我对<code>Lab 1</code>的一个总结。</p>
 <a id="more"></a>
 <h2 id="MapReduce"><a href="#MapReduce" class="headerlink" title="MapReduce"></a>MapReduce</h2><p>每次读<a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/mapreduce-osdi04.pdf" target="_blank" rel="external">MapReduce</a>论文，都会有新的收获，也自知还有理解不到位的地方。</p>
 <h3 id="Execution-Overview"><a href="#Execution-Overview" class="headerlink" title="Execution Overview"></a>Execution Overview</h3><ul>
@@ -73,7 +73,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;开始学习大名鼎鼎的&lt;a href=&quot;http://nil.csail.mit.edu/6.824/2016/index.html&quot;&gt;MIT 6.824: Distributed Systems&lt;/a&gt;课程，我跟的是&lt;code&gt;2016&lt;/code&gt;年的课程，课程的主要内容是读&lt;code&gt;Paper&lt;/code&gt;和做&lt;code&gt;Lab&lt;/code&gt;，使用的语言为&lt;code&gt;Go&lt;/code&gt;。五一假期期间我基本做完了&lt;code&gt;Lab 1&lt;/code&gt;，感觉难度还是相当大的。本篇文章是我对&lt;code&gt;Lab 1&lt;/code&gt;的一个总结。&lt;/p&gt;
+      &lt;p&gt;开始学习大名鼎鼎的&lt;a href=&quot;http://nil.csail.mit.edu/6.824/2016/index.html&quot;&gt;MIT 6.824: Distributed Systems&lt;/a&gt;课程，我跟的是&lt;code&gt;2016&lt;/code&gt;年的课程，课程的主要内容是读&lt;code&gt;Paper&lt;/code&gt;和做&lt;code&gt;Lab&lt;/code&gt;，使用的语言为&lt;code&gt;Go&lt;/code&gt;。五一假期期间我基本做完了&lt;a href=&quot;http://nil.csail.mit.edu/6.824/2016/labs/lab-1.html&quot;&gt;Lab 1&lt;/a&gt;，感觉难度还是相当大的。本篇文章是我对&lt;code&gt;Lab 1&lt;/code&gt;的一个总结。&lt;/p&gt;
     
     </summary>
     
