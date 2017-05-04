@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-05-03T16:22:58.000Z</updated>
+  <updated>2017-05-03T16:36:55.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://tinylcy.me/2017/05/03/6-824-Lab-1-MapReduce/"/>
     <id>http://tinylcy.me/2017/05/03/6-824-Lab-1-MapReduce/</id>
     <published>2017-05-03T14:25:41.000Z</published>
-    <updated>2017-05-03T16:22:58.000Z</updated>
+    <updated>2017-05-03T16:36:55.000Z</updated>
     
     <content type="html"><![CDATA[<p>开始学习大名鼎鼎的<a href="http://nil.csail.mit.edu/6.824/2016/index.html" target="_blank" rel="external">MIT 6.824: Distributed Systems</a>课程，我跟的是<code>2016</code>年的课程，课程的主要内容是读<code>Paper</code>和做<code>Lab</code>，使用的语言为<code>Go</code>。五一假期期间我基本做完了<a href="http://nil.csail.mit.edu/6.824/2016/labs/lab-1.html" target="_blank" rel="external">Lab 1</a>，感觉难度还是相当大的。本篇文章是我对<code>Lab 1</code>的一个总结。</p>
 <a id="more"></a>
@@ -44,7 +44,7 @@
 <li><code>master</code>通过定期的做<code>checkpoints</code>来保证<code>master</code>的容错性。</li>
 <li>由于<code>master</code>只有一个，所以可以认为<code>master</code>出故障的概率很小。如果真的出故障了，那么根据需要重新执行<code>MapReduce Job</code>。</li>
 </ul>
-<h2 id="Lab"><a href="#Lab" class="headerlink" title="Lab"></a>Lab</h2><p><code>Lab 1</code>划分为<code>4</code>个<code>Part</code>，<code>Part 1 &amp; Part 2</code>实现<code>Sequential MapReduce</code>，<code>Part 3 &amp; Part 4</code>实现<code>Distributed MapReduce</code>，并且要解决<code>worker failure</code>。同时，<code>Lab 1</code>提供了<code>MapReduce</code>的整个框架，并实现了与核心内容无关的代码。在完成各个<code>Part</code>之前，我们需要理解<code>Lab 1</code>实现的两个版本的<code>MapReduce</code>框架的设计思路。</p>
+<h2 id="Lab"><a href="#Lab" class="headerlink" title="Lab"></a>Lab</h2><p><code>Lab 1</code>包括<code>4</code>个<code>Part</code>，<code>Part 1 &amp; Part 2</code>实现<code>Sequential MapReduce</code>，<code>Part 3 &amp; Part 4</code>实现<code>Distributed MapReduce</code>，并且要解决<code>worker failure</code>。同时，<code>Lab 1</code>提供了<code>MapReduce</code>的整个框架，并实现了与核心内容无关的代码。在完成各个<code>Part</code>之前，我们需要理解<code>Lab 1</code>实现的两个版本的<code>MapReduce</code>框架的设计思路。</p>
 <ul>
 <li><code>master</code>和<code>worker</code>以<code>goroutine</code>的形式存在，当<code>worker</code>可用时，以<code>RPC</code>的方式向<code>master</code>注册，<code>master</code>通过调用<code>schedule()</code>来实现<code>task</code>的调度。同时，在<code>Distributed MapReduce</code>中<code>schedule()</code>还需要处理<code>worker failure</code>。<code>schedule()</code>将会以参数的形式存在于<code>Sequential/Distributed MapReduce</code>。</li>
 <li>论文中<code>map task</code>以块作为分割，而<code>Lab</code>中的<code>map task</code>将以文件作为分割。</li>
@@ -261,7 +261,7 @@
     <link href="http://tinylcy.me/2017/02/12/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAJava-Class%E8%A7%A3%E6%9E%90%E5%99%A8/"/>
     <id>http://tinylcy.me/2017/02/12/如何实现一个Java-Class解析器/</id>
     <published>2017-02-12T15:26:08.000Z</published>
-    <updated>2017-04-25T04:45:36.000Z</updated>
+    <updated>2017-05-04T14:23:35.000Z</updated>
     
     <content type="html"><![CDATA[<p>最近在写一个私人项目，名字叫做<code>ClassAnalyzer</code>，<code>ClassAnalyzer</code>的目的是能让我们对<code>Java Class</code>文件的设计与结构能够有一个深入的理解。主体框架与基本功能已经完成，还有一些细节功能日后再增加。实际上<code>JDK</code>已经提供了命令行工具<code>javap</code>来反编译<code>Class</code>文件，但本篇文章将阐明我实现解析器的思路。</p>
 <h2 id="Class文件"><a href="#Class文件" class="headerlink" title="Class文件"></a>Class文件</h2><p>作为类或者接口信息的载体，每个<code>Class</code>文件都完整的定义了一个类。为了使<code>Java</code>程序可以“编写一次，处处运行”，<a href="http://files.cnblogs.com/files/zhuYears/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%A7%84%E8%8C%83%EF%BC%88JavaSE7%EF%BC%89.pdf" target="_blank" rel="external">Java虚拟机规范</a>对<code>Class</code>文件进行了严格的规定。构成<code>Class</code>文件的基本数据单位是字节，这些字节之间不存在任何分隔符，这使得整个<code>Class</code>文件中存储的内容几乎全部是程序运行的必要数据，单个字节无法表示的数据由多个连续的字节来表示。</p>
