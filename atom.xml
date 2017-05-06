@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-05-06T16:33:33.000Z</updated>
+  <updated>2017-05-06T16:37:39.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,9 +20,9 @@
     <link href="http://tinylcy.me/2017/05/06/CSAPP-Attack-Lab/"/>
     <id>http://tinylcy.me/2017/05/06/CSAPP-Attack-Lab/</id>
     <published>2017-05-06T14:38:55.000Z</published>
-    <updated>2017-05-06T16:33:33.000Z</updated>
+    <updated>2017-05-06T16:37:39.000Z</updated>
     
-    <content type="html"><![CDATA[<p><a href="http://csapp.cs.cmu.edu/3e/attacklab.pdf" target="_blank" rel="external">Attack Lab</a>分为<code>Part I</code>和<code>Part II</code>，分别实现<code>Code Injection Attacks</code>和<code>Return-Oriented Programming</code>。<code>Code Injection Attacks</code>主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为<code>nonexecutable</code>或者位置随机时，可以利用<code>Return-Oriented Programming</code>达到攻击的目的。</p>
+    <content type="html"><![CDATA[<p><code>Attack Lab</code>是<code>CS:APP</code>一书中第三个<a href="http://csapp.cs.cmu.edu/3e/attacklab.pdf" target="_blank" rel="external">实验</a>，包括<code>Part I</code>和<code>Part II</code>两部分，分别实现<code>Code Injection Attacks</code>和<code>Return-Oriented Programming</code>。<code>Code Injection Attacks</code>主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为<code>nonexecutable</code>或者位置随机时，可以利用<code>Return-Oriented Programming</code>达到攻击的目的。</p>
 <a id="more"></a>
 <p>目前的进度是完成了<code>Part I</code>，等有时间再回来完成<code>Part II</code>。</p>
 <h2 id="Part-I-Code-Injection-Attacks"><a href="#Part-I-Code-Injection-Attacks" class="headerlink" title="Part I: Code Injection Attacks"></a>Part I: Code Injection Attacks</h2><h3 id="Level-1"><a href="#Level-1" class="headerlink" title="Level 1"></a>Level 1</h3><p><code>Level 1</code>利用输入字符串使当前执行的代码段跳转到预设的代码片段，不会涉及到<code>code injection</code>：当<code>test()</code>中<code>getbuf()</code>返回后，我们要改变<code>test()</code>正常的执行逻辑，不再执行下一条指令，而是让<code>test()</code>跳转至<code>touch1()</code>执行指令。 <code>test()</code>以及<code>touch1()</code>对应的代码如下所示。</p>
@@ -68,7 +68,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;&lt;a href=&quot;http://csapp.cs.cmu.edu/3e/attacklab.pdf&quot;&gt;Attack Lab&lt;/a&gt;分为&lt;code&gt;Part I&lt;/code&gt;和&lt;code&gt;Part II&lt;/code&gt;，分别实现&lt;code&gt;Code Injection Attacks&lt;/code&gt;和&lt;code&gt;Return-Oriented Programming&lt;/code&gt;。&lt;code&gt;Code Injection Attacks&lt;/code&gt;主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为&lt;code&gt;nonexecutable&lt;/code&gt;或者位置随机时，可以利用&lt;code&gt;Return-Oriented Programming&lt;/code&gt;达到攻击的目的。&lt;/p&gt;
+      &lt;p&gt;&lt;code&gt;Attack Lab&lt;/code&gt;是&lt;code&gt;CS:APP&lt;/code&gt;一书中第三个&lt;a href=&quot;http://csapp.cs.cmu.edu/3e/attacklab.pdf&quot;&gt;实验&lt;/a&gt;，包括&lt;code&gt;Part I&lt;/code&gt;和&lt;code&gt;Part II&lt;/code&gt;两部分，分别实现&lt;code&gt;Code Injection Attacks&lt;/code&gt;和&lt;code&gt;Return-Oriented Programming&lt;/code&gt;。&lt;code&gt;Code Injection Attacks&lt;/code&gt;主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为&lt;code&gt;nonexecutable&lt;/code&gt;或者位置随机时，可以利用&lt;code&gt;Return-Oriented Programming&lt;/code&gt;达到攻击的目的。&lt;/p&gt;
     
     </summary>
     
@@ -153,9 +153,9 @@
     <link href="http://tinylcy.me/2017/04/26/CSAPP-Bomb-Lab/"/>
     <id>http://tinylcy.me/2017/04/26/CSAPP-Bomb-Lab/</id>
     <published>2017-04-26T11:14:51.000Z</published>
-    <updated>2017-04-27T14:56:56.000Z</updated>
+    <updated>2017-05-06T16:37:09.000Z</updated>
     
-    <content type="html"><![CDATA[<p><code>Bomb Lab</code>是<code>CS:APP</code>一书中的第二个<a href="http://csapp.cs.cmu.edu/3e/bomblab.pdf" target="_blank" rel="external">实验</a>，实验中的<code>bomb</code>实际上是一个程序的二进制文件，该程序由一系列<code>phase</code>组成，每个<code>phase</code>需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印<code>BOOM!!!</code>。</p>
+    <content type="html"><![CDATA[<p><code>Bomb Lab</code>是<code>CS:APP</code>一书中第二个<a href="http://csapp.cs.cmu.edu/3e/bomblab.pdf" target="_blank" rel="external">实验</a>，实验中的<code>bomb</code>实际上是一个程序的二进制文件，该程序由一系列<code>phase</code>组成，每个<code>phase</code>需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印<code>BOOM!!!</code>。</p>
 <a id="more"></a>
 <p>完成整个实验的思路是通过<code>objdump</code>对<code>bome</code>进行反编译（<code>objdump -d bomb &gt; bomb.txt</code>），获取所有的汇编代码。提取每个阶段对应的代码并借助<code>gdb</code>进行分析，逐一拆弹。</p>
 <h2 id="Phase-1"><a href="#Phase-1" class="headerlink" title="Phase 1"></a>Phase 1</h2><p><code>phase_1</code>对应的代码如下所示。</p>
@@ -217,7 +217,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;&lt;code&gt;Bomb Lab&lt;/code&gt;是&lt;code&gt;CS:APP&lt;/code&gt;一书中的第二个&lt;a href=&quot;http://csapp.cs.cmu.edu/3e/bomblab.pdf&quot;&gt;实验&lt;/a&gt;，实验中的&lt;code&gt;bomb&lt;/code&gt;实际上是一个程序的二进制文件，该程序由一系列&lt;code&gt;phase&lt;/code&gt;组成，每个&lt;code&gt;phase&lt;/code&gt;需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印&lt;code&gt;BOOM!!!&lt;/code&gt;。&lt;/p&gt;
+      &lt;p&gt;&lt;code&gt;Bomb Lab&lt;/code&gt;是&lt;code&gt;CS:APP&lt;/code&gt;一书中第二个&lt;a href=&quot;http://csapp.cs.cmu.edu/3e/bomblab.pdf&quot;&gt;实验&lt;/a&gt;，实验中的&lt;code&gt;bomb&lt;/code&gt;实际上是一个程序的二进制文件，该程序由一系列&lt;code&gt;phase&lt;/code&gt;组成，每个&lt;code&gt;phase&lt;/code&gt;需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印&lt;code&gt;BOOM!!!&lt;/code&gt;。&lt;/p&gt;
     
     </summary>
     
