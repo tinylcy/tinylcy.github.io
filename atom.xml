@@ -84,7 +84,7 @@
     <link href="http://tinylcy.me/2017/05/03/6-824-Lab-1-MapReduce/"/>
     <id>http://tinylcy.me/2017/05/03/6-824-Lab-1-MapReduce/</id>
     <published>2017-05-03T14:25:41.000Z</published>
-    <updated>2017-05-03T16:36:55.000Z</updated>
+    <updated>2017-05-12T05:11:31.000Z</updated>
     
     <content type="html"><![CDATA[<p>开始学习大名鼎鼎的<a href="http://nil.csail.mit.edu/6.824/2016/index.html" target="_blank" rel="external">MIT 6.824: Distributed Systems</a>课程，我跟的是<code>2016</code>年的课程，课程的主要内容是读<code>Paper</code>和做<code>Lab</code>，使用的语言为<code>Go</code>。五一假期期间我基本做完了<a href="http://nil.csail.mit.edu/6.824/2016/labs/lab-1.html" target="_blank" rel="external">Lab 1</a>，感觉难度还是相当大的。本篇文章是我对<code>Lab 1</code>的一个总结。</p>
 <a id="more"></a>
@@ -142,7 +142,7 @@
     </summary>
     
     
-      <category term="Distributed System" scheme="http://tinylcy.me/tags/Distributed-System/"/>
+      <category term="DistributedSystems" scheme="http://tinylcy.me/tags/DistributedSystems/"/>
     
       <category term="6.824" scheme="http://tinylcy.me/tags/6-824/"/>
     
@@ -399,7 +399,7 @@
     <link href="http://tinylcy.me/2017/01/07/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"/>
     <id>http://tinylcy.me/2017/01/07/MapReduce论文阅读/</id>
     <published>2017-01-07T13:03:08.000Z</published>
-    <updated>2017-04-25T04:48:38.000Z</updated>
+    <updated>2017-05-12T05:11:54.000Z</updated>
     
     <content type="html"><![CDATA[<p>大四时曾经粗略的阅读过这篇<a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/mapreduce-osdi04.pdf" target="_blank" rel="external">论文</a>，并且已经写过不少的<code>MapReduce</code>程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进<a href="http://nil.csail.mit.edu/6.824/2015/index.html" target="_blank" rel="external">MIT 6.824: Distributed Systems</a>，而完成这门课程的第一个<code>lab</code>的前提便是阅读这篇论文。</p>
 <p>这篇笔记重点分析了<code>MapReduce</code>的<strong>执行流程</strong>以及<strong>容错机制</strong>，因为是个人理解，若有分析不妥之处欢迎发送邮件至<code>tinylcy (at) gmail.com</code>讨论交流。</p>
@@ -455,7 +455,7 @@
     </summary>
     
     
-      <category term="Distributed System" scheme="http://tinylcy.me/tags/Distributed-System/"/>
+      <category term="DistributedSystems" scheme="http://tinylcy.me/tags/DistributedSystems/"/>
     
   </entry>
   
@@ -464,7 +464,7 @@
     <link href="http://tinylcy.me/2017/01/04/Bigtable%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"/>
     <id>http://tinylcy.me/2017/01/04/Bigtable论文阅读/</id>
     <published>2017-01-04T11:53:17.000Z</published>
-    <updated>2017-05-03T14:35:09.000Z</updated>
+    <updated>2017-05-12T05:11:37.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文是我对Bigtable论文进行第一轮阅读所做的笔记。对于理解欠妥的地方，欢迎发送邮件至<code>tinylcy (at) gmail.com</code>讨论。</p>
 <a id="more"></a>
@@ -597,7 +597,7 @@
     </summary>
     
     
-      <category term="Distributed System" scheme="http://tinylcy.me/tags/Distributed-System/"/>
+      <category term="DistributedSystems" scheme="http://tinylcy.me/tags/DistributedSystems/"/>
     
   </entry>
   
