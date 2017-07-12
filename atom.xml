@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-07-12T14:25:06.000Z</updated>
+  <updated>2017-07-12T14:26:29.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,13 +20,13 @@
     <link href="http://tinylcy.me/2017/07/12/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/"/>
     <id>http://tinylcy.me/2017/07/12/初探Webx之约定胜于配置/</id>
     <published>2017-07-12T14:15:18.000Z</published>
-    <updated>2017-07-12T14:25:06.000Z</updated>
+    <updated>2017-07-12T14:26:29.000Z</updated>
     
     <content type="html"><![CDATA[<p>实习期间接触到了早有耳闻的<code>Webx</code>，于是很自然的按照官方文档运行了一个 <a href="http://openwebx.org/docs/firstapp.html" target="_blank" rel="external">Demo</a> ，粗略的阅读了一下代码，发现并不能很快的梳理清<code>Web</code>请求的处理逻辑，以及视图层和控制层之间的关联关系。<code>execute()</code>为什么会被调用？<code>doChinese()</code>为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解<code>Web</code>请求在<code>Webx</code>中经历的处理流程，为此我阅读了<code>Webx</code>部分源码，并以此文作为小结。</p>
 <p>在分析之前，我们需要强调<code>Webx</code>的一个重要设计理念——约定胜于配置。“约定”即规则，规则是预先定义的，工程师只需要按着规则来做事，就不需要额外的“配置”。对比其它一些框架，往往每增加一个页面，都需要在配置文件中增加若干行内容。</p>
 <p>注意，本篇文章仅用于解答上文提出的两个疑问，更多<code>Webx</code>的设计理念及原理性知识请参阅<a href="http://openwebx.org/docs/" target="_blank" rel="external">官方文档</a>。</p>
 <h2 id="execute-为什么会被调用？"><a href="#execute-为什么会被调用？" class="headerlink" title="execute()为什么会被调用？"></a>execute()为什么会被调用？</h2><p>本文以解析请求<code>http://localhost:8080/webx/simple/say_hi.do</code>为例来回答第一个问题，在<code>SayHi</code>类中<code>execute()</code>处添加断点，启动<code>Tomcat</code>，程序执行至断点处，查看此时当前线程的函数调用栈，如下图所示（截取了部分）。</p>
-<p><img src="/img/2017-07-12-image.png" alt="Alt text"></p>
+<p><img src="/img/2017-07-12-image.png" alt=""></p>
 <p>想要更好的理解该函数调用栈的信息，需要先从理论上对<code>Webx</code>处理一个<code>Web</code>请求有一个认知。</p>
 <ul>
 <li>首先，增强<code>request</code>、<code>response</code>、<code>session</code>的功能，并把它们打包成更易使用的<code>RequestContext</code>对象。</li>
