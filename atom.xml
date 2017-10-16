@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-10-16T13:38:20.000Z</updated>
+  <updated>2017-10-16T13:43:12.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://tinylcy.me/2017/10/16/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/"/>
     <id>http://tinylcy.me/2017/10/16/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/</id>
     <published>2017-10-16T13:24:12.000Z</published>
-    <updated>2017-10-16T13:38:20.000Z</updated>
+    <updated>2017-10-16T13:43:12.000Z</updated>
     
     <content type="html"><![CDATA[<p>CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。</p>
 <a id="more"></a>
@@ -31,7 +31,7 @@
 </ul>
 <h3 id="CUDA安装"><a href="#CUDA安装" class="headerlink" title="CUDA安装"></a>CUDA安装</h3><ul>
 <li>Visual Studio 2015 Community <a href="https://www.visualstudio.com/zh-hans/vs/older-downloads/" target="_blank" rel="external">Download</a>，CUDA Tookit 与 Visual Studio 2017 Community 暂不兼容。</li>
-<li>CUDA Tookit <a href="https://developer.nvidia.com/cuda-downloads" target="_blank" rel="external">Download</a>.</li>
+<li>CUDA Tookit <a href="https://developer.nvidia.com/cuda-downloads" target="_blank" rel="external">Download</a>。</li>
 </ul>
 <p>下载 CUDA Tookit 时选择相应的操作系统及版本等平台参数。例如，在 Win10 下进行实验，参数选择如下。</p>
 <p><img src="/img/2017-10-16-Image-1.png" alt=""></p>
@@ -106,6 +106,10 @@
 <p>Step 9 的完整程序<code>sum_squares_7.cu</code>见 <a href="https://github.com/tinylcy/cuda_lab/blob/master/SumSquares/sum_squares_7.cu" target="_blank" rel="external">GitHub</a>。</p>
 <h3 id="Section-2-Matrix-Multiplication"><a href="#Section-2-Matrix-Multiplication" class="headerlink" title="Section 2: Matrix Multiplication"></a>Section 2: Matrix Multiplication</h3><p>目标：利用 CUDA 编写矩阵乘法并行程序，为了简化程序编写，假设待相乘的两个矩阵均为方块矩阵。</p>
 <p>在 CUDA 上实现矩阵乘法有多种方法，我自己实现了一个<a href="https://github.com/tinylcy/cuda_lab/blob/master/MatrixMultiplication/matrix_multiplication.cu" target="_blank" rel="external">版本</a>，供参考。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="http://blog.csdn.net/column/details/computervision.html" target="_blank" rel="external">计算机视觉编程</a></li>
+<li><a href="http://www.smallgui.com/wp-content/uploads/2016/04/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BA%E8%B0%88CUDA.pdf" target="_blank" rel="external">深入浅出谈 CUDA</a></li>
+</ul>
 ]]></content>
     
     <summary type="html">
