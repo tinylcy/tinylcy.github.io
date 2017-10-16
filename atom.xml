@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://tinylcy.me/"/>
-  <updated>2017-10-16T13:43:12.000Z</updated>
+  <updated>2017-10-16T14:00:35.000Z</updated>
   <id>http://tinylcy.me/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://tinylcy.me/2017/10/16/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/"/>
     <id>http://tinylcy.me/2017/10/16/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/</id>
     <published>2017-10-16T13:24:12.000Z</published>
-    <updated>2017-10-16T13:43:12.000Z</updated>
+    <updated>2017-10-16T14:00:35.000Z</updated>
     
     <content type="html"><![CDATA[<p>CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。</p>
 <a id="more"></a>
@@ -37,17 +37,17 @@
 <p><img src="/img/2017-10-16-Image-1.png" alt=""></p>
 <p><strong>注意：应先安装 Visual Studio 再安装 CUDA Tookit，因为在安装 CUDA Tookit 时会自动配置 CUDA for Visual Studio，CUDA Tookit 安装成功后可以在 Visual Studio 中创建 CUDA Project。</strong></p>
 <p><img src="/img/2017-10-16-Image-2.png" alt=""></p>
-<h3 id="CPU-amp-GPU"><a href="#CPU-amp-GPU" class="headerlink" title="CPU &amp; GPU"></a>CPU &amp; GPU</h3><p>下图为CPU和GPU的对比图，相比于CPU，GPU更加适用于计算强度高，多并行的计算中。GPU拥有更多的晶体管，而不是数据Cache和控制器，这样设计的意图是在并行计算过程时每个数据单元经常执行相同的程序，不需要繁琐的复杂流程控制和Cache，更需要强大的计算能力。</p>
+<h3 id="CPU-amp-GPU"><a href="#CPU-amp-GPU" class="headerlink" title="CPU &amp; GPU"></a>CPU &amp; GPU</h3><p>下图为 CPU 和 GPU 的对比图，相比于 CPU，GPU 更加适用于计算强度高，多并行的计算中。GPU 拥有更多的晶体管，而不是数据 Cache 和控制器，这样设计的意图是在并行计算过程中，每个数据单元经常执行相同的程序，不需要繁琐的复杂流程控制和 Cache，而更需要强大的计算能力。</p>
 <p><img src="/img/2017-10-16-Image-3.png" alt=""></p>
 <p>使用 GPU 来进行运算工作，和使用 CPU 相比，主要有以下优势。</p>
 <ul>
-<li>显示芯片通常具有更大的内存带宽。例如，NVIDIA 的 GeForce 8800GTX 具有超过50GB/s 的内存带宽，而目前高阶 CPU 的内存带宽则在 10GB/s 左右。 </li>
-<li>显示芯片具有更大量的执行单元。例如 GeForce 8800GTX 具有 128 个 “stream processors”，频率为 1.35GHz。CPU 频率通常较高，但是执行单元的数目则要少得多。</li>
-<li>和高阶 CPU 相比，显卡的价格较为低廉。例如目前一张 GeForce 8800GT 包括512MB 内存的价格，和一颗 2.4GHz 四核心 CPU 的价格相当。 </li>
+<li>GPU 通常具有更大的内存带宽。例如，NVIDIA 的 GeForce 8800GTX 具有超过50GB/s 的内存带宽，而目前高阶 CPU 的内存带宽则在 10GB/s 左右。 </li>
+<li>GPU 具有更大量的执行单元。例如 GeForce 8800GTX 具有 128 个 “stream processors”，频率为 1.35GHz。CPU 频率通常较高，但是执行单元的数目则要少得多。</li>
+<li>和高阶 CPU 相比，GPU 的价格较为低廉。例如目前一张 GeForce 8800GT 包括512MB 内存的价格，和一颗 2.4GHz 四核心 CPU 的价格相当。 </li>
 </ul>
 <h3 id="CUDA架构"><a href="#CUDA架构" class="headerlink" title="CUDA架构"></a>CUDA架构</h3><p>在 CUDA 架构下，一个程序被划分为两个部分：Host 端和 Device 端。Host 端是指运行在 CPU 的部分，而 Device 端则是在 GPU 上运行的部分，如下图所示。</p>
 <p><img src="/img/2017-10-16-Image-4.png" alt=""></p>
-<p>在程序执行过程中，通常 Host 端程序会将数据在主内存中准备好并复制到显存，再由 GPU 执行 Device 端程序，完成后再由 Host 端程序将结果从显存拷贝至主内存。由于 CPU 存取显存时只能通过 PCI Express 接口，因此速度较慢（PCI Express x16 的理论带宽是双向各 4 GB/s），因此不能太频繁的执行这类操作，以免降低效率。</p>
+<p>在程序执行过程中，通常 Host 端程序会将数据在主内存中准备好并复制到显存，再由 GPU 执行 Device 端程序，完成后由 Host 端程序将结果从显存拷贝至主内存。由于 CPU 存取显存时只能通过 PCI Express 接口，因此速度较慢（PCI Express x16 的理论带宽是双向各 4 GB/s），因此不能太频繁的执行这类操作，以免降低效率。</p>
 <p>在 CUDA  架构下，GPU 执行时的最小单元是 Thread，数个 Thread 可以组成一个 Block ，<strong>一个 Block 中的 Thread 能够存取同一块共享的内存，而且可以快速进行同步操作</strong>。每一个 Block 所能包含的 Thread 数目是有限的，但是执行相同程序的 Block 可以组成 Grid。不同 Block 中的 Thread 无法存取同一个共享内存，因此无法进行通信和同步。</p>
 <p>由于 GPU 具备大量适用于并行计算的特性，因此 GPU 处理问题的方式和 CPU 是不同的，主要体现在以下两点。</p>
 <ul>
@@ -72,11 +72,11 @@
 <p>因为目前我们仅需要实现串行计算，因此设置Block Num = 1，Thread Num = 1，Shared Memory Size = 0，相关程序如下所示。同时，在执行核函数后不要忘记释放程序分配的显存。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">sumOfSquares &lt;&lt; &lt; <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span> &gt;&gt; &gt; (gpudata, result);</div><div class="line"><span class="comment">// 把计算结果从显存复制到内存</span></div><div class="line">cudaMemcpy(&amp;sum, result, <span class="keyword">sizeof</span>(<span class="keyword">int</span>), cudaMemcpyDeviceToHost);</div><div class="line">cudaFree(gpudata);</div><div class="line">cudaFree(result);</div></pre></td></tr></table></figure>
 <p>Step 1，Step 2 和 Step 3 的完整程序<code>sum_squares_1.cu</code>见 <a href="https://github.com/tinylcy/cuda_lab/blob/master/SumSquares/sum_squares_1.cu" target="_blank" rel="external">GitHub</a> 。</p>
-<h4 id="Step-4-评估程序表现"><a href="#Step-4-评估程序表现" class="headerlink" title="Step 4: 评估程序表现"></a>Step 4: 评估程序表现</h4><p>在介绍 CUDA 架构时提到，GPU 通常没有 Cache（或很小），因此我们在编写程序时需要避免内存 latency 影响到执行效率。<strong>本实验通过核函数的运行时间来计算程序所使用的显存带宽在评估程序的性能表现。</strong></p>
-<p>对<code>sum_squares_1.cu</code>进行部分改动：利用<code>clock</code>函数获取当前时间，时间差值即为核函数的运行时间。相关代码如下。</p>
+<h4 id="Step-4-评估程序表现"><a href="#Step-4-评估程序表现" class="headerlink" title="Step 4: 评估程序表现"></a>Step 4: 评估程序表现</h4><p>在介绍 CUDA 架构时提到，GPU 通常没有 Cache（或很小），因此我们在编写程序时需要避免内存 latency 影响到执行效率。<strong>本实验通过核函数的运行时间来计算程序所使用的显存带宽，以此作为评估程序性能表现的标准之一</strong>。</p>
+<p>对<code>sum_squares_1.cu</code>进行部分改动：利用<code>clock</code>函数获取当前时间，时间差值即为核函数的运行时间，相关代码如下。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/* 计算平方和（__global__函数运行于GPU）*/</span></div><div class="line">__<span class="function">global__ <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sumOfSquares</span><span class="params">(<span class="keyword">int</span> *numbers, <span class="keyword">int</span> *result, <span class="keyword">clock_t</span> *time)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> sum, i;</div><div class="line">    <span class="keyword">clock_t</span> start, end;</div><div class="line"></div><div class="line">    <span class="comment">// 获取起始时间</span></div><div class="line">    start = clock();</div><div class="line"></div><div class="line">    sum = <span class="number">0</span>;</div><div class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; DATA_SIZE; i++) &#123;</div><div class="line">        sum += numbers[i] * numbers[i];</div><div class="line">    &#125;</div><div class="line">    *result = sum;</div><div class="line"></div><div class="line">    <span class="comment">// 获取结束时间</span></div><div class="line">    end = clock();</div><div class="line"></div><div class="line">    *time = end - start;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>由于核函数不能有返回值，因此在显存开辟一块空间来保存运行时间，然后将该运行时间值拷贝至内存。注意，该时间值的单位是时钟周期，我们需要将消耗的时钟周期数除以 GPU 自身的频率得到以秒为单位的时间值。</p>
-<p>对于显存带宽的计算，整个过程程序传输的数据量大小为 4 <em> 1024 </em> 1024 Bytes，将其除以时间得到程序运行过程中占用的显存带宽。</p>
+<p>由于核函数不能有返回值，因此需要在显存开辟一块空间来保存运行时间，然后将该运行时间值拷贝至内存。注意，该时间值的单位是时钟周期，我们需要将消耗的时钟周期数除以 GPU 自身的频率得到以秒为单位的时间值。</p>
+<p>对于显存带宽的计算，整个过程程序传输的数据量大小为 4MB，将其除以时间得到程序运行过程中占用的显存带宽。</p>
 <p>Step 4 的完整程序 <code>sum_squares_2.cu</code> 见 <a href="https://github.com/tinylcy/cuda_lab/blob/master/SumSquares/sum_squares_2.cu" target="_blank" rel="external">GitHub</a>。</p>
 <h4 id="Step-5-串行程序并行化"><a href="#Step-5-串行程序并行化" class="headerlink" title="Step 5: 串行程序并行化"></a>Step 5: 串行程序并行化</h4><p>在 CUDA 中，数据是从主内存复制到显存的 Global Memory，而Global Memory 是没有 Cache 的 ，因此存取 Global Memory 所需要的时间是非常长的（通常有数百个时钟周期）。由于之前的程序只有一个线程，当线程读取 Global Memory 时，线程会等待至实际数据读取成功，才能进行下一步计算。</p>
 <p>如果程序有多个线程，当其中一个线程在等待读取 Global Memory 时，GPU 可以立即切换至另一个线程。因此，通过增加线程的数量来提高显存的带宽是有效的策略。</p>
