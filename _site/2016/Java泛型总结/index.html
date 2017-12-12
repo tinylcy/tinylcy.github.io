@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java泛型总结 - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="Java泛型总结">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="Java泛型是JDK5引入的一个新特性，允许在定义类和接口的时候使用类型参数（type parameter）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在JDK5中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不好的方面说，为了保证与旧版本的兼容性，Java泛型的实现上还存在着不够优雅的地方。">
+<meta property="og:description" content="Java泛型是JDK5引入的一个新特性，允许在定义类和接口的时候使用类型参数（type parameter）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在JDK5中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不好的方面说，为了保证与旧版本的兼容性，Java泛型的实现上还存在着不够优雅的地方。">
+<link rel="canonical" href="http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/">
+<meta property="og:url" content="http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-10-04T05:51:39+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"Java泛型是JDK5引入的一个新特性，允许在定义类和接口的时候使用类型参数（type parameter）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在JDK5中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不好的方面说，为了保证与旧版本的兼容性，Java泛型的实现上还存在着不够优雅的地方。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/","publisher":null,"image":null,"headline":"Java泛型总结","dateModified":"2016-10-04T05:51:39+08:00","datePublished":"2016-10-04T05:51:39+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Java泛型总结</h1>
+    <p class="post-meta">
+       <time datetime="2016-10-04T05:51:39+08:00" itemprop="datePublished">
+          Oct 3, 2016
+       </time>
+       
+        <!-- | <span class="time">
+            4
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <p><code class="highlighter-rouge">Java</code>泛型是<code class="highlighter-rouge">JDK5</code>引入的一个新特性，允许在定义类和接口的时候使用类型参数（<code class="highlighter-rouge">type parameter</code>）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在<code class="highlighter-rouge">JDK5</code>中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不好的方面说，为了保证与旧版本的兼容性，<code class="highlighter-rouge">Java</code>泛型的实现上还存在着不够优雅的地方。</p>
+
+<h2 id="类型擦除">类型擦除</h2>
+
+<p>正确理解泛型概念的首要前提是理解类型擦除（<code class="highlighter-rouge">type erasure</code>）。<code class="highlighter-rouge">Java</code>中的泛型基本上都是在编译器这个层次来实现的。在生成的<code class="highlighter-rouge">Java</code>字节码中是不包含泛型中的类型信息的。使用泛型的时候加上的类型参数，会被编译器在编译的时候去掉。这个过程就称为类型擦除。比如在代码中定义的<code class="highlighter-rouge">List&lt;Object&gt;</code>和<code class="highlighter-rouge">List&lt;String&gt;</code>等类型，在编译之后都会变成<code class="highlighter-rouge">List</code>。<code class="highlighter-rouge">JVM</code>看到的只是<code class="highlighter-rouge">List</code>，而由泛型附加的类型信息对<code class="highlighter-rouge">JVM</code>来说是不可见的。<code class="highlighter-rouge">Java</code>编译器会在编译时尽可能的发现可能出错的地方，但是仍然无法避免在运行时刻出现类型转换异常的情况。</p>
+
+<p>通过如下代码片段感受类型擦除：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">a1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">a2</span> <span class="o">=</span><span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+
+        <span class="n">Class</span> <span class="n">c1</span> <span class="o">=</span><span class="n">a1</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+        <span class="n">Class</span> <span class="n">c2</span> <span class="o">=</span> <span class="n">a2</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">c2</span><span class="o">));</span>    <span class="c1">//Output: true</span>
+</code></pre></div></div>
+
+<p>此时，程序输出<code class="highlighter-rouge">true</code>，这就是类型擦除造成的。因为不管是<code class="highlighter-rouge">ArrayList&lt;String&gt;</code>还是<code class="highlighter-rouge">ArrayList&lt;Integer&gt;</code>，都会在编译期被编译器擦除成<code class="highlighter-rouge">ArrayList</code>。编译器这么做的原因归根结底还是为了兼容<code class="highlighter-rouge">JDK5</code>前未使用泛型的代码，因此不得不让编译器擦除有关类型信息的部分，这样生成的代码其实就是类型无关的。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">list</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getTypeParameters</span><span class="o">()));</span>    <span class="c1">//[E]</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getTypeParameters</span><span class="o">()));</span>    <span class="c1">//[K, V]</span>
+</code></pre></div></div>
+
+<p>我们期望的是返回泛型参数的类型，结果返回的仅仅是参数的占位符。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">[]</span> <span class="nf">makeArray</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">T</span><span class="o">[</span><span class="mi">10</span><span class="o">];</span>    <span class="c1">//编译期报错：不能创建泛型类型的数组</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+<p>因为<code class="highlighter-rouge">T</code>仅仅是个占位符，并不具有真实的类型信息。为了解决这个问题，可以利用反射：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">[]</span> <span class="nf">makeArray</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">clazz</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">T</span><span class="o">[])</span> <span class="n">Array</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span><span class="n">clazz</span><span class="o">,</span> <span class="mi">10</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>很多泛型的奇怪特性都与类型擦除的存在有关，包括：</p>
+
+<ul>
+  <li>
+    <p>泛型类并没有自己独有的<code class="highlighter-rouge">Class</code>类对象。比如并不存在<code class="highlighter-rouge">List&lt;String&gt;.class</code>或是<code class="highlighter-rouge">List&lt;Integer&gt;.class</code>，而只有<code class="highlighter-rouge">List.class</code>。</p>
+  </li>
+  <li>
+    <p>静态变量是被泛型类的所有实例所共享的。对于声明为<code class="highlighter-rouge">MyClass&lt;T&gt;</code>的类，访问其中的静态变量的方法仍然是<code class="highlighter-rouge">MyClass.myStaticVar</code>。不管是通过<code class="highlighter-rouge">new MyClass&lt;String&gt;</code>还是<code class="highlighter-rouge">new MyClass&lt;Integer&gt;</code>创建的对象，都是共享一个静态变量。</p>
+  </li>
+  <li>
+    <p>泛型的类型参数不能用在<code class="highlighter-rouge">Java</code>异常处理的<code class="highlighter-rouge">catch</code>语句中。因为异常处理是由<code class="highlighter-rouge">JVM</code>在运行时刻来进行的。由于类型信息被擦除，<code class="highlighter-rouge">JVM</code>是无法区分两个异常类型<code class="highlighter-rouge">MyException&lt;String&gt;</code>和<code class="highlighter-rouge">MyException&lt;Integer&gt;</code>的。对于<code class="highlighter-rouge">JVM</code>来说，它们都是<code class="highlighter-rouge">MyException</code>类型的，也就无法执行与异常对应的<code class="highlighter-rouge">catch</code>语句。</p>
+  </li>
+</ul>
+
+<p>当执行类型擦除时，首先是找到用来替换类型参数的具体类。这个具体类一般是<code class="highlighter-rouge">Object</code>。如果指定了类型参数的上界的话，则使用这个上界。把代码中的类型参数都替换成具体的类。同时去掉出现的类型声明，即去掉<code class="highlighter-rouge">&lt;&gt;</code>的内容。比如<code class="highlighter-rouge">T get()</code>方法声明就变成了<code class="highlighter-rouge">Object get()</code>；<code class="highlighter-rouge">List&lt;String&gt;</code>就变成了<code class="highlighter-rouge">List</code>。接下来就可能需要生成一些桥接方法（<code class="highlighter-rouge">bridge method</code>），这是由于擦除了类型之后的类可能缺少某些必须的方法。比如考虑下面的代码：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kd">class</span> <span class="nc">MyString</span> <span class="kd">implements</span> <span class="n">Comparable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+	<span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>当类型信息被擦除之后，上述类的声明变成了<code class="highlighter-rouge">class MyString implements Comparable</code>。但是这样类<code class="highlighter-rouge">MyString</code>就会有编译错误，因为没有实现接口<code class="highlighter-rouge">Comparable</code>声明的<code class="highlighter-rouge">compareTo(Object)</code>方法。这个时候就由编译器来动态生成这个方法。</p>
+
+<h2 id="实例分析">实例分析</h2>
+
+<p>了解类型擦除机制之后，就会明白编译器承担了全部的类型检查工作。编译器禁止某些泛型的使用方式，正是为了确保类型的安全性。以<code class="highlighter-rouge">List&lt;Object&gt;</code>和<code class="highlighter-rouge">List&lt;String&gt;</code>为例来具体分析：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">inspect</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+	<span class="k">for</span><span class="o">(</span><span class="n">Object</span> <span class="n">obj</span> <span class="o">:</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">obj</span><span class="o">);</span>
+	<span class="o">}</span>
+	<span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>    <span class="c1">//这个操作在当前方法的上下文是合法的</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+	<span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strs</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+	<span class="n">inspect</span><span class="o">(</span><span class="n">strs</span><span class="o">);</span>    <span class="c1">//编译错误</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>这段代码中，<code class="highlighter-rouge">inspect</code>方法接受<code class="highlighter-rouge">List&lt;Object&gt;</code>作为参数，当在<code class="highlighter-rouge">test</code>方法中试图传入<code class="highlighter-rouge">List&lt;String&gt;</code>的时候，会出现编译错误。假设这样的做法是允许的，那么在<code class="highlighter-rouge">inspect</code>方法中就可以通过<code class="highlighter-rouge">list.add(1)</code>来向集合中添加一个数字。这样在<code class="highlighter-rouge">test</code>方法看来，其声明为<code class="highlighter-rouge">List&lt;String&gt;</code>的集合中被添加了一个<code class="highlighter-rouge">Integer</code>类型的对象，这显然是违反类型安全原则的，在某个时候肯定会抛出<code class="highlighter-rouge">ClassCastException</code>。因此，编译器禁止这样的行为。</p>
+
+<h2 id="通配符与上下界">通配符与上下界</h2>
+
+<p>在使用泛型类的时候，既可以指定一个具体的类型，如<code class="highlighter-rouge">List&lt;String&gt;</code>就声明了具体的类型是<code class="highlighter-rouge">String</code>；也可以用通配符<code class="highlighter-rouge">?</code>来表示未知类型，如<code class="highlighter-rouge">List&lt;?&gt;</code>就声明了<code class="highlighter-rouge">List</code>中包含的元素类型是未知的。通配符所代表的其实是一组类型，但具体的类型是未知的。<code class="highlighter-rouge">List&lt;?&gt;</code>所声明的就是所有的类型都是可以的。但是<code class="highlighter-rouge">List&lt;?&gt;</code>并不等同于<code class="highlighter-rouge">List&lt;Object&gt;</code>。<code class="highlighter-rouge">List&lt;Object&gt;</code>实际上确定了<code class="highlighter-rouge">List</code>中包含的是<code class="highlighter-rouge">Object</code>及其子类，在使用的时候可以通过<code class="highlighter-rouge">Object</code>来进行引用。而<code class="highlighter-rouge">List&lt;?&gt;</code>则表示其中所包含的元素类型是不确定。其中可能包含的是<code class="highlighter-rouge">String</code>，也可能是<code class="highlighter-rouge">Integer</code>。如果它包含了<code class="highlighter-rouge">String</code>的话，往里面添加<code class="highlighter-rouge">Integer</code>类型的元素就是错误的。正因为类型未知，就不能通过<code class="highlighter-rouge">new ArrayList&lt;?&gt;()</code>的方法来创建一个新的<code class="highlighter-rouge">ArrayList</code>对象。因为编译器无法知道具体的类型是什么。但是对于<code class="highlighter-rouge">List&lt;?&gt;</code>中的元素总是可以用<code class="highlighter-rouge">Object</code>来引用的，因为虽然类型未知，但肯定是<code class="highlighter-rouge">Object</code>及其子类。考虑下面的代码：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">wildcard</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;?&gt;</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+	<span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>    <span class="c1">//编译错误</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>如上所示，试图对一个带通配符的泛型类进行操作的时候，总是会出现编译错误。其原因在于通配符所表示的类型是未知的。</p>
+
+<p>因为对于<code class="highlighter-rouge">List&lt;?&gt;</code>中的元素只能用<code class="highlighter-rouge">Object</code>来引用，在有些情况下不是很方便。在这些情况下，可以使用上下界来限制未知类型的范围。如<code class="highlighter-rouge">List&lt;? extends Number&gt;</code>说明<code class="highlighter-rouge">List</code>中包含的是<code class="highlighter-rouge">Number</code>及其子类。而<code class="highlighter-rouge">List&lt;? super Number&gt;</code>则说明<code class="highlighter-rouge">List</code>中包含的是<code class="highlighter-rouge">Number</code>及其父类。当引入了上界时候，在使用类型的时候就可以使用上界类中定义的方法。比如访问<code class="highlighter-rouge">List&lt;? extends Number&gt;</code>的时候，就可以使用<code class="highlighter-rouge">Number</code>类的<code class="highlighter-rouge">intValue</code>等方法。</p>
+
+<h2 id="类型系统">类型系统</h2>
+
+<p>在<code class="highlighter-rouge">Java</code>中，比较常见的是通过继承机制而产生的类型体系结构。比如<code class="highlighter-rouge">String</code>继承自<code class="highlighter-rouge">Object</code>。根据<a href="https://zh.wikipedia.org/wiki/%E9%87%8C%E6%B0%8F%E6%9B%BF%E6%8D%A2%E5%8E%9F%E5%88%99">Liskov替换原则</a>，子类是可以替换父类的。当需要<code class="highlighter-rouge">Object</code>类的引用的时候，如果传入一个<code class="highlighter-rouge">String</code>对象是没有任何问题的。但是反过来的话，即用父类的引用替换子类引用时，就需要进行强制类型转换。编译器并不能保证运行时刻的这种转换一定是合法的。这种自动的子类替换父类的转换机制，对于数组也是适用的。<code class="highlighter-rouge">String[]</code>可以替换<code class="highlighter-rouge">Object[]</code>。但是泛型的引入，对于这个类型系统产生了一定的影响。例如<code class="highlighter-rouge">List&lt;String&gt;</code>是不能替换<code class="highlighter-rouge">List&lt;Object&gt;</code>的。</p>
+
+<p>引入泛型之后的类型系统增加了两个维度：一个是类型参数自身的继承体系结构，另外一个是泛型类或接口自身的继承体系结构。第一个指的是对于<code class="highlighter-rouge">List&lt;String&gt;</code>和<code class="highlighter-rouge">List&lt;Object&gt;</code>这样的情况，类型参数<code class="highlighter-rouge">String</code>继承自<code class="highlighter-rouge">Object</code>。而第二种指的是<code class="highlighter-rouge">List</code>接口继承自<code class="highlighter-rouge">Collection</code>接口。对于这个类型系统，有如下的一些规则：</p>
+
+<ul>
+  <li>
+    <p>相同类型参数的泛型类的关系取决于泛型类自身的继承体系结构。即<code class="highlighter-rouge">List&lt;String&gt;</code>是<code class="highlighter-rouge">Collection&lt;String&gt;</code>的子类型，<code class="highlighter-rouge">List&lt;String&gt;</code>可以替换<code class="highlighter-rouge">Collection&lt;String&gt;</code>。这种情况也适用于带有上下界的类型声明。</p>
+  </li>
+  <li>
+    <p>当泛型类的类型声明中使用了通配符的时候，其子类可以在两个维度上分别展开。如对<code class="highlighter-rouge">Collection&lt;? extends Number&gt;</code>来说，其子类型可以在<code class="highlighter-rouge">Collection</code>这个维度上展开，即<code class="highlighter-rouge">List&lt;? extends Number&gt;</code>和<code class="highlighter-rouge">Set&lt;? extends Number&gt;</code>等；也可以在<code class="highlighter-rouge">Number</code>这个维度展开，即<code class="highlighter-rouge">Collection&lt;Double&gt;</code>和<code class="highlighter-rouge">Collection&lt;Integer&gt;</code>等。如此循环下去，<code class="highlighter-rouge">ArrayList&lt;Long&gt;</code>和<code class="highlighter-rouge">HashSet&lt;Double&gt;</code>等也都算是<code class="highlighter-rouge">Collection&lt;? extends Number&gt;</code>的子类型。</p>
+  </li>
+  <li>
+    <p>如果泛型类中包含多个类型参数，则对每个类型参数分别应用上面的规则。</p>
+  </li>
+</ul>
+
+<p>因此，对于上面错误的代码，只需要将<code class="highlighter-rouge">List&lt;Object&gt;</code>修正为<code class="highlighter-rouge">List&lt;?&gt;</code>即可。<code class="highlighter-rouge">List&lt;String&gt;</code>是<code class="highlighter-rouge">List&lt;?&gt;</code>的子类型。</p>
+
+<h2 id="开发自己的泛型类">开发自己的泛型类</h2>
+
+<p>泛型类与一般的<code class="highlighter-rouge">Java</code>类基本相同，只是在类和接口定义上多出来了用<code class="highlighter-rouge">&lt;&gt;</code>声明的类型参数。一个类可以有多个类型参数，比如<code class="highlighter-rouge">MyClass&lt;X, Y, Z&gt;</code>。每个类型参数在声明的时候可以指定上下界。所声明的类型参数在<code class="highlighter-rouge">Java</code>类中可以像一般的类型一样作为方法的参数和返回值，或是作为域和局部变量的类型。由于类型擦除机制，类型参数并不能用来创建对象或是作为静态变量的类型。考虑下面的泛型类中的正确和错误的用法。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ClassTest</span><span class="o">&lt;</span><span class="n">X</span> <span class="kd">extends</span> <span class="n">Number</span><span class="o">,</span> <span class="n">Y</span><span class="o">,</span> <span class="n">Z</span><span class="o">&gt;</span> <span class="o">{</span>
+
+	<span class="kd">private</span> <span class="n">X</span> <span class="n">x</span><span class="o">;</span>
+	<span class="kd">private</span> <span class="kd">static</span> <span class="n">Y</span> <span class="n">y</span><span class="o">;</span>    <span class="c1">//编译错误，不能用在静态变量中</span>
+	
+	<span class="kd">public</span> <span class="n">X</span> <span class="nf">getFirst</span><span class="o">()</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="n">x</span><span class="o">;</span>    <span class="c1">//正确用法</span>
+	<span class="o">}</span>
+
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">wrong</span><span class="o">()</span> <span class="o">{</span>
+		<span class="n">Z</span> <span class="n">z</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Z</span><span class="o">();</span>    <span class="c1">//编译错误，不能查创建对象</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>假设允许类型参数声明为静态属性，那么如下代码将会非常混乱。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Computer</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="n">T</span> <span class="n">os</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Computer</span><span class="o">(</span><span class="n">T</span> <span class="n">os</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">os</span> <span class="o">=</span> <span class="n">os</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">T</span> <span class="nf">getOS</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Computer</span><span class="o">&lt;</span><span class="n">Linux</span><span class="o">&gt;</span> <span class="n">c1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Computer</span><span class="o">&lt;&gt;();</span>
+        <span class="n">Computer</span><span class="o">&lt;</span><span class="n">MacOS</span><span class="o">&gt;</span> <span class="n">c2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Computer</span><span class="o">&lt;&gt;();</span>
+        <span class="n">Computer</span><span class="o">&lt;</span><span class="n">Windows</span><span class="o">&gt;</span> <span class="n">c3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Computer</span><span class="o">&lt;&gt;();</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c1</span><span class="o">.</span><span class="na">getOS</span><span class="o">());</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c2</span><span class="o">.</span><span class="na">getOS</span><span class="o">());</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c3</span><span class="o">.</span><span class="na">getOS</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>因为<code class="highlighter-rouge">os</code>为<code class="highlighter-rouge">Computer</code>类的静态属性，所以<code class="highlighter-rouge">c1</code>，<code class="highlighter-rouge">c2</code>，<code class="highlighter-rouge">c3</code>这<code class="highlighter-rouge">3</code>个<code class="highlighter-rouge">Computer</code>实例共享这个属性，那么此时<code class="highlighter-rouge">os</code>的类型是什么？因此，不允许声明静态的类型参数属性。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>在使用<code class="highlighter-rouge">Java</code>泛型的时候可以遵循一些基本的原则，从而避免一些常见的问题。</p>
+
+<ul>
+  <li>
+    <p>在代码中避免泛型类和原始类型的混用。比如<code class="highlighter-rouge">List&lt;String&gt;</code>和<code class="highlighter-rouge">List</code>不应该共同使用。这样会产生一些编译器警告和潜在的运行时异常。</p>
+  </li>
+  <li>
+    <p>在使用带通配符的泛型类的时候，需要明确通配符所代表的一组类型的概念。由于具体的类型是未知的，很多操作是不允许的。</p>
+  </li>
+  <li>
+    <p>泛型类最好不要同数组一块儿使用。只能创建<code class="highlighter-rouge">new List&lt;?&gt;[10]</code>这样的数组，无法创建<code class="highlighter-rouge">new List&lt;String&gt;[10]</code>这样的。这限制了数组的使用能力，而且会带来很多费解的问题。</p>
+  </li>
+</ul>
+
+<h2 id="参考">参考</h2>
+
+<ul>
+  <li><a href="http://www.infoq.com/cn/articles/cf-java-generics">InfoQ</a></li>
+  <li><a href="http://findingsea.github.io/2015/10/09/java-generic-type-erasure/">Java泛型：类型擦除</a></li>
+</ul>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/ - Java泛型总结 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2016/IO%E9%87%8D%E5%AE%9A%E5%90%91%E5%92%8C%E7%AE%A1%E9%81%93/">← Previous Post</a>
+      <a class="next" href="/2016/Linux-C-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%AE%9E%E7%8E%B0/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

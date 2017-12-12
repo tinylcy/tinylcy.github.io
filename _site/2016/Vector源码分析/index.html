@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vector源码分析 - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="Vector源码分析">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="Vector简介">
+<meta property="og:description" content="Vector简介">
+<link rel="canonical" href="http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+<meta property="og:url" content="http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-12-03T05:00:08+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"Vector简介","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","publisher":null,"image":null,"headline":"Vector源码分析","dateModified":"2016-12-03T05:00:08+08:00","datePublished":"2016-12-03T05:00:08+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Vector源码分析</h1>
+    <p class="post-meta">
+       <time datetime="2016-12-03T05:00:08+08:00" itemprop="datePublished">
+          Dec 2, 2016
+       </time>
+       
+        <!-- | <span class="time">
+            2
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="vector简介">Vector简介</h2>
+
+<p><code class="highlighter-rouge">Vector</code>在<code class="highlighter-rouge">JDK 1.0</code>被引入，基于数组实现，并且是一个动态数组，其容量可以自动增长。在很多方法的实现上，<code class="highlighter-rouge">Vector</code>加入了同步语句，因此一般来说<code class="highlighter-rouge">Vector</code>是线程安全的，可以在多线程环境中运用。</p>
+
+<p>本文对<code class="highlighter-rouge">Vector</code>源码的分析基于<code class="highlighter-rouge">JDK 1.8.0_111</code>，并仅对常用的方法进行分析。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Vector</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span>
+    <span class="kd">extends</span> <span class="n">AbstractList</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span>
+    <span class="kd">implements</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;,</span> <span class="n">RandomAccess</span><span class="o">,</span> <span class="n">Cloneable</span><span class="o">,</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">Serializable</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">Vector</code>类继承自<code class="highlighter-rouge">AbstractList</code>，<code class="highlighter-rouge">AbstractList</code>是一个抽象类，实现了<code class="highlighter-rouge">List</code>接口，<code class="highlighter-rouge">AbstractList</code>提供了实现一个<code class="highlighter-rouge">List</code>的基本骨架，包括<code class="highlighter-rouge">add</code>，<code class="highlighter-rouge">remove</code>，<code class="highlighter-rouge">get</code>，<code class="highlighter-rouge">set</code>，<code class="highlighter-rouge">indexOf</code>等方法。<code class="highlighter-rouge">Vector</code>实现了<code class="highlighter-rouge">RandomAccess</code>接口，因此可以随机访问。实现了<code class="highlighter-rouge">Cloneable</code>接口，允许克隆。实现了<code class="highlighter-rouge">Serializable</code>接口，可以被序列化。</p>
+
+<h2 id="实例变量">实例变量</h2>
+
+<p><code class="highlighter-rouge">Vector</code>内包含<code class="highlighter-rouge">3</code>个实例变量。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protected</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">elementData</span><span class="o">;</span>
+<span class="kd">protected</span> <span class="kt">int</span> <span class="n">elementCount</span><span class="o">;</span>
+<span class="kd">protected</span> <span class="kt">int</span> <span class="n">capacityIncrement</span><span class="o">;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+<code class="highlighter-rouge">elementData</code>是一个数组，用于存储<code class="highlighter-rouge">Vector</code>容器的元素，该数组有一个对应的属性<code class="highlighter-rouge">capacity</code>，<code class="highlighter-rouge">capacity</code>描述了<code class="highlighter-rouge">elementData</code>当前的长度。</li>
+  <li>
+<code class="highlighter-rouge">elementCount</code>描述了<code class="highlighter-rouge">elementData</code>内有效元素的个数。</li>
+  <li>
+<code class="highlighter-rouge">capacityIncrement</code>刻画了当要存储的元素的个数大于<code class="highlighter-rouge">elementData</code>的<code class="highlighter-rouge">capacity</code>时，<code class="highlighter-rouge">elementData</code>需要扩容的空间大小，即容器增长系数。</li>
+</ul>
+
+<h2 id="构造方法">构造方法</h2>
+
+<p><code class="highlighter-rouge">Vector</code>定义了<code class="highlighter-rouge">4</code>个构造方法。</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">Vector(int initialCapacity, int capacityIncrement);</code></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Vector(int initialCapacity);</code></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Vector();</code></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Vector(Collection&lt;? extends E&gt; c);</code></p>
+  </li>
+</ul>
+
+<p>当我们直接<code class="highlighter-rouge">new</code>一个<code class="highlighter-rouge">Vector</code>时，即调用<code class="highlighter-rouge">Vector</code>的默认构造方法，实际上，<code class="highlighter-rouge">Vector</code>的默认构造方法调用<code class="highlighter-rouge">this(10)</code>，即调用<code class="highlighter-rouge">Vector(int initialCapacity)</code>，并将<code class="highlighter-rouge">initialCapacity</code>设置为<code class="highlighter-rouge">10</code>，接着<code class="highlighter-rouge">Vector(int initialCapacity)</code>再调用<code class="highlighter-rouge">this(initialCapacity, 0)</code>，并将<code class="highlighter-rouge">capacityIncrement</code>设置为<code class="highlighter-rouge">0</code>。从以上我们可以得知，对于一个默认构造的<code class="highlighter-rouge">Vector</code>对象，它的默认存储空间可以存储<code class="highlighter-rouge">10</code>个元素，且容器增长系统等于<code class="highlighter-rouge">0</code>。</p>
+
+<h2 id="私有方法">私有方法</h2>
+
+<p><code class="highlighter-rouge">Vector</code>定义了<code class="highlighter-rouge">3</code>个重要的私有方法<code class="highlighter-rouge">ensureCapacityHelper(int minCapacity)</code>、<code class="highlighter-rouge">void grow(int minCapacity)</code>和<code class="highlighter-rouge">int hugeCapacity(int minCapacity)</code>，这<code class="highlighter-rouge">3</code>个方法用于实现<code class="highlighter-rouge">Vector</code>的自动扩容，<code class="highlighter-rouge">Vector</code>中很多涉及到影响<code class="highlighter-rouge">Vector</code>元素变化的操作都会直接或者间接的调用这<code class="highlighter-rouge">3</code>个方法，源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">ensureCapacityHelper</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// overflow-conscious code</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">minCapacity</span> <span class="o">-</span> <span class="n">elementData</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">grow</span><span class="o">(</span><span class="n">minCapacity</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">grow</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// overflow-conscious code</span>
+    <span class="kt">int</span> <span class="n">oldCapacity</span> <span class="o">=</span> <span class="n">elementData</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">newCapacity</span> <span class="o">=</span> <span class="n">oldCapacity</span> <span class="o">+</span> <span class="o">((</span><span class="n">capacityIncrement</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">?</span>
+                                     <span class="n">capacityIncrement</span> <span class="o">:</span> <span class="n">oldCapacity</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">newCapacity</span> <span class="o">-</span> <span class="n">minCapacity</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">newCapacity</span> <span class="o">=</span> <span class="n">minCapacity</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">newCapacity</span> <span class="o">-</span> <span class="n">MAX_ARRAY_SIZE</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">newCapacity</span> <span class="o">=</span> <span class="n">hugeCapacity</span><span class="o">(</span><span class="n">minCapacity</span><span class="o">);</span>
+    <span class="n">elementData</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">newCapacity</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">hugeCapacity</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">minCapacity</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="c1">// overflow</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">OutOfMemoryError</span><span class="o">();</span>
+    <span class="k">return</span> <span class="o">(</span><span class="n">minCapacity</span> <span class="o">&gt;</span> <span class="n">MAX_ARRAY_SIZE</span><span class="o">)</span> <span class="o">?</span>
+        <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span> <span class="o">:</span>
+        <span class="n">MAX_ARRAY_SIZE</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">boolean</span> <span class="nf">add</span><span class="o">(</span><span class="n">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">modCount</span><span class="o">++;</span>
+    <span class="n">ensureCapacityHelper</span><span class="o">(</span><span class="n">elementCount</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">elementData</span><span class="o">[</span><span class="n">elementCount</span><span class="o">++]</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>我们可以关注<code class="highlighter-rouge">Vector</code>的<code class="highlighter-rouge">add(E e)</code>方法，在往<code class="highlighter-rouge">Vector</code>内新增元素前，需要确保存储<code class="highlighter-rouge">Vector</code>元素的数组<code class="highlighter-rouge">elementData</code>有充足的空间，这一步通过<code class="highlighter-rouge">ensureCapacityHelper</code>来实现，<code class="highlighter-rouge">ensureCapacityHelper</code>接收<code class="highlighter-rouge">elementCount + 1</code>作为参数，确保<code class="highlighter-rouge">Vector</code>至少有一个空闲的空间存储新增的元素。当<code class="highlighter-rouge">Vector</code>不具备多余的空间时（<code class="highlighter-rouge">minCapacity - elementData.length &gt; 0</code>），<code class="highlighter-rouge">ensureCapacityHelper</code>就会调用<code class="highlighter-rouge">grow</code>方法扩充<code class="highlighter-rouge">elementData</code>数组。在扩充数组时，如果<code class="highlighter-rouge">capacityIncrement</code>不大于<code class="highlighter-rouge">0</code>，那么<code class="highlighter-rouge">Vector</code>就会开辟出<code class="highlighter-rouge">2</code>倍于原<code class="highlighter-rouge">elementData</code>数组长度的空间，并通过<code class="highlighter-rouge">Arrays.copyOf</code>将原<code class="highlighter-rouge">elementData</code>中的元素拷贝到新地址空间。另外，<code class="highlighter-rouge">Vector</code>容量的扩充也是有限制的，从<code class="highlighter-rouge">hugeCapacity</code>方法可以看出，<code class="highlighter-rouge">Vector</code>的容量最大扩充至<code class="highlighter-rouge">Integer.MAX_VALUE</code>。</p>
+
+<p><code class="highlighter-rouge">Vector</code>中定义了大量的用于操作容器的方法，其中绝大多数设计到改变容器大小的方法都是在底层做两件事，一是开辟新的存储空间（如果有必要），二是进行数组的拷贝。这些方法理解起来并不难，此处不再赘述。</p>
+
+<h2 id="线程安全">线程安全</h2>
+
+<p>在很多面试环节中，经常被问到的问题是<em><code class="highlighter-rouge">ArrayList</code>和<code class="highlighter-rouge">Vector</code>的区别是什么？</em>关于这个问题，最频繁的回答可能是<em><code class="highlighter-rouge">Vector</code>是线程安全的，而<code class="highlighter-rouge">ArrayList</code>是非线程安全的</em>。这样回答的原因是在<code class="highlighter-rouge">Vector</code>的方法中，几乎所有的操作容器的方法上都加了<code class="highlighter-rouge">synchronized</code>，这意味着访问这些方法前都需要获得对象的锁。因此，这些方法不会被多个线程同时访问，从而实现线程安全。</p>
+
+<p><a href="https://book.douban.com/subject/10484692/">Java并发编程实战</a>一书中提到：如果只是将每个方法都作为同步方法（比如<code class="highlighter-rouge">Vector</code>，简单的在方法前加上<code class="highlighter-rouge">synchronized</code>），那么并不足以确保复合操作是原子的，以<code class="highlighter-rouge">Vector</code>为例，观察如下代码片段。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span><span class="o">(!</span><span class="n">vector</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">element</span><span class="o">))</span> <span class="o">{</span>
+    <span class="n">vector</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">element</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>这是一个经典的<code class="highlighter-rouge">put-if-else</code>问题，虽然通过<code class="highlighter-rouge">synchronized</code>已确保<code class="highlighter-rouge">contains</code>方法和<code class="highlighter-rouge">add</code>方法都是原子的，但是如果把多个操作合并为一个复合操作，仍旧需要额外的加锁机制。否则，多线程环境下，在<code class="highlighter-rouge">contains</code>方法和<code class="highlighter-rouge">add</code>方法的执行间隙期间完全有可能经历一个线程获取<code class="highlighter-rouge">contains</code>上的锁，执行完<code class="highlighter-rouge">contains</code>方法后释放锁，然后锁又被另一线程获取，并执行了<code class="highlighter-rouge">add</code>方法，然后释放锁，锁又被原来执行<code class="highlighter-rouge">contains</code>方法的线程获取，然后执行<code class="highlighter-rouge">add</code>方法，此时，该线程可能已经基于一个错误的假设在执行<code class="highlighter-rouge">add</code>方法了（<code class="highlighter-rouge">Vector</code>内可能已经存在该线程即将要<code class="highlighter-rouge">add</code>的元素了）。</p>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/ - Vector源码分析 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2016/Java%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80/">← Previous Post</a>
+      <a class="next" href="/2016/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why String is Immutable or Final in Java - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="Why String is Immutable or Final in Java">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="引入问题">
+<meta property="og:description" content="引入问题">
+<link rel="canonical" href="http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/">
+<meta property="og:url" content="http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-05-15T09:50:54+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"引入问题","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/","publisher":null,"image":null,"headline":"Why String is Immutable or Final in Java","dateModified":"2016-05-15T09:50:54+08:00","datePublished":"2016-05-15T09:50:54+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Why String is Immutable or Final in Java</h1>
+    <p class="post-meta">
+       <time datetime="2016-05-15T09:50:54+08:00" itemprop="datePublished">
+          May 15, 2016
+       </time>
+       
+        <!-- | <span class="time">
+            1
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="引入问题">引入问题</h2>
+
+<p><code class="highlighter-rouge">Thinking in Java</code>中写道：“<code class="highlighter-rouge">String</code>对象是不可变的，<code class="highlighter-rouge">String</code>类中每一个看起来会修改<code class="highlighter-rouge">String</code>值的方法，实际上都是创建了一个全新的<code class="highlighter-rouge">String</code>对象，以包含修改后的字符串内容。而最初的<code class="highlighter-rouge">String</code>对象则丝毫未动”。通过查看源代码，了解到<code class="highlighter-rouge">String</code>类被设计成<code class="highlighter-rouge">final</code>类型，那么<code class="highlighter-rouge">String</code>类被设计成<code class="highlighter-rouge">final</code>类型是出于哪些考虑？</p>
+
+<h2 id="final关键字">final关键字</h2>
+
+<p>首先需要理解<code class="highlighter-rouge">Java</code>中<code class="highlighter-rouge">final</code>的含义，通常<code class="highlighter-rouge">final</code>指的是”这是无法改变的”。不想做改变可能出于两种原因：设计或效率。而许多编程语言都有某种方法来想编译器告知一块数据是恒定不变的。在<code class="highlighter-rouge">Java</code>中，可能使用到<code class="highlighter-rouge">final</code>的情况有三种：数据、方法和类。</p>
+
+<p>有时数据的恒定不变会很有用，比如：</p>
+<ul>
+  <li>一个永不改变的编译时常量。</li>
+  <li>一个在运行时初始化的值，而你不希望它被改变。</li>
+</ul>
+
+<p>对于编译时常量这种情况，编译器可以将该常量代入任何可能用到它的计算式中，也就是说，可以在编译时执行计算式，这减轻了一些运行时的负担。</p>
+
+<p>使用<code class="highlighter-rouge">final</code>方法的原因有两个。第一个原因是把方法锁定，以防任何继承类修改它的定义。这是出于设计的考虑：确保在集成中使用方法行为保持不变，并且不会被覆盖。过去建议使用<code class="highlighter-rouge">final</code>方法的第二个原因是效率。在<code class="highlighter-rouge">Java</code>的早期实现中，如果将一个方法指明为<code class="highlighter-rouge">final</code>,就是同意编译器将针对该方法的所有调用都转为内嵌调用。这将消除方法调用的开销。不过不要陷入对仓促优化性能的强烈渴望中，如果系统速度很慢，企图使用<code class="highlighter-rouge">final</code>来解决问题是难以奏效的。</p>
+
+<p>如果使用<code class="highlighter-rouge">final</code>来修饰类的话，那么这个类是不能被继承的。</p>
+
+<h2 id="string类定义">String类定义</h2>
+
+<p>查看<code class="highlighter-rouge">String</code>类在<code class="highlighter-rouge">JDK1.7</code>源码中的定义(部分)。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">String</span>
+    <span class="kd">implements</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">Serializable</span><span class="o">,</span> <span class="n">Comparable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;,</span> <span class="n">CharSequence</span> <span class="o">{</span>
+
+    <span class="cm">/** The value is used for character storage. */</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">char</span> <span class="n">value</span><span class="o">[];</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>可以看出<code class="highlighter-rouge">String</code>类正是被<code class="highlighter-rouge">final</code>修饰，表示<code class="highlighter-rouge">String</code>类不能被其它类继承。另外，可以看出在创建<code class="highlighter-rouge">String</code>对象的时候，<code class="highlighter-rouge">String</code>对象还是使用字符数组来存储字符串的。并且，该字符数组也是被<code class="highlighter-rouge">final</code>修饰，因此<code class="highlighter-rouge">String</code>的内容一旦被初始化后是不能被改变的。 查看<code class="highlighter-rouge">String</code>类的官方注释。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* The String class represents character strings. All
+* string literals in Java programs, such as "abc", are
+* implemented as instances of this class.
+* 
+* Strings are constant; their values cannot be changed after they
+* are created. String buffers support mutable strings.
+* Because String objects are immutable they can be shared. 
+*/</span>
+</code></pre></div></div>
+
+<p>字符串缓冲区支持可变的字符串，因为缓冲区内的不可变字符串可以被共享，实际上这指的是对象的引用发生了改变。</p>
+
+<p>而关于<code class="highlighter-rouge">String</code>类为什么被声明为<code class="highlighter-rouge">final</code>，在<a href="http://stackoverflow.com/questions/2068804/why-is-string-class-declared-final-in-java"><code class="highlighter-rouge">StackOverflow</code></a>上给出的解释是这样的。</p>
+
+<blockquote>
+  <ul>
+    <li>Security: the system can hand out sensitive bits of read-only information without worrying that they will be altered.</li>
+    <li>Performance: immutable data is very useful in making things thread-safe.</li>
+  </ul>
+</blockquote>
+
+<p><code class="highlighter-rouge">String</code>类的基本约定中，最重要的一条是<code class="highlighter-rouge">immutable</code>，将<code class="highlighter-rouge">String</code>声明为<code class="highlighter-rouge">final</code>避免了<code class="highlighter-rouge">String</code>的子类打破这一约定。假设现在<code class="highlighter-rouge">String</code>类并没有被<code class="highlighter-rouge">final</code>修饰，那么我定义<code class="highlighter-rouge">SubString</code>类，继承自<code class="highlighter-rouge">String</code>类。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SubString</span> <span class="kd">extends</span> <span class="n">String</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">char</span><span class="o">[]</span> <span class="n">chars</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">SubString</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setChar</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="kt">char</span> <span class="n">ch</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">chars</span><span class="o">[</span><span class="n">index</span><span class="o">]</span> <span class="o">=</span> <span class="n">ch</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="n">chars</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>这一瞬间就改变了<code class="highlighter-rouge">String</code>的<code class="highlighter-rouge">immutable</code>的约定，<code class="highlighter-rouge">String</code>对象创建后仍可以修改<code class="highlighter-rouge">String</code>对象的内容。</p>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/ - Why String is Immutable or Final in Java by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2016/Why-String-is-Immutable-or-Final-in-Java/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2016/Spring-Hibernate-Template%E8%A7%A3%E6%9E%90/">← Previous Post</a>
+      <a class="next" href="/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

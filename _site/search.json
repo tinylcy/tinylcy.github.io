@@ -10,102 +10,273 @@
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "CUDA Lab: Sum of Squares &amp; Matrix Multiplication",
+		"category" : "",
+		"desc"     : "CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。本实验包含两部分。  第一部分（Sum of Squares）...",
+		"tags"     : "CUDA",
+		"url"      : "/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/",
+		"date"     : "2017-10-16 21:24:12 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-9/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "初探Webx之约定胜于配置",
+		"category" : "",
+		"desc"     : "实习期间接触到了早有耳闻的Webx，于是很自然的按照官方文档运行了一个 Demo ，粗略的阅读了一下代码，发现并不能很快的梳理清Web请求的处理逻辑，以及视图层和控制层之间的关联关系。execute()为什么会被调用？doChinese()为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解Web请求在Webx中经历的处理流程，为此我阅读了Webx部分源码，并以此文作为小结。在分...",
+		"tags"     : "Webx",
+		"url"      : "/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/",
+		"date"     : "2017-07-12 22:15:18 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-8/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "如何实现一个分布式RPC框架",
+		"category" : "",
+		"desc"     : "远程过程调用（Remote Procedure Call，RPC）是一个计算机通信协议。该协议允许运行于一台计算机的程序调用另一台计算机的子程序，而程序员无需额外地为这个交互作用编程。RPC的主要目标是让构建分布式应用更加容易，在提供强大的远程调用能力的同时不损失本地调用的语义的简洁性。趁实习前的这段业余时间，我实现了一个轻量级的分布式RPC框架，名字叫做 buddha，代码量不大，但是麻雀...",
+		"tags"     : "DistributedSystems",
+		"url"      : "/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%88%86%E5%B8%83%E5%BC%8FRPC%E6%A1%86%E6%9E%B6/",
+		"date"     : "2017-07-04 11:57:15 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-7/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "CSAPP: Attack Lab",
+		"category" : "",
+		"desc"     : "Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Program...",
+		"tags"     : "CSAPP and Assembly",
+		"url"      : "/2017/CSAPP-Attack-Lab/",
+		"date"     : "2017-05-06 22:38:55 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
+		"title"    : "6 824 Lab 1 Mapreduce",
+		"category" : "",
+		"desc"     : "开始学习大名鼎鼎的MIT 6.824: Distributed Systems课程，我跟的是2016年的课程，课程的主要内容是读Paper和做Lab，使用的语言为Go。五一假期期间我基本做完了Lab 1，感觉难度还是相当大的。本篇文章是我对Lab 1的一个总结。MapReduce每次读MapReduce论文，都会有新的收获，也自知还有理解不到位的地方。Execution Overview  ...",
 		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-6/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"url"      : "/2017/6-824-Lab-1-MapReduce/",
+		"date"     : "2017-05-03 00:00:00 +0800"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-5/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "CSAPP: Bomb Lab",
+		"category" : "",
+		"desc"     : "Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。完成整个实验的思路是通过objdump对bome进行反编译（objdump -d bomb &amp;gt; bomb.txt），获取所有的汇编代码。提取每个...",
+		"tags"     : "CSAPP and Assembly",
+		"url"      : "/2017/CSAPP-Bomb-Lab/",
+		"date"     : "2017-04-26 19:14:51 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-4/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "理解Golang中的defer",
+		"category" : "",
+		"desc"     : "关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。我们先运行如下代码...",
+		"tags"     : "Golang",
+		"url"      : "/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/",
+		"date"     : "2017-04-04 21:01:21 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-3/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "谈谈ThreadLocal",
+		"category" : "",
+		"desc"     : "Java并发编程实战 一书在介绍ThreadLocal类时（第3章），书中有这么两段话，在我初次阅读时不知道如何去理解。  ThreadLocal对象通常用于防止对可变的单实例变量（Singleton）或全局变量进行共享。  当某个频繁执行的操作需要一个临时变量，例如一个缓冲区，而同时又希望避免在每次执行时都重新分配该临时对象，就可以使用这项技术。例如，在Java 5.0之前，Integer...",
+		"tags"     : "Java",
+		"url"      : "/2017/%E8%B0%88%E8%B0%88ThreadLocal/",
+		"date"     : "2017-02-24 22:21:03 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post%E5%89%AF%E6%9C%AC-2/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "如何实现一个Java Class解析器",
+		"category" : "",
+		"desc"     : "最近在写一个私人项目，名字叫做ClassAnalyzer，ClassAnalyzer的目的是能让我们对Java Class文件的设计与结构能够有一个深入的理解。主体框架与基本功能已经完成，还有一些细节功能日后再增加。实际上JDK已经提供了命令行工具javap来反编译Class文件，但本篇文章将阐明我实现解析器的思路。Class文件作为类或者接口信息的载体，每个Class文件都完整的定义了一个...",
+		"tags"     : "Java and JVM",
+		"url"      : "/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAJava-Class%E8%A7%A3%E6%9E%90%E5%99%A8/",
+		"date"     : "2017-02-12 23:26:08 +0000"
 	} ,
 
 	{
-		"title"    : "Sample post",
-		"category" : "jekyllupdate",
-		"desc"     : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u...",
-		"tags"     : "",
-		"url"      : "/2016/sample-post/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"title"    : "CSAPP: Shell Lab",
+		"category" : "",
+		"desc"     : "这个实验通过实现一个支持作业控制的Unix Shell，让我们对进程控制和信号控制更加熟悉。课程Lab已经帮助我们搭建起了Shell的整体框架，并实现了与本次实验不太相关的代码，核心部分需要我们自己完成。整体框架Shell从标准输入（stdin）读取用户输入的命令，然后解析命令，Shell支持两种类型的命令：如果用户输入的是的内置命令（如quit、jobs等），那么直接执行该命令；如果用户输...",
+		"tags"     : "CSAPP",
+		"url"      : "/2017/CSAPP-Shell-Lab/",
+		"date"     : "2017-01-10 16:13:11 +0000"
 	} ,
 
 	{
-		"title"    : "Welcome to Jekyll!",
-		"category" : "jekyllupdate",
-		"desc"     : "You’ll find this post in your _posts directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run je...",
+		"title"    : "MapReduce论文阅读",
+		"category" : "",
+		"desc"     : "大四时曾经粗略的阅读过这篇论文，并且已经写过不少的MapReduce程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进MIT 6.824: Distributed Systems，而完成这门课程的第一个lab的前提便是阅读这篇论文。这篇笔记重点分析了MapReduce的执行流程以及容错机制，因为是个人理解，若有分析不妥之处欢迎发送邮件至tin...",
+		"tags"     : "DistributedSystems",
+		"url"      : "/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/",
+		"date"     : "2017-01-07 21:03:08 +0000"
+	} ,
+
+	{
+		"title"    : "Bigtable论文阅读",
+		"category" : "",
+		"desc"     : "本文是我对Bigtable论文进行第一轮阅读所做的笔记。对于理解欠妥的地方，欢迎发送邮件至tinylcy (at) gmail.com讨论。Data Model  A Bigtable is a sparse, distributed, persistent multi-dimensional sorted map. The map is indexed by a row key, colu...",
+		"tags"     : "DistributedSystems",
+		"url"      : "/2017/Bigtable%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/",
+		"date"     : "2017-01-04 19:53:17 +0000"
+	} ,
+
+	{
+		"title"    : "2016年度总结及2017年度计划",
+		"category" : "",
+		"desc"     : "从2016年12月开始持续使用Pomotodo起，我逐渐意识到给自己定下量化计划是一件能够提升学习效率的事情。2017年的核心目标依然是提高自己，但是会采用具体的量化的指标来代替模糊性描述。其实这就类似于我们在git commit时候，如果以git commit -m &quot;fix some bugs&quot;的形式commit，那么在后期这些descriptions并不会带给我们任何帮助。2016总结...",
 		"tags"     : "",
-		"url"      : "/2016/welcome-to-jekyll/",
-		"date"     : "2016-01-15 09:40:02 +0700"
+		"url"      : "/2017/2016%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E5%8F%8A2017%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/",
+		"date"     : "2017-01-01 00:00:00 +0800"
+	} ,
+
+	{
+		"title"    : "Spring IoC容器初始化 — Resource定位源码分析",
+		"category" : "",
+		"desc"     : "在Spring IoC容器的设计中，有两个主要的容器系列。一个是实现了BeanFactory接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是ApplicationContext应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。IoC容器的初始化过程Spring IoC容器的初始化过程分为三个阶段：Resource定位、BeanDefiniti...",
+		"tags"     : "Spring",
+		"url"      : "/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/",
+		"date"     : "2016-12-07 15:53:56 +0000"
+	} ,
+
+	{
+		"title"    : "HashMap源码分析",
+		"category" : "",
+		"desc"     : "HashMap简介本文针对HashMap的源码分析基于JDK 7，JDK 8在HashMap的实现上有着较大幅度的改进和优化，这部分优化我将另起一篇来阐述。另外，本文仅分析HashMap众多方法中最常用的方法，其余方法有需要时再研究 :smile:。HashMap的继承关系如下。public class HashMap&amp;lt;K,V&amp;gt;    extends AbstractMap&amp;lt...",
+		"tags"     : "JDK and Java",
+		"url"      : "/2016/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/",
+		"date"     : "2016-12-04 11:46:58 +0000"
+	} ,
+
+	{
+		"title"    : "Vector源码分析",
+		"category" : "",
+		"desc"     : "Vector简介Vector在JDK 1.0被引入，基于数组实现，并且是一个动态数组，其容量可以自动增长。在很多方法的实现上，Vector加入了同步语句，因此一般来说Vector是线程安全的，可以在多线程环境中运用。本文对Vector源码的分析基于JDK 1.8.0_111，并仅对常用的方法进行分析。public class Vector&amp;lt;E&amp;gt;    extends Abstra...",
+		"tags"     : "JDK and Java",
+		"url"      : "/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/",
+		"date"     : "2016-12-02 21:00:08 +0000"
+	} ,
+
+	{
+		"title"    : "Java对象内存布局",
+		"category" : "",
+		"desc"     : "JVM将内存划分为程序计数器（Program Counter Register）、虚拟机栈（VM Stack）、本地方法栈（Native Method Stack）、堆（Heap）以及方法区（Method Area）。作为开发者，我们最关注的是虚拟机栈以及堆这两块区域。虚拟机栈所需要的内存空间在编译期间即可明确，而堆内存所需要的空间需要在运行时才可确定。堆内存用于存放我们在程序中创建的对象，...",
+		"tags"     : "JVM",
+		"url"      : "/2016/Java%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80/",
+		"date"     : "2016-11-30 18:58:18 +0000"
+	} ,
+
+	{
+		"title"    : "Linux C 线程池实现",
+		"category" : "",
+		"desc"     : "学习网络编程时，自己动手实现一个Web Server是一个很有意思的经历。大多数Web Server都有一个特点：在单位时间内需要处理大量的请求，并且处理这些请求的时间往往还很短。《深入理解计算机系统》 (CSAPP) 在讲解网络编程时实现了一个经典的Web Server，这个Web Server不仅满足了静态请求，同时还满足了动态请求 (CGI)。虽然这个Web Server能够正常使用，...",
+		"tags"     : "Unix/Linux and C",
+		"url"      : "/2016/Linux-C-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%AE%9E%E7%8E%B0/",
+		"date"     : "2016-11-17 17:15:35 +0000"
+	} ,
+
+	{
+		"title"    : "Java泛型总结",
+		"category" : "",
+		"desc"     : "Java泛型是JDK5引入的一个新特性，允许在定义类和接口的时候使用类型参数（type parameter）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在JDK5中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不...",
+		"tags"     : "Java",
+		"url"      : "/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/",
+		"date"     : "2016-10-03 21:51:39 +0000"
+	} ,
+
+	{
+		"title"    : "I/O重定向和管道",
+		"category" : "",
+		"desc"     : "标准I/O与重定向的若干概念3个标准文件描述符所有的Unix工具都使用文件描述符0、1和2。如下图所示，标准输入文件的描述符是0，标准输出的文件描述符是1，标准错误输出的文件描述符则是2。Unix假设文件描述符0、1和2都已经被打开，可以分别进行读、写和写的操作。重定向I/O的是shell而不是程序通过使用输出重定向标志，命令cmd&amp;gt;filename告诉shell将文件描述符1定位到文...",
+		"tags"     : "Unix/Linux",
+		"url"      : "/2016/IO%E9%87%8D%E5%AE%9A%E5%90%91%E5%92%8C%E7%AE%A1%E9%81%93/",
+		"date"     : "2016-08-19 00:01:24 +0000"
+	} ,
+
+	{
+		"title"    : "TCP拥塞控制",
+		"category" : "",
+		"desc"     : "TCP基础网络的传输层有两种方式——TCP和UDP，其中TCP是基于连接的，而UDP不需要连接。它们各自支持一些应用层协议，但也有些协议是两者都支持的，比如DNS，我们通过DNS来比较TCP和UDP的差别。当前我的计算机的ip为192.168.199.134，向DNS服务器发起一个DNS查询，以期获得tinylcy.me所对应的ip地址。DNS默认使用UDP的情况如下所示：通过Wiresha...",
+		"tags"     : "TCP/IP",
+		"url"      : "/2016/TCP%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/",
+		"date"     : "2016-08-14 11:25:21 +0000"
+	} ,
+
+	{
+		"title"    : "目录与文件属性：编写ls",
+		"category" : "",
+		"desc"     : "问题ls命令可以列出目录中所有文件的名字，以及这些文件的其它信息。注意，ls对文件和目录所做的操作是不同的，ls能判定参数指定的是文件还是目录。如果要自己编写ls，需要掌握三点：  如何列出目录的内容。  如何读取并显示文件的属性。  给出一个名字，如何能够判断出它是目录还是文件。编写ls目录是一种特殊的文件，它的内容是文件和目录的名字。与普通文件不同的是，目录文件永远不会为空，每个目录至少...",
+		"tags"     : "",
+		"url"      : "/2016/%E7%9B%AE%E5%BD%95%E4%B8%8E%E6%96%87%E4%BB%B6%E5%B1%9E%E6%80%A7-%E7%BC%96%E5%86%99ls/",
+		"date"     : "2016-07-30 00:00:00 +0800"
+	} ,
+
+	{
+		"title"    : "用机器指令和汇编指令编程（三）",
+		"category" : "",
+		"desc"     : "程序执行过程的跟踪可以使用Debug来跟踪一个程序的执行过程，示例程序1.asm如下所示。assume cs:codesgcodesg segment    mov ax,0123h    mov bx,0456h    add ax,bx    add ax,ax    mov ax,4c00h    int 21hcodesg endsend使用masm编译1.asm，生成1.obj，然...",
+		"tags"     : "Assembly",
+		"url"      : "/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/",
+		"date"     : "2016-06-25 23:12:42 +0000"
+	} ,
+
+	{
+		"title"    : "Spring IoC Context启动过程解析",
+		"category" : "",
+		"desc"     : "ServletContextWeb容器在启动的过程中，会为每个Web应用程序创建一个对应的ServletContext对象，它代表了当前的Web应用，为Spring IoC容器提供宿主环境。在部署Web工程的时候，Web容器会读取web.xml，创建ServletContext，当前Web工程所有部分都共享这个Context。context-param为ServletContext提供键值对...",
+		"tags"     : "Spring",
+		"url"      : "/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/",
+		"date"     : "2016-06-21 21:57:12 +0000"
+	} ,
+
+	{
+		"title"    : "LinkedList源码分析",
+		"category" : "",
+		"desc"     : "本文涉及的JDK源码版本为1.7.0_79。LinkedList类定义LinkedList是基于双向链表实现的，LinkedList除了被当做数组来使用，还可以作为栈、队列来使用。由于LinkedList内部采用链表的形式存储元素，因此随机访问会比较慢，但是插入、删除元素比较快。和ArrayList一样，LinkedList也是非线程安全的，只有在单线程下才可以使用。为了防止非同步访问，可以...",
+		"tags"     : "JDK and Java",
+		"url"      : "/2016/LinkedList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/",
+		"date"     : "2016-06-10 21:48:56 +0000"
+	} ,
+
+	{
+		"title"    : "用机器指令和汇编指令编程（二）",
+		"category" : "",
+		"desc"     : "物理地址CPU访问内存空间时，要给出内存单元的地址。所有的内存单元构成的存储空间是一个一维的线性空间，每一个内存单元在这个空间中都有唯一的地址，将这个唯一的地址称为物理地址。CPU通过地址总线送入存储器的，必须是一个内存单元的物理地址。而在CPU向地址总线上发出物理地址之前，必须要在内部形成这个物理地址。不同的CPU有不同的形成物理地址的方式，此处依旧讨论8086CPU如何在内部形成内存单元...",
+		"tags"     : "Assembly",
+		"url"      : "/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%BA%8C/",
+		"date"     : "2016-06-09 17:56:09 +0000"
+	} ,
+
+	{
+		"title"    : "用机器指令和汇编指令编程（一）",
+		"category" : "",
+		"desc"     : "Debug的使用什么是DebugDebug是Dos、Windows提供的实模式（8086方式）程序的调试工具，可以使用它来查看CPU各种寄存器中的内容、内存的情况和在机器码级跟踪程序的运行。但是debug命令在64位操作系统下是不能使用的。在cmd中输入debug，会提示：不是内部或外部命令，也不是运行的程序或批处理文件。使用DOSBox在Win7_64下搭建汇编环境DEBUG.EXE，ED...",
+		"tags"     : "Assembly",
+		"url"      : "/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%80/",
+		"date"     : "2016-06-05 01:16:24 +0000"
+	} ,
+
+	{
+		"title"    : "ArrayList源码分析",
+		"category" : "",
+		"desc"     : "源码版本为JDK1.7.0_79ArrayList不是线程安全的，只能应用在单线程环境下。ArrayList类定义从ArrayList的类定义可以看出它是支持泛型的，继承自AbstractList，AbstractList 实现了List接口，提供了List接口的默认实现。public abstract class AbstractList&amp;lt;E&amp;gt; extends Abstract...",
+		"tags"     : "JDK and Java",
+		"url"      : "/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/",
+		"date"     : "2016-05-28 12:27:34 +0000"
+	} ,
+
+	{
+		"title"    : "Why String is Immutable or Final in Java",
+		"category" : "",
+		"desc"     : "引入问题Thinking in Java中写道：“String对象是不可变的，String类中每一个看起来会修改String值的方法，实际上都是创建了一个全新的String对象，以包含修改后的字符串内容。而最初的String对象则丝毫未动”。通过查看源代码，了解到String类被设计成final类型，那么String类被设计成final类型是出于哪些考虑？final关键字首先需要理解Java...",
+		"tags"     : "Java",
+		"url"      : "/2016/Why-String-is-Immutable-or-Final-in-Java/",
+		"date"     : "2016-05-15 01:50:54 +0000"
+	} ,
+
+	{
+		"title"    : "Spring Hibernate Template解析",
+		"category" : "",
+		"desc"     : "在Spring中，如果选用Hibernate作为持久层框架，往往需要在beans.xml中配置好SessionFactory，然后将SessionFactory注入到对应的DAO类。当我们使用SessionFactory来进行CRUD，配合对应的异常处理，会使得真正有用的业务逻辑代码显得微不足道。而且，除了那部分业务逻辑，创建Session、开启事务、处理异常、关闭资源这一系列代码在大多数场...",
+		"tags"     : "Spring",
+		"url"      : "/2016/Spring-Hibernate-Template%E8%A7%A3%E6%9E%90/",
+		"date"     : "2016-05-02 23:34:16 +0000"
 	} 
 
 ]

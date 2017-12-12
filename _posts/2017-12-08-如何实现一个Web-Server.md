@@ -63,22 +63,22 @@ Vino 的开发 & 重构暂时告一段落，源码放在了 [GitHub](https://git
 
 ## 参考
 
-[1] Vino, https://github.com/tinylcy/vino .
+[1] Vino, [https://github.com/tinylcy/vino](https://github.com/tinylcy/vino).
 
-[2] Computer Systems: A Programmer's Perspective, http://csapp.cs.cmu.edu/ .
+[2] Computer Systems: A Programmer's Perspective, [http://csapp.cs.cmu.edu](http://csapp.cs.cmu.edu/).
 
-[3] Advanced Programming in the UNIX Environment (3rd Edition), https://www.amazon.ca/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739 .
+[3] Advanced Programming in the UNIX Environment (3rd Edition), [https://www.amazon.ca/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739](https://www.amazon.ca/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739).
 
-[4] Unix Network Programming, Volume 1, https://www.amazon.ca/Unix-Network-Programming-Sockets-Networking/dp/0131411551 .
+[4] Unix Network Programming, Volume 1, [https://www.amazon.ca/Unix-Network-Programming-Sockets-Networking/dp/0131411551](https://www.amazon.ca/Unix-Network-Programming-Sockets-Networking/dp/0131411551).
 
-[5] Nginx, https://github.com/nginx/nginx .
+[5] Nginx, [https://github.com/nginx/nginx](https://github.com/nginx/nginx).
 
-[6] Mongoose, https://github.com/cesanta/mongoose .
+[6] Mongoose, [https://github.com/cesanta/mongoose](https://github.com/cesanta/mongoose).
 
-[7] Web Bench, http://home.tiscali.cz/~cz210552/webbench.html .
+[7] Web Bench, [http://home.tiscali.cz/~cz210552/webbench.html](http://home.tiscali.cz/~cz210552/webbench.html).
 
-[8] Zaver, https://github.com/zyearn/zaver .
+[8] Zaver, [https://github.com/zyearn/zaver](https://github.com/zyearn/zaver).
 
-[9] RFC 2616, https://tools.ietf.org/html/rfc2616 .
+[9] RFC 2616, [https://tools.ietf.org/html/rfc2616](https://tools.ietf.org/html/rfc2616).
 
-[10] How to use epoll? A complete example in C, https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c/ .
+[10] How to use epoll? A complete example in C, [https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c](https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c/) .

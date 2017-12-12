@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSAPP: Bomb Lab - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="CSAPP: Bomb Lab">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。">
+<meta property="og:description" content="Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。">
+<link rel="canonical" href="http://localhost:4000/2017/CSAPP-Bomb-Lab/">
+<meta property="og:url" content="http://localhost:4000/2017/CSAPP-Bomb-Lab/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-04-27T03:14:51+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2017/CSAPP-Bomb-Lab/","publisher":null,"image":null,"headline":"CSAPP: Bomb Lab","dateModified":"2017-04-27T03:14:51+08:00","datePublished":"2017-04-27T03:14:51+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2017/CSAPP-Bomb-Lab/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">CSAPP: Bomb Lab</h1>
+    <p class="post-meta">
+       <time datetime="2017-04-27T03:14:51+08:00" itemprop="datePublished">
+          Apr 26, 2017
+       </time>
+       
+        <!-- | <span class="time">
+            14
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <p><code class="highlighter-rouge">Bomb Lab</code>是<code class="highlighter-rouge">CS:APP</code>一书中第二个<a href="http://csapp.cs.cmu.edu/3e/bomblab.pdf">实验</a>，实验中的<code class="highlighter-rouge">bomb</code>实际上是一个程序的二进制文件，该程序由一系列<code class="highlighter-rouge">phase</code>组成，每个<code class="highlighter-rouge">phase</code>需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印<code class="highlighter-rouge">BOOM!!!</code>。</p>
+
+<!--more-->
+
+<p>完成整个实验的思路是通过<code class="highlighter-rouge">objdump</code>对<code class="highlighter-rouge">bome</code>进行反编译（<code class="highlighter-rouge">objdump -d bomb &gt; bomb.txt</code>），获取所有的汇编代码。提取每个阶段对应的代码并借助<code class="highlighter-rouge">gdb</code>进行分析，逐一拆弹。</p>
+
+<h2 id="phase-1">Phase 1</h2>
+<p><code class="highlighter-rouge">phase_1</code>对应的代码如下所示。</p>
+
+<pre><code class="language-assembly">0000000000400ee0 &lt;phase_1&gt;:
+  400ee0: 48 83 ec 08           sub    $0x8,%rsp
+  400ee4: be 00 24 40 00        mov    $0x402400,%esi
+  400ee9: e8 4a 04 00 00        callq  401338 &lt;strings_not_equal&gt;
+  400eee: 85 c0                 test   %eax,%eax
+  400ef0: 74 05                 je     400ef7 &lt;phase_1+0x17&gt;
+  400ef2: e8 43 05 00 00        callq  40143a &lt;explode_bomb&gt;
+  400ef7: 48 83 c4 08           add    $0x8,%rsp
+  400efb: c3                    retq  
+</code></pre>
+
+<p>由<code class="highlighter-rouge">callq</code>指令可以得知，<code class="highlighter-rouge">phase_1</code>调用了<code class="highlighter-rouge">strings_not_equal</code>，并将返回值存储于<code class="highlighter-rouge">%eax</code>中，<code class="highlighter-rouge">test</code>指令计算<code class="highlighter-rouge">%eax</code>的值是否等于<code class="highlighter-rouge">0</code>，<code class="highlighter-rouge">je</code>指令决定是否跳转，若<code class="highlighter-rouge">%eax</code>的值等于<code class="highlighter-rouge">0</code>，则跳转至<code class="highlighter-rouge">0x400ef7</code>处，也就是安全区域，拆弹成功，否则不跳转，即执行<code class="highlighter-rouge">explode_bomb</code>，拆弹失败。通过以上分析，可以得知<code class="highlighter-rouge">phase_1</code>的关键在于控制<code class="highlighter-rouge">strings_not_equal</code>的返回值。</p>
+
+<p>在执行<code class="highlighter-rouge">callq strings_not_equal</code>指令之前，<code class="highlighter-rouge">mov $0x402400,%esi</code>将常数<code class="highlighter-rouge">0x402400</code>传递至<code class="highlighter-rouge">%esi</code>，根据<code class="highlighter-rouge">x86-64</code>寄存器使用规范，<code class="highlighter-rouge">%esi</code>的值是<code class="highlighter-rouge">strings_not_equal</code>函数的第二个参数，而第一个参数则是我们输入的值。因此，问题的关键在于如何得到<code class="highlighter-rouge">%esi</code>的值。</p>
+
+<p>利用<code class="highlighter-rouge">gdb</code>对<code class="highlighter-rouge">bomb</code>进行调试，并在<code class="highlighter-rouge">phase_1</code>处设置断点，通过<code class="highlighter-rouge">disassemble</code>对当前函数进行反编译，使用<code class="highlighter-rouge">stepi</code>对指令进行单步调试，运行至<code class="highlighter-rouge">phase_1</code>第一条指令的初始状态如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%201.png" alt=""></p>
+
+<p>在进入<code class="highlighter-rouge">phase_1</code>之前，<code class="highlighter-rouge">read_line</code>函数从终端读取输入（可从<code class="highlighter-rouge">bomb.c</code>得知该信息，我输入的是<code class="highlighter-rouge">tinylcy</code>）。接着，通过<code class="highlighter-rouge">stepi</code>单步执行指令，直至指令<code class="highlighter-rouge">mov $0x402400,%esi</code>执行完毕，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%202.png" alt=""></p>
+
+<p>此时，<code class="highlighter-rouge">strings_not_equal</code>函数的第二个参数已经存储于<code class="highlighter-rouge">%esi</code>，通过<code class="highlighter-rouge">print</code>打印<code class="highlighter-rouge">%esi</code>的值，可以得知<code class="highlighter-rouge">%esi</code>存储的是一个内存地址，这是因为参数类型是字符串类型，因此寄存器存储的是内存地址，而非确切的字符串值，使用<code class="highlighter-rouge">x</code>打印位于地址<code class="highlighter-rouge">%esi</code>处的内容，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%203.png" alt=""></p>
+
+<p>由此，我们得到了拆除<code class="highlighter-rouge">pahse_1</code>炸弹所需要的字符串。</p>
+
+<h2 id="phase-2">Phase 2</h2>
+
+<p><code class="highlighter-rouge">phase_2</code>对应的代码如下所示。</p>
+
+<pre><code class="language-assembly">0000000000400efc &lt;phase_2&gt;:
+  400efc: 55                    push   %rbp
+  400efd: 53                    push   %rbx
+  400efe: 48 83 ec 28           sub    $0x28,%rsp
+  400f02: 48 89 e6              mov    %rsp,%rsi
+  400f05: e8 52 05 00 00        callq  40145c &lt;read_six_numbers&gt;
+  400f0a: 83 3c 24 01           cmpl   $0x1,(%rsp)
+  400f0e: 74 20                 je     400f30 &lt;phase_2+0x34&gt;
+  400f10: e8 25 05 00 00        callq  40143a &lt;explode_bomb&gt;
+  400f15: eb 19                 jmp    400f30 &lt;phase_2+0x34&gt;
+  400f17: 8b 43 fc              mov    -0x4(%rbx),%eax
+  400f1a: 01 c0                 add    %eax,%eax
+  400f1c: 39 03                 cmp    %eax,(%rbx)
+  400f1e: 74 05                 je     400f25 &lt;phase_2+0x29&gt;
+  400f20: e8 15 05 00 00        callq  40143a &lt;explode_bomb&gt;
+  400f25: 48 83 c3 04           add    $0x4,%rbx
+  400f29: 48 39 eb              cmp    %rbp,%rbx
+  400f2c: 75 e9                 jne    400f17 &lt;phase_2+0x1b&gt;
+  400f2e: eb 0c                 jmp    400f3c &lt;phase_2+0x40&gt;
+  400f30: 48 8d 5c 24 04        lea    0x4(%rsp),%rbx
+  400f35: 48 8d 6c 24 18        lea    0x18(%rsp),%rbp
+  400f3a: eb db                 jmp    400f17 &lt;phase_2+0x1b&gt;
+  400f3c: 48 83 c4 28           add    $0x28,%rsp
+  400f40: 5b                    pop    %rbx
+  400f41: 5d                    pop    %rbp
+  400f42: c3                    retq   
+</code></pre>
+
+<p>由<code class="highlighter-rouge">callq read_six_numbers</code>可知，<code class="highlighter-rouge">phase_2</code>调用了<code class="highlighter-rouge">read_six_numbers</code>函数并读取了<code class="highlighter-rouge">6</code>个数值。根据<code class="highlighter-rouge">cmpl $0x1,(%rsp)</code>可知，若地址<code class="highlighter-rouge">%rsp</code>处的值等于<code class="highlighter-rouge">1</code>，那么进入安全区域，否则就会引爆炸弹。由此可以得知，我们输入的第<code class="highlighter-rouge">1</code>个数字应该为<code class="highlighter-rouge">1</code>。然后<code class="highlighter-rouge">phase_2</code>跳转至<code class="highlighter-rouge">0x400f30</code>处执行指令<code class="highlighter-rouge">lea 0x4(%rsp),%rbx</code>，该指令的效果是将<code class="highlighter-rouge">%rsp</code>的值加<code class="highlighter-rouge">4</code>并存储于<code class="highlighter-rouge">%rbx</code>，这意味着<code class="highlighter-rouge">%rbx</code>的值实际上是下一个数的地址值。<code class="highlighter-rouge">lea 0x18(%rsp),%rbp</code>用于控制循环的次数，<code class="highlighter-rouge">6</code>个整型共占用<code class="highlighter-rouge">24</code>字节，恰好等于<code class="highlighter-rouge">0x18</code>。接着<code class="highlighter-rouge">phase_2</code>跳转至<code class="highlighter-rouge">0x400f17</code>处执行<code class="highlighter-rouge">mov -0x4(%rbx),%eax</code>指令，该指令的效果是使<code class="highlighter-rouge">%eax</code>的值等于<code class="highlighter-rouge">M[%rbx-4]</code>的值，即<code class="highlighter-rouge">M[%rsp]</code>的值，也就是第<code class="highlighter-rouge">1</code>个数的值。<code class="highlighter-rouge">add %eax,%eax</code>使<code class="highlighter-rouge">%eax</code>的值扩大为原来的<code class="highlighter-rouge">2</code>倍，<code class="highlighter-rouge">cmp %eax,(%rbx)</code>将下一个数的值与<code class="highlighter-rouge">%eax</code>的值作比较，若相等则跳转至安全区域<code class="highlighter-rouge">0x400f25</code>，否则拆弹失败。<code class="highlighter-rouge">0x400f25</code>处的指令为<code class="highlighter-rouge">add $0x4,%rbx</code>，该指令的效果是使<code class="highlighter-rouge">%rbx</code>存储下一个数的地址，与<code class="highlighter-rouge">%rbp</code>的值比较并在不相等的情况下跳转至<code class="highlighter-rouge">0x400f17</code>处循环执行指令。</p>
+
+<p>综上，<code class="highlighter-rouge">phase_2</code>通过<code class="highlighter-rouge">%rbx</code>来获取输入的<code class="highlighter-rouge">6</code>个数字，通过<code class="highlighter-rouge">%eax</code>来控制比较的数值大小，<code class="highlighter-rouge">%eax</code>初始化为第<code class="highlighter-rouge">1</code>个数字的值，并在每次循环后增长至原来的<code class="highlighter-rouge">2</code>倍，一共<code class="highlighter-rouge">6</code>次循环。所以<code class="highlighter-rouge">phase_2</code>的解为<code class="highlighter-rouge">1 2 4 8 16 32</code>。</p>
+
+<h2 id="phase-3">Phase 3</h2>
+
+<p><code class="highlighter-rouge">phase_3</code>对应的代码如下所示。</p>
+
+<pre><code class="language-assembly">0000000000400f43 &lt;phase_3&gt;:
+  400f43: 48 83 ec 18           sub    $0x18,%rsp
+  400f47: 48 8d 4c 24 0c        lea    0xc(%rsp),%rcx
+  400f4c: 48 8d 54 24 08        lea    0x8(%rsp),%rdx
+  400f51: be cf 25 40 00        mov    $0x4025cf,%esi
+  400f56: b8 00 00 00 00        mov    $0x0,%eax
+  400f5b: e8 90 fc ff ff        callq  400bf0 &lt;__isoc99_sscanf@plt&gt;
+  400f60: 83 f8 01              cmp    $0x1,%eax
+  400f63: 7f 05                 jg     400f6a &lt;phase_3+0x27&gt;
+  400f65: e8 d0 04 00 00        callq  40143a &lt;explode_bomb&gt;
+  400f6a: 83 7c 24 08 07        cmpl   $0x7,0x8(%rsp)
+  400f6f: 77 3c                 ja     400fad &lt;phase_3+0x6a&gt;
+  400f71: 8b 44 24 08           mov    0x8(%rsp),%eax
+  400f75: ff 24 c5 70 24 40 00  jmpq   *0x402470(,%rax,8)
+  400f7c: b8 cf 00 00 00        mov    $0xcf,%eax
+  400f81: eb 3b                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400f83: b8 c3 02 00 00        mov    $0x2c3,%eax
+  400f88: eb 34                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400f8a: b8 00 01 00 00        mov    $0x100,%eax
+  400f8f: eb 2d                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400f91: b8 85 01 00 00        mov    $0x185,%eax
+  400f96: eb 26                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400f98: b8 ce 00 00 00        mov    $0xce,%eax
+  400f9d: eb 1f                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400f9f: b8 aa 02 00 00        mov    $0x2aa,%eax
+  400fa4: eb 18                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400fa6: b8 47 01 00 00        mov    $0x147,%eax
+  400fab: eb 11                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400fad: e8 88 04 00 00        callq  40143a &lt;explode_bomb&gt;
+  400fb2: b8 00 00 00 00        mov    $0x0,%eax
+  400fb7: eb 05                 jmp    400fbe &lt;phase_3+0x7b&gt;
+  400fb9: b8 37 01 00 00        mov    $0x137,%eax
+  400fbe: 3b 44 24 0c           cmp    0xc(%rsp),%eax
+  400fc2: 74 05                 je     400fc9 &lt;phase_3+0x86&gt;
+  400fc4: e8 71 04 00 00        callq  40143a &lt;explode_bomb&gt;
+  400fc9: 48 83 c4 18           add    $0x18,%rsp
+  400fcd: c3                    retq   
+</code></pre>
+
+<p>前<code class="highlighter-rouge">3</code>条指令非常普通，并不能吸引我们的注意，能够吸引我们的是<code class="highlighter-rouge">mov $0x4025cf,%esi</code>这条指令，常数<code class="highlighter-rouge">0x4025cf</code>应该是个内存地址，打印该内存地址的值，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%204.png" alt=""></p>
+
+<p>很容易把<code class="highlighter-rouge">%d %d</code>与<code class="highlighter-rouge">callq  400bf0 &lt;__isoc99_sscanf@plt&gt;</code>这条指令联系起来，由此我们基本知道，<code class="highlighter-rouge">phase_3</code>会输入<code class="highlighter-rouge">2</code>个值。<code class="highlighter-rouge">scanf</code>函数的返回值存储于<code class="highlighter-rouge">%eax</code>，该值代表输入值的个数，<code class="highlighter-rouge">cmp $0x1,%eax</code>将<code class="highlighter-rouge">%eax</code>的值与<code class="highlighter-rouge">1</code>做比较，如果输入值的个数大于<code class="highlighter-rouge">1</code>，跳转至安全区域，即指令<code class="highlighter-rouge">cmpl $0x7,0x8(%rsp)</code>处，否则拆弹失败。<code class="highlighter-rouge">cmpl   $0x7,0x8(%rsp)</code>将输入的第一个数(以<code class="highlighter-rouge">6</code>为例)与<code class="highlighter-rouge">7</code>作比较，如果大于<code class="highlighter-rouge">7</code>，那么拆弹失败，否则执行指令<code class="highlighter-rouge">mov 0x8(%rsp),%eax</code>，该指令将第一个数存储于<code class="highlighter-rouge">%eax</code>中。接着执行指令<code class="highlighter-rouge">jmpq *0x402470(,%rax,8)</code>，该指令是一个间接跳转指令，通过<code class="highlighter-rouge">gdb</code>得到执行该指令后的跳转位置，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%205.png" alt=""></p>
+
+<p><code class="highlighter-rouge">mov $0x2aa,%eax</code>指令将常数<code class="highlighter-rouge">0x2aa</code>移至<code class="highlighter-rouge">%eax</code>，然后执行<code class="highlighter-rouge">jmp 0x400fbe &lt;phase_3+123&gt;</code>跳转至<code class="highlighter-rouge">0x400fbe</code>处执行指令<code class="highlighter-rouge">cmp 0xc(%rsp),%eax</code>，该指令将第二个数与<code class="highlighter-rouge">%eax</code>做比较，若相等，安全退出，拆弹成功，否则拆弹失败。<code class="highlighter-rouge">0x2aa</code>的十进制值为<code class="highlighter-rouge">682</code>，因此<code class="highlighter-rouge">phase_3</code>输入的两个数应为<code class="highlighter-rouge">6</code>，<code class="highlighter-rouge">682</code>。</p>
+
+<p>注意，第一个数并不一定是<code class="highlighter-rouge">6</code>，只要小于<code class="highlighter-rouge">7</code>即可。当第一个数的取值改变，那么在获取第二个数时会跳转到不同的分支，因此会得到不同的值。例如当第一个数等于<code class="highlighter-rouge">5</code>，那么第二个数应为<code class="highlighter-rouge">206</code>。</p>
+
+<h2 id="phase-4">Phase 4</h2>
+
+<p><code class="highlighter-rouge">phase_4</code>对应的代码如下所示。</p>
+
+<pre><code class="language-assembly">000000000040100c &lt;phase_4&gt;:
+  40100c: 48 83 ec 18           sub    $0x18,%rsp
+  401010: 48 8d 4c 24 0c        lea    0xc(%rsp),%rcx
+  401015: 48 8d 54 24 08        lea    0x8(%rsp),%rdx
+  40101a: be cf 25 40 00        mov    $0x4025cf,%esi
+  40101f: b8 00 00 00 00        mov    $0x0,%eax
+  401024: e8 c7 fb ff ff        callq  400bf0 &lt;__isoc99_sscanf@plt&gt;
+  401029: 83 f8 02              cmp    $0x2,%eax
+  40102c: 75 07                 jne    401035 &lt;phase_4+0x29&gt;
+  40102e: 83 7c 24 08 0e        cmpl   $0xe,0x8(%rsp)
+  401033: 76 05                 jbe    40103a &lt;phase_4+0x2e&gt;
+  401035: e8 00 04 00 00        callq  40143a &lt;explode_bomb&gt;
+  40103a: ba 0e 00 00 00        mov    $0xe,%edx
+  40103f: be 00 00 00 00        mov    $0x0,%esi
+  401044: 8b 7c 24 08           mov    0x8(%rsp),%edi
+  401048: e8 81 ff ff ff        callq  400fce &lt;func4&gt;
+  40104d: 85 c0                 test   %eax,%eax
+  40104f: 75 07                 jne    401058 &lt;phase_4+0x4c&gt;
+  401051: 83 7c 24 0c 00        cmpl   $0x0,0xc(%rsp)
+  401056: 74 05                 je     40105d &lt;phase_4+0x51&gt;
+  401058: e8 dd 03 00 00        callq  40143a &lt;explode_bomb&gt;
+  40105d: 48 83 c4 18           add    $0x18,%rsp
+  401061: c3                    retq   
+</code></pre>
+
+<p>和<code class="highlighter-rouge">phase_3</code>类似，首先将内存地址为<code class="highlighter-rouge">0x4025cf</code>的内容打印出来，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%206.png" alt=""></p>
+
+<p>由此得知，<code class="highlighter-rouge">phase_4</code>的输入应该为<code class="highlighter-rouge">2</code>个整数。在执行<code class="highlighter-rouge">callq  400bf0 &lt;__isoc99_sscanf@plt&gt;</code>指令后，返回值存储于<code class="highlighter-rouge">%eax</code>，然后判断<code class="highlighter-rouge">%eax</code>的值是否等于<code class="highlighter-rouge">2</code>，若不等于则会引爆炸弹，否则执行指令<code class="highlighter-rouge">cmpl $0xe,0x8(%rsp)</code>，该指令将输入的第一个数与常数<code class="highlighter-rouge">0xe</code>做比较，根据<code class="highlighter-rouge">jbe 40103a &lt;phase_4+0x2e&gt;</code>，如果输入的第一个数大于<code class="highlighter-rouge">0xe</code>，那么拆弹失败，否则跳转到<code class="highlighter-rouge">0x40103a</code>处执行<code class="highlighter-rouge">mov $0xe,%edx</code>指令。接下来可以看到<code class="highlighter-rouge">phase_4</code>调用了函数<code class="highlighter-rouge">func4</code>，而<code class="highlighter-rouge">mov $0xe,%edx</code>、<code class="highlighter-rouge">mov $0x0,%esi</code>和<code class="highlighter-rouge">mov 0x8(%rsp),%edi</code>这三条指令用于设置<code class="highlighter-rouge">func4</code>的参数，根据<code class="highlighter-rouge">x86-64</code>寄存器使用规范，第一个、第二个和第三个参数分别存储于寄存器<code class="highlighter-rouge">%edi</code>、<code class="highlighter-rouge">%esi</code>和<code class="highlighter-rouge">%edx</code>。</p>
+
+<p>在查看<code class="highlighter-rouge">func4</code>对应的代码之前，先观察执行<code class="highlighter-rouge">callq  400fce &lt;func4&gt;</code>指令之后<code class="highlighter-rouge">phase_4</code>的操作：<code class="highlighter-rouge">test %eax,%eax</code>指令检查<code class="highlighter-rouge">%eax</code>的值是否等于<code class="highlighter-rouge">0</code>，如果不等于<code class="highlighter-rouge">0</code>，则会引爆炸弹，否则执行指令<code class="highlighter-rouge">cmpl $0x0,0xc(%rsp)</code>，该指令将输入的第二个数与<code class="highlighter-rouge">0</code>做比较，如果相等，那么<code class="highlighter-rouge">phase_4</code>正常退出，拆弹成功。因此，<code class="highlighter-rouge">phase_4</code>的第二个输入值即为<code class="highlighter-rouge">0</code>。</p>
+
+<p>经过以上的分析，可以意识到<code class="highlighter-rouge">phase_4</code>的核心目标在于要让<code class="highlighter-rouge">func4</code>执行后，<code class="highlighter-rouge">%eax</code>的值等于<code class="highlighter-rouge">0</code>，这取决于输入的第一个数。接着需要分析<code class="highlighter-rouge">func4</code>执行的操作，其对应代码如下所示。</p>
+
+<pre><code class="language-assembly">0000000000400fce &lt;func4&gt;:
+  400fce: 48 83 ec 08           sub    $0x8,%rsp
+  400fd2: 89 d0                 mov    %edx,%eax
+  400fd4: 29 f0                 sub    %esi,%eax
+  400fd6: 89 c1                 mov    %eax,%ecx
+  400fd8: c1 e9 1f              shr    $0x1f,%ecx
+  400fdb: 01 c8                 add    %ecx,%eax
+  400fdd: d1 f8                 sar    %eax
+  400fdf: 8d 0c 30              lea    (%rax,%rsi,1),%ecx
+  400fe2: 39 f9                 cmp    %edi,%ecx
+  400fe4: 7e 0c                 jle    400ff2 &lt;func4+0x24&gt;
+  400fe6: 8d 51 ff              lea    -0x1(%rcx),%edx
+  400fe9: e8 e0 ff ff ff        callq  400fce &lt;func4&gt;
+  400fee: 01 c0                 add    %eax,%eax
+  400ff0: eb 15                 jmp    401007 &lt;func4+0x39&gt;
+  400ff2: b8 00 00 00 00        mov    $0x0,%eax
+  400ff7: 39 f9                 cmp    %edi,%ecx
+  400ff9: 7d 0c                 jge    401007 &lt;func4+0x39&gt;
+  400ffb: 8d 71 01              lea    0x1(%rcx),%esi
+  400ffe: e8 cb ff ff ff        callq  400fce &lt;func4&gt;
+  401003: 8d 44 00 01           lea    0x1(%rax,%rax,1),%eax
+  401007: 48 83 c4 08           add    $0x8,%rsp
+  40100b: c3                    retq   
+</code></pre>
+
+<p>在分析<code class="highlighter-rouge">func4</code>之前，不要忘了传递到<code class="highlighter-rouge">func4</code>的三个参数分别存储于寄存器<code class="highlighter-rouge">%edi</code>、<code class="highlighter-rouge">%esi</code>和<code class="highlighter-rouge">%edx</code>，其值分别为<code class="highlighter-rouge">x</code>(输入的第一个数)、<code class="highlighter-rouge">0</code>和<code class="highlighter-rouge">14</code>。在<code class="highlighter-rouge">0x400fe9</code>处执行了指令<code class="highlighter-rouge">callq 400fce &lt;func4&gt;</code>，因此<code class="highlighter-rouge">func4</code>很可能是个递归函数，我们将<code class="highlighter-rouge">func4</code>翻译成等价的<code class="highlighter-rouge">C</code>代码，如下所示。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">func4</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">,</span> <span class="kt">int</span> <span class="n">z</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">y</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">t</span> <span class="o">&gt;&gt;</span> <span class="mi">31</span><span class="p">;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="n">func4</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">func4</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">func4</code>的目的是要让函数退出后<code class="highlighter-rouge">%eax</code>的值为<code class="highlighter-rouge">0</code>，而在<code class="highlighter-rouge">0x400ff2</code>处<code class="highlighter-rouge">mov $0x0,%eax</code>显示的将<code class="highlighter-rouge">%eax</code>的值设置为<code class="highlighter-rouge">0</code>，该指令对应于<code class="highlighter-rouge">C</code>代码中的<code class="highlighter-rouge">t = 0</code>。并且，<code class="highlighter-rouge">func4</code>执行递归的退出条件为<code class="highlighter-rouge">k == x</code>，其中<code class="highlighter-rouge">x</code>对应于输入的第一个数，而<code class="highlighter-rouge">k</code>则可以通过一系列计算得到，由于<code class="highlighter-rouge">y = 0</code>且<code class="highlighter-rouge">z = 14</code>，易知<code class="highlighter-rouge">k = 7</code>，因此输入的第一个数即为<code class="highlighter-rouge">7</code>。将字符串<code class="highlighter-rouge">7 0</code>作为<code class="highlighter-rouge">phase_4</code>的输入，拆弹成功，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%207.png" alt=""></p>
+
+<h2 id="phase-5">Phase 5</h2>
+
+<p><code class="highlighter-rouge">phase_5</code>对应的代码如下所示。</p>
+
+<pre><code class="language-assembly">0000000000401062 &lt;phase_5&gt;:
+  401062: 53                    push   %rbx
+  401063: 48 83 ec 20           sub    $0x20,%rsp
+  401067: 48 89 fb              mov    %rdi,%rbx
+  40106a: 64 48 8b 04 25 28 00  mov    %fs:0x28,%rax
+  401071: 00 00 
+  401073: 48 89 44 24 18        mov    %rax,0x18(%rsp)
+  401078: 31 c0                 xor    %eax,%eax
+  40107a: e8 9c 02 00 00        callq  40131b &lt;string_length&gt;
+  40107f: 83 f8 06              cmp    $0x6,%eax
+  401082: 74 4e                 je     4010d2 &lt;phase_5+0x70&gt;
+  401084: e8 b1 03 00 00        callq  40143a &lt;explode_bomb&gt;
+  401089: eb 47                 jmp    4010d2 &lt;phase_5+0x70&gt;
+  40108b: 0f b6 0c 03           movzbl (%rbx,%rax,1),%ecx
+  40108f: 88 0c 24              mov    %cl,(%rsp)
+  401092: 48 8b 14 24           mov    (%rsp),%rdx
+  401096: 83 e2 0f              and    $0xf,%edx
+  401099: 0f b6 92 b0 24 40 00  movzbl 0x4024b0(%rdx),%edx
+  4010a0: 88 54 04 10           mov    %dl,0x10(%rsp,%rax,1)
+  4010a4: 48 83 c0 01           add    $0x1,%rax
+  4010a8: 48 83 f8 06           cmp    $0x6,%rax
+  4010ac: 75 dd                 jne    40108b &lt;phase_5+0x29&gt;
+  4010ae: c6 44 24 16 00        movb   $0x0,0x16(%rsp)
+  4010b3: be 5e 24 40 00        mov    $0x40245e,%esi
+  4010b8: 48 8d 7c 24 10        lea    0x10(%rsp),%rdi
+  4010bd: e8 76 02 00 00        callq  401338 &lt;strings_not_equal&gt;
+  4010c2: 85 c0                 test   %eax,%eax
+  4010c4: 74 13                 je     4010d9 &lt;phase_5+0x77&gt;
+  4010c6: e8 6f 03 00 00        callq  40143a &lt;explode_bomb&gt;
+  4010cb: 0f 1f 44 00 00        nopl   0x0(%rax,%rax,1)
+  4010d0: eb 07                 jmp    4010d9 &lt;phase_5+0x77&gt;
+  4010d2: b8 00 00 00 00        mov    $0x0,%eax
+  4010d7: eb b2                 jmp    40108b &lt;phase_5+0x29&gt;
+  4010d9: 48 8b 44 24 18        mov    0x18(%rsp),%rax
+  4010de: 64 48 33 04 25 28 00  xor    %fs:0x28,%rax
+  4010e5: 00 00 
+  4010e7: 74 05                 je     4010ee &lt;phase_5+0x8c&gt;
+  4010e9: e8 42 fa ff ff        callq  400b30 &lt;__stack_chk_fail@plt&gt;
+  4010ee: 48 83 c4 20           add    $0x20,%rsp
+  4010f2: 5b                    pop    %rbx
+  4010f3: c3                    retq   
+</code></pre>
+
+<p>根据<code class="highlighter-rouge">x86-64</code>寄存器使用规范，<code class="highlighter-rouge">%rdi</code>寄存器存储的是第一个参数的值，由于输入的是字符串，因此<code class="highlighter-rouge">%rdi</code>存储的应该是输入字符串的起始地址。<code class="highlighter-rouge">0x401067</code>处的指令<code class="highlighter-rouge">mov %rdi,%rbx</code>将字符串起始地址保存在<code class="highlighter-rouge">%rbx</code>中，即<code class="highlighter-rouge">%rbx</code>为基址寄存器。指令<code class="highlighter-rouge">xor %eax,%eax</code>的作用是将<code class="highlighter-rouge">%eax</code>清零，接着调用<code class="highlighter-rouge">string_length</code>函数获取输入字符串的长度，并将长度值（返回值）存储于<code class="highlighter-rouge">%eax</code>。指令<code class="highlighter-rouge">cmp $0x6,%eax</code>将<code class="highlighter-rouge">string_length</code>的返回值与常数<code class="highlighter-rouge">6</code>作比较，若不相等则会引爆炸弹，由此可以得知，<code class="highlighter-rouge">phase_5</code>的输入字符串长度应该等于<code class="highlighter-rouge">6</code>。</p>
+
+<p>当输入字符串的长度等于<code class="highlighter-rouge">6</code>，<code class="highlighter-rouge">phase_5</code>跳转至<code class="highlighter-rouge">0x4010d2</code>处执行指令<code class="highlighter-rouge">mov $0x0,%eax</code>，接着又跳转至<code class="highlighter-rouge">0x40108b</code>处执行指令<code class="highlighter-rouge">movzbl (%rbx,%rax,1),%ecx</code>，可以发现<code class="highlighter-rouge">0x40108b</code>至<code class="highlighter-rouge">0x4010ac</code>构成了一个循环，且在循环退出后在<code class="highlighter-rouge">0x4010bd</code>处调动了<code class="highlighter-rouge">strings_not_equal</code>来比较字符串是否相等，若相等，则拆弹成功。其中，由<code class="highlighter-rouge">mov $0x40245e,%esi</code>指令可知，待比较的字符串存储于地址<code class="highlighter-rouge">0x40245e</code>处，打印以该地址作为起始地址的字符串，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%208.png" alt=""></p>
+
+<p>待比较的字符串为<code class="highlighter-rouge">flyers</code>，且长度也为<code class="highlighter-rouge">6</code>。所以，接下来的关键任务是需要对循环操作进行分析，理解该循环操作对输入字符串做了哪些操作。提取循环操作的代码，如下所示。</p>
+
+<pre><code class="language-assembly">  40108b: 0f b6 0c 03           movzbl (%rbx,%rax,1),%ecx
+  40108f: 88 0c 24              mov    %cl,(%rsp)
+  401092: 48 8b 14 24           mov    (%rsp),%rdx
+  401096: 83 e2 0f              and    $0xf,%edx
+  401099: 0f b6 92 b0 24 40 00  movzbl 0x4024b0(%rdx),%edx
+  4010a0: 88 54 04 10           mov    %dl,0x10(%rsp,%rax,1)
+  4010a4: 48 83 c0 01           add    $0x1,%rax
+  4010a8: 48 83 f8 06           cmp    $0x6,%rax
+  4010ac: 75 dd                 jne    40108b &lt;phase_5+0x29&gt;
+</code></pre>
+
+<p>由于<code class="highlighter-rouge">%rbx</code>存储的是输入字符串的起始地址，<code class="highlighter-rouge">%rax</code>初始化为<code class="highlighter-rouge">0</code>，其作用等价于下标，因此<code class="highlighter-rouge">movzbl (%rbx,%rax,1),%ecx</code>指令的作用是将字符串的第<code class="highlighter-rouge">%rax</code>个字符存储于<code class="highlighter-rouge">%ecx</code>，<code class="highlighter-rouge">movzbl</code>意味做了零扩展。接着，<code class="highlighter-rouge">mov  %cl,(%rsp)</code>指令取<code class="highlighter-rouge">%ecx</code>的低<code class="highlighter-rouge">8</code>位，即一个字符的大小，通过内存间接存储至<code class="highlighter-rouge">%rdx</code>中。<code class="highlighter-rouge">and  $0xf,%edx</code>指令将<code class="highlighter-rouge">%edx</code>的值与常数<code class="highlighter-rouge">0xf</code>进行位与，由指令<code class="highlighter-rouge">movzbl 0x4024b0(%rdx),%edx</code>可知，位与后的值将会作为偏移量，以<code class="highlighter-rouge">0x4024b0</code>为基址，将偏移后的值存储至<code class="highlighter-rouge">%edx</code>。最后，指令<code class="highlighter-rouge">mov %dl,0x10(%rsp,%rax,1)</code>以<code class="highlighter-rouge">%edx</code>低<code class="highlighter-rouge">8</code>位的值作为新的字符，对原有字符进行替换。</p>
+
+<p>综上，<code class="highlighter-rouge">phase_5</code>遍历输入字符串的每个字符，将字符的低<code class="highlighter-rouge">4</code>位作为偏移量，以<code class="highlighter-rouge">0x4024b0</code>为起始地址，将新地址对应的字符替换原有字符，最终得到<code class="highlighter-rouge">flyers</code>字符串。打印<code class="highlighter-rouge">0x4024b0</code>处的内容，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%209.png" alt=""></p>
+
+<p>例如，如果要得到字符<code class="highlighter-rouge">f</code>，那么偏移量应为<code class="highlighter-rouge">9</code>，二进制表示为<code class="highlighter-rouge">1001</code>，通过查找<code class="highlighter-rouge">ASCII</code>表，可知字符<code class="highlighter-rouge">i</code>的<code class="highlighter-rouge">ASCII</code>编码为<code class="highlighter-rouge">01101001</code>，满足要求。剩余<code class="highlighter-rouge">5</code>个字符采用同样的策略可以依次求得，最终，<code class="highlighter-rouge">phase_5</code>的输入字符串为<code class="highlighter-rouge">ionefg</code>。</p>
+
+<h2 id="phase-6">Phase 6</h2>
+
+<p><code class="highlighter-rouge">phase_6</code>对应的代码非常长，如下所示。</p>
+
+<pre><code class="language-assembly">00000000004010f4 &lt;phase_6&gt;:
+  4010f4: 41 56                 push   %r14
+  4010f6: 41 55                 push   %r13
+  4010f8: 41 54                 push   %r12
+  4010fa: 55                    push   %rbp
+  4010fb: 53                    push   %rbx
+  4010fc: 48 83 ec 50           sub    $0x50,%rsp
+  401100: 49 89 e5              mov    %rsp,%r13
+  401103: 48 89 e6              mov    %rsp,%rsi
+  401106: e8 51 03 00 00        callq  40145c &lt;read_six_numbers&gt;
+  40110b: 49 89 e6              mov    %rsp,%r14               # %r14存储数组起始地址
+  40110e: 41 bc 00 00 00 00     mov    $0x0,%r12d              # 将%r12d初始化为0
+  
+  #################### Section 1:确认数组中所有的元素小于等于6且不存在重复值 ###################
+  401114: 4c 89 ed              mov    %r13,%rbp               # %r13和%rbp存储数组某个元素的地址，并不是第1个元素，意识到这点需要结合0x40114d处的指令
+  401117: 41 8b 45 00           mov    0x0(%r13),%eax          # %eax存储第%r13个数
+  40111b: 83 e8 01              sub    $0x1,%eax               # 将%eax的值减1
+  40111e: 83 f8 05              cmp    $0x5,%eax               # 将%eax的值与常数5做比较
+  401121: 76 05                 jbe    401128 &lt;phase_6+0x34&gt;
+  401123: e8 12 03 00 00        callq  40143a &lt;explode_bomb&gt;
+  401128: 41 83 c4 01           add    $0x1,%r12d              # 如果%eax的值小于等于5，%r12d加1
+  40112c: 41 83 fc 06           cmp    $0x6,%r12d              # 将%r12d与常数6做比较
+  401130: 74 21                 je     401153 &lt;phase_6+0x5f&gt;
+  401132: 44 89 e3              mov    %r12d,%ebx              # %ebx起了数组下标的作用
+  
+  # 用于判断数组6个数是否存在重复值，若存在，引爆炸弹
+  401135: 48 63 c3              movslq %ebx,%rax               # 将数组下标存储至%rax
+  401138: 8b 04 84              mov    (%rsp,%rax,4),%eax      # 将下一个数存储至%eax
+  40113b: 39 45 00              cmp    %eax,0x0(%rbp)          # 将第1个数与%eax的值(当前数)做比较
+  40113e: 75 05                 jne    401145 &lt;phase_6+0x51&gt;   # 若相等，引爆炸弹   
+  401140: e8 f5 02 00 00        callq  40143a &lt;explode_bomb&gt;
+  401145: 83 c3 01              add    $0x1,%ebx               # 数组下标加1            
+  401148: 83 fb 05              cmp    $0x5,%ebx               # 判断数组下标是否越界(&lt;=5)
+  40114b: 7e e8                 jle    401135 &lt;phase_6+0x41&gt;
+  
+  40114d: 49 83 c5 04           add    $0x4,%r13               # %r13存储数组下一个数的地址
+  401151: eb c1                 jmp    401114 &lt;phase_6+0x20&gt;
+  ####################################### Section 1 end ######################################
+  
+  ################ Section 2：用7减去数组的每个元素，并将相减后的元素替换原有元素 #################
+  401153: 48 8d 74 24 18        lea    0x18(%rsp),%rsi         # 0x18(%rsp)是数组的边界地址：0x18 = 24         
+  401158: 4c 89 f0              mov    %r14,%rax               # 将数组起始地址存储于%rax
+  40115b: b9 07 00 00 00        mov    $0x7,%ecx
+  
+  401160: 89 ca                 mov    %ecx,%edx               # %edx = 7
+  401162: 2b 10                 sub    (%rax),%edx             # %edx = 7 - 数组元素
+  401164: 89 10                 mov    %edx,(%rax)             # 用相减后的元素(%edx)替换原有元素
+  401166: 48 83 c0 04           add    $0x4,%rax               # %rax存储数组下一个元素的地址
+  40116a: 48 39 f0              cmp    %rsi,%rax               # 判断是否越界
+  40116d: 75 f1                 jne    401160 &lt;phase_6+0x6c&gt;
+  ####################################### Section 2 end ######################################
+  
+  ########################## Section 3：根据输入数组重排结构体数组 ##############################
+  40116f: be 00 00 00 00        mov    $0x0,%esi               # 将%esi初始化为0，作为数组下标
+  401174: eb 21                 jmp    401197 &lt;phase_6+0xa3&gt;
+  
+  401176: 48 8b 52 08           mov    0x8(%rdx),%rdx          # 0x8(%rdx)为下一个元素的地址
+  40117a: 83 c0 01              add    $0x1,%eax               
+  40117d: 39 c8                 cmp    %ecx,%eax               # %ecx存储了数组当前值(第%esi个元素)
+  40117f: 75 f5                 jne    401176 &lt;phase_6+0x82&gt;
+  
+  401181: eb 05                 jmp    401188 &lt;phase_6+0x94&gt;
+  401183: ba d0 32 60 00        mov    $0x6032d0,%edx          # %edx存储结构体数组第1个元素的地址
+  401188: 48 89 54 74 20        mov    %rdx,0x20(%rsp,%rsi,2)  # %rsi的初始值为0；该指令的作用是将结构体数组的第%ecx个元素的地址存储在内存的某个位置(以%rsp + 0x20为基地址，%rsi为偏移量)
+  40118d: 48 83 c6 04           add    $0x4,%rsi               # 增加偏移量
+  401191: 48 83 fe 18           cmp    $0x18,%rsi
+  401195: 74 14                 je     4011ab &lt;phase_6+0xb7&gt;
+  401197: 8b 0c 34              mov    (%rsp,%rsi,1),%ecx      # %ecx存储数组第%esi个元素
+  40119a: 83 f9 01              cmp    $0x1,%ecx               # 将数组第%esi个元素与常数1做比较
+  40119d: 7e e4                 jle    401183 &lt;phase_6+0x8f&gt;   # 实际上不会小于1，如果数组的第1个元素等于1，那么跳转至0x401183处
+  40119f: b8 01 00 00 00        mov    $0x1,%eax
+  4011a4: ba d0 32 60 00        mov    $0x6032d0,%edx          # %edx存储结构体数组第1个元素的地址
+  4011a9: eb cb                 jmp    401176 &lt;phase_6+0x82&gt;
+  ####################################### Section 3 end ######################################
+  
+  ######################### Section 4：修改结构体数组元素的next域值 #############################
+  4011ab: 48 8b 5c 24 20        mov    0x20(%rsp),%rbx         # %rbx存储地址数组的第1个元素的值
+  4011b0: 48 8d 44 24 28        lea    0x28(%rsp),%rax         # %rax存储地址数组的第2个元素的地址
+  4011b5: 48 8d 74 24 50        lea    0x50(%rsp),%rsi
+  4011ba: 48 89 d9              mov    %rbx,%rcx               # %rcx存储地址数组的第1个元素的值
+  
+  # 下面用i和i+1来表示元素位置
+  4011bd: 48 8b 10              mov    (%rax),%rdx             # %rdx存储地址数组的第i+1个元素的值
+  4011c0: 48 89 51 08           mov    %rdx,0x8(%rcx)          # 把第i+1和元素的值存储于第i个结构体元素的next域中，next域的地址为0x8(%rcx)的值
+  4011c4: 48 83 c0 08           add    $0x8,%rax
+  4011c8: 48 39 f0              cmp    %rsi,%rax
+  4011cb: 74 05                 je     4011d2 &lt;phase_6+0xde&gt;
+  4011cd: 48 89 d1              mov    %rdx,%rcx
+  4011d0: eb eb                 jmp    4011bd &lt;phase_6+0xc9&gt;
+  ####################################### Section 4 end ######################################
+  
+  ######################### Section 5：判断结构体数组是否是递减序列 #############################
+  4011d2: 48 c7 42 08 00 00 00  movq   $0x0,0x8(%rdx)
+  4011d9: 00 
+  4011da: bd 05 00 00 00        mov    $0x5,%ebp
+  4011df: 48 8b 43 08           mov    0x8(%rbx),%rax
+  4011e3: 8b 00                 mov    (%rax),%eax
+  4011e5: 39 03                 cmp    %eax,(%rbx)
+  4011e7: 7d 05                 jge    4011ee &lt;phase_6+0xfa&gt;
+  4011e9: e8 4c 02 00 00        callq  40143a &lt;explode_bomb&gt;
+  4011ee: 48 8b 5b 08           mov    0x8(%rbx),%rbx
+  4011f2: 83 ed 01              sub    $0x1,%ebp
+  4011f5: 75 e8                 jne    4011df &lt;phase_6+0xeb&gt;
+  ####################################### Section 5 end ######################################
+  
+  4011f7: 48 83 c4 50           add    $0x50,%rsp
+  4011fb: 5b                    pop    %rbx
+  4011fc: 5d                    pop    %rbp
+  4011fd: 41 5c                 pop    %r12
+  4011ff: 41 5d                 pop    %r13
+  401201: 41 5e                 pop    %r14
+  401203: c3                    retq   
+</code></pre>
+
+<p>分析清楚<code class="highlighter-rouge">phase_6</code>非常需要耐心，我将<code class="highlighter-rouge">phase_6</code>划分为<code class="highlighter-rouge">5</code>个<code class="highlighter-rouge">Section</code>，每个<code class="highlighter-rouge">Section</code>完成特定的功能，详细的注释直接附到了相关代码。前两个<code class="highlighter-rouge">Section</code>不难理解：<code class="highlighter-rouge">Section 1</code>确保输入数组的值的范围在<code class="highlighter-rouge">1 ~ 6</code>且不存在重复值；<code class="highlighter-rouge">Section 2</code>用<code class="highlighter-rouge">7</code>减去输入数组的每个元素，相当于求补。<code class="highlighter-rouge">Section 3</code>中出现了一个常数地址，使用<code class="highlighter-rouge">gdb</code>将该地址存储的内容打印出来，如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%2011.png" alt=""></p>
+
+<p>可以意识到这其实是一个链表数据结构，链表的节点由<code class="highlighter-rouge">3</code>部分组成：<code class="highlighter-rouge">value 1</code>、<code class="highlighter-rouge">value 2</code>和一个地址值(<code class="highlighter-rouge">next</code>域，指向下一个节点)。<code class="highlighter-rouge">Section 3</code>根据我们输入的数组，按照数组元素的值将对应结构体数组中的元素的首地址存储到内存的某个位置(<code class="highlighter-rouge">mov %rdx,0x20(%rsp,%rsi,2)</code>)。例如，假设输入数组为<code class="highlighter-rouge">[3, 4, 5, 6, 1, 2]</code>，那么<code class="highlighter-rouge">Section 3</code>首先会将结构体数组的第<code class="highlighter-rouge">3</code>个元素的地址存储到<code class="highlighter-rouge">0x20(%rsp,%rsi,2)</code>处，接着将结构体数组的第<code class="highlighter-rouge">4</code>个元素……依次类推。</p>
+
+<p><code class="highlighter-rouge">Section 4</code>根据<code class="highlighter-rouge">Section 3</code>构建的地址数组，修改结构体数组的<code class="highlighter-rouge">next</code>域的值，实现单链表的排序操作。<code class="highlighter-rouge">Section 5</code>进行验证，要求单链表递减排序，若满足要求，那么拆弹成功。</p>
+
+<p>综上，根据已有的结构体数组以及<code class="highlighter-rouge">phase_6</code>的操作，若要实现单链表的递减排序，应将第<code class="highlighter-rouge">3</code>个节点放在第<code class="highlighter-rouge">1</code>位，将第<code class="highlighter-rouge">4</code>个节点放在第<code class="highlighter-rouge">2</code>位……最终得到序列：<code class="highlighter-rouge">[3, 4, 5, 6, 1, 2]</code>。不要忘记<code class="highlighter-rouge">Section 2</code>中的求补操作，所以<code class="highlighter-rouge">phase_6</code>的输入序列应该为<code class="highlighter-rouge">[4, 3, 2, 1, 6, 5]</code>。</p>
+
+<h2 id="小结">小结</h2>
+
+<p>至此，<code class="highlighter-rouge">Bomb Lab</code>包含了<code class="highlighter-rouge">6</code>个<code class="highlighter-rouge">phase</code>全部拆弹成功。将输入序列存储在文件，然后将文件作为<code class="highlighter-rouge">bomb</code>二进制文件的参数，运行结果如下图所示。</p>
+
+<p><img src="/img/img-2017-04-26-Image%2010.png" alt=""></p>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2017/CSAPP-Bomb-Lab/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2017/CSAPP-Bomb-Lab/ - CSAPP: Bomb Lab by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2017/CSAPP-Bomb-Lab/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2017/CSAPP-Bomb-Lab/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/">← Previous Post</a>
+      <a class="next" href="/2017/6-824-Lab-1-MapReduce/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

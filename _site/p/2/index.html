@@ -5,15 +5,15 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>辰洋的blog</title>
+  <title>辰洋的博客</title>
   <!-- Begin Jekyll SEO tag v2.3.0 -->
-<meta property="og:title" content="辰洋的blog">
+<meta property="og:title" content="辰洋的博客">
 <meta property="og:locale" content="en_US">
 <meta name="description" content="Welcome to my awesome blog.">
 <meta property="og:description" content="Welcome to my awesome blog.">
 <link rel="canonical" href="http://localhost:4000/p/2/">
 <meta property="og:url" content="http://localhost:4000/p/2/">
-<meta property="og:site_name" content="辰洋的blog">
+<meta property="og:site_name" content="辰洋的博客">
 <link rel="prev" href="http://localhost:4000/">
 <link rel="next" href="http://localhost:4000/p/3">
 <meta name="twitter:card" content="summary">
@@ -21,11 +21,11 @@
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"http://localhost:4000/p/2/","publisher":null,"image":null,"headline":"辰洋的blog","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"http://localhost:4000/p/2/","publisher":null,"image":null,"headline":"辰洋的博客","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
-  <link rel="alternate" type="application/rss+xml" title="辰洋的blog" href="http://localhost:4000/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
   <link rel="stylesheet" href="/assets/css/nangka.css">
 
   
@@ -42,7 +42,7 @@
                 <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
             </svg>
         </a>
-        <a class="site-title" href="/">辰洋的blog</a>
+        <a class="site-title" href="/">辰洋的博客</a>
         <nav class="site-nav">
             <div class="trigger">
             
@@ -54,6 +54,18 @@
             
                 
                         <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
                 
             
                 
@@ -86,61 +98,61 @@
     <div class="page-content">
       <div class="wrapper">
         <div class="home">
-  <h1 class="page-heading">Posts</h1>
+  <!-- <h1 class="page-heading">Posts</h1> -->
   <ul class="post-list">
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/sample-post%E5%89%AF%E6%9C%AC-6/">Sample post</a>
+          <a class="post-link" href="/2017/6-824-Lab-1-MapReduce/">6 824 Lab 1 Mapreduce</a>
         </h2>
-          <span class="post-meta">Jan 15, 2016</span>
+          <span class="post-meta">May 3, 2017</span>
         <p class="description">
             
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure...
+                开始学习大名鼎鼎的MIT 6.824: Distributed Systems课程，我跟的是2016年的课程，课程的主要内容是读Paper和做Lab，使用的语言为Go。五一假期期间我基本做完了Lab 1，感觉难度还是相当大的。本篇文章是我对Lab 1的一个总结。MapReduce每次读MapReduce论文，都会有新的收获，也自知还有理解不到位的地方。Execution Overview  输入数据被划分为M个分片，由map worker产生的中间key-value pairs被划分为R个...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/sample-post%E5%89%AF%E6%9C%AC-5/">Sample post</a>
+          <a class="post-link" href="/2017/CSAPP-Bomb-Lab/">CSAPP: Bomb Lab</a>
         </h2>
-          <span class="post-meta">Jan 15, 2016</span>
+          <span class="post-meta">Apr 26, 2017</span>
         <p class="description">
             
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure...
+                Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。完成整个实验的思路是通过objdump对bome进行反编译（objdump -d bomb &gt; bomb.txt），获取所有的汇编代码。提取每个阶段对应的代码并借助gdb进行分析，逐一拆弹。Phase 1phase_1对应的代码如下所示。000...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/sample-post%E5%89%AF%E6%9C%AC-4/">Sample post</a>
+          <a class="post-link" href="/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/">理解Golang中的defer</a>
         </h2>
-          <span class="post-meta">Jan 15, 2016</span>
+          <span class="post-meta">Apr 4, 2017</span>
         <p class="description">
             
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure...
+                关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。我们先运行如下代码，根据运行结果来理解defer，在查看运行结果之前，不妨先想想main函数的输出是什么。packag...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/sample-post%E5%89%AF%E6%9C%AC-3/">Sample post</a>
+          <a class="post-link" href="/2017/%E8%B0%88%E8%B0%88ThreadLocal/">谈谈ThreadLocal</a>
         </h2>
-          <span class="post-meta">Jan 15, 2016</span>
+          <span class="post-meta">Feb 24, 2017</span>
         <p class="description">
             
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure...
+                Java并发编程实战 一书在介绍ThreadLocal类时（第3章），书中有这么两段话，在我初次阅读时不知道如何去理解。  ThreadLocal对象通常用于防止对可变的单实例变量（Singleton）或全局变量进行共享。  当某个频繁执行的操作需要一个临时变量，例如一个缓冲区，而同时又希望避免在每次执行时都重新分配该临时对象，就可以使用这项技术。例如，在Java 5.0之前，Integer.toString()方法使用ThreadLocal对象来保存一个12字节大小的缓冲区，用于对结果进...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/sample-post%E5%89%AF%E6%9C%AC-2/">Sample post</a>
+          <a class="post-link" href="/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAJava-Class%E8%A7%A3%E6%9E%90%E5%99%A8/">如何实现一个Java Class解析器</a>
         </h2>
-          <span class="post-meta">Jan 15, 2016</span>
+          <span class="post-meta">Feb 12, 2017</span>
         <p class="description">
             
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure...
+                最近在写一个私人项目，名字叫做ClassAnalyzer，ClassAnalyzer的目的是能让我们对Java Class文件的设计与结构能够有一个深入的理解。主体框架与基本功能已经完成，还有一些细节功能日后再增加。实际上JDK已经提供了命令行工具javap来反编译Class文件，但本篇文章将阐明我实现解析器的思路。Class文件作为类或者接口信息的载体，每个Class文件都完整的定义了一个类。为了使Java程序可以“编写一次，处处运行”，Java虚拟机规范对Class文件进行了严格的规定...
             </p>
       </li>
     
@@ -157,7 +169,7 @@
     <footer class="site-footer">
   <div class="wrapper">
       <div class="copy">
-          2017 © 辰洋的blog
+          2017 © 辰洋的博客
       </div>
   </div>
 </footer>

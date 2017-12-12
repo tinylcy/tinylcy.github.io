@@ -13,10 +13,10 @@ layout: default
             <span itemprop="name">{{ page.author }}</span>
           </span>
        {% endif %}
-        | <span class="time">
+        <!-- | <span class="time">
             {{ page.content | number_of_words | divided_by:180 }}
           </span>
-           Minute Read
+           Minute Read -->
     </p>
   </header>
   <div class="post-content" itemprop="articleBody">
@@ -25,7 +25,7 @@ layout: default
   <footer class="post-footer">
 
     <!-- Social Share Button-->
-    <ul class="sharebutton">
+    <!-- <ul class="sharebutton">
       <li class="share">Share :</li>
       <li class="fb">
         <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
@@ -42,7 +42,7 @@ layout: default
       <li class="pinterest">
         <a href="http://pinterest.com/pin/create/link/?url={{ page.url | prepend: site.baseurl | prepend: site.url }}" target="_blank" title="Share to Pinterest">Pinterest</a>
       </li>
-    </ul>
+    </ul> -->
 
     <!-- Post Navigation -->
     <div class="post-navigation">

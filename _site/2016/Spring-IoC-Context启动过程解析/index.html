@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spring IoC Context启动过程解析 - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="Spring IoC Context启动过程解析">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="ServletContext">
+<meta property="og:description" content="ServletContext">
+<link rel="canonical" href="http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">
+<meta property="og:url" content="http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-06-22T05:57:12+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"ServletContext","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/","publisher":null,"image":null,"headline":"Spring IoC Context启动过程解析","dateModified":"2016-06-22T05:57:12+08:00","datePublished":"2016-06-22T05:57:12+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Spring IoC Context启动过程解析</h1>
+    <p class="post-meta">
+       <time datetime="2016-06-22T05:57:12+08:00" itemprop="datePublished">
+          Jun 21, 2016
+       </time>
+       
+        <!-- | <span class="time">
+            2
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="servletcontext">ServletContext</h2>
+
+<p><code class="highlighter-rouge">Web</code>容器在启动的过程中，会为每个<code class="highlighter-rouge">Web</code>应用程序创建一个对应的<code class="highlighter-rouge">ServletContext</code>对象，它代表了当前的<code class="highlighter-rouge">Web</code>应用，为<code class="highlighter-rouge">Spring IoC</code>容器提供宿主环境。</p>
+
+<p>在部署<code class="highlighter-rouge">Web</code>工程的时候，<code class="highlighter-rouge">Web</code>容器会读取<code class="highlighter-rouge">web.xml</code>，创建<code class="highlighter-rouge">ServletContext</code>，当前<code class="highlighter-rouge">Web</code>工程所有部分都共享这个<code class="highlighter-rouge">Context</code>。<code class="highlighter-rouge">context-param</code>为<code class="highlighter-rouge">ServletContext</code>提供键值对，即<code class="highlighter-rouge">Servlet</code>上下文的信息，这些信息<code class="highlighter-rouge">Listener</code>、<code class="highlighter-rouge">Filter</code>和<code class="highlighter-rouge">Servlet</code>都有可能使用到，因此先加载<code class="highlighter-rouge">context-param</code>，创建<code class="highlighter-rouge">ServletContext</code>，然后加载<code class="highlighter-rouge">Listener</code>，再加载<code class="highlighter-rouge">Filter</code>，最后加载<code class="highlighter-rouge">Servlet</code>。</p>
+
+<p>接下来我将按照这个加载顺序来分析<code class="highlighter-rouge">Spring</code>容器的启动过程。</p>
+
+<h2 id="contextloaderlistener">ContextLoaderListener</h2>
+
+<p><code class="highlighter-rouge">web.xml</code>中配置有<code class="highlighter-rouge">ContextLoaderListener</code>，也可以自定义一个实现了<code class="highlighter-rouge">ServletContextListener</code>接口的<code class="highlighter-rouge">Listener</code>类，<code class="highlighter-rouge">web.xml</code>中的配置实例如下。</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;listener&gt;</span>
+    <span class="nt">&lt;listener-class&gt;</span>org.springframework.web.context.ContextLoaderListener<span class="nt">&lt;/listener-class&gt;</span>
+<span class="nt">&lt;/listener&gt;</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">Web</code>容器在启动的过程中会触发<code class="highlighter-rouge">ServletContextEvent</code>事件，会被<code class="highlighter-rouge">ContextLoaderListener</code>监听到，并调用<code class="highlighter-rouge">ContextLoaderListener</code>中的<code class="highlighter-rouge">contextInitialized</code>方法，<code class="highlighter-rouge">contextInitialized</code>方法如下所示。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">contextInitialized</span><span class="o">(</span><span class="n">ServletContextEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">initWebApplicationContext</span><span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getServletContext</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">ContextLoaderListener</code>类继承了<code class="highlighter-rouge">ContextLoader</code>，在初始化<code class="highlighter-rouge">Context</code>的过程中，调用<code class="highlighter-rouge">ContextLoader</code>的<code class="highlighter-rouge">initWebApplicationContext</code>方法初始化<code class="highlighter-rouge">WebApplicationContext</code>。<code class="highlighter-rouge">WebApplicationContext</code>是一个接口，<code class="highlighter-rouge">Spring</code>默认的实现类为<code class="highlighter-rouge">XmlWebApplicationContext</code>，<code class="highlighter-rouge">XmlWebApplicationContext</code>就是<code class="highlighter-rouge">Spring</code>的<code class="highlighter-rouge">IoC</code>容器。</p>
+
+<p>在初始化<code class="highlighter-rouge">XmlWebApplicationContext</code>之前，<code class="highlighter-rouge">Web</code>容器已经加载了<code class="highlighter-rouge">context-param</code>，<code class="highlighter-rouge">web.xml</code>中的<code class="highlighter-rouge">context-param</code>实例如下所示。作为<code class="highlighter-rouge">Spring</code>的<code class="highlighter-rouge">IoC</code>容器，其对应的<code class="highlighter-rouge">Bean</code>定义的配置正是<code class="highlighter-rouge">context-param</code>指定的。</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;context-param&gt;</span>
+    <span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+    <span class="nt">&lt;param-value&gt;</span>classpath:applicationContext.xml<span class="nt">&lt;/param-value&gt;</span>
+<span class="nt">&lt;/context-param&gt;</span>
+</code></pre></div></div>
+<p>接着进入到<code class="highlighter-rouge">initWebApplicationContext</code>方法内，<code class="highlighter-rouge">initWebApplicationContext</code>方法定义如下（已省略部分代码）。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="n">WebApplicationContext</span> <span class="nf">initWebApplicationContext</span><span class="o">(</span><span class="n">ServletContext</span> <span class="n">servletContext</span><span class="o">)</span> <span class="o">{</span>      
+    <span class="k">if</span><span class="o">(</span><span class="n">servletContext</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span>
+        <span class="n">WebApplicationContext</span><span class="o">.</span><span class="na">ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">"..."</span><span class="o">);</span>
+    <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">createWebApplicationContext</span><span class="o">(</span><span class="n">servletContext</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="n">servletContext</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="n">WebApplicationContext</span><span class="o">.</span><span class="na">ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">context</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>在<code class="highlighter-rouge">Spring IoC</code>容器初始化前，<code class="highlighter-rouge">initWebApplicationContext</code>先检测以<code class="highlighter-rouge">ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE</code>为<code class="highlighter-rouge">key</code>的值是否为空，若不为空，则初始化<code class="highlighter-rouge">IoC Context</code>，并在初始化完毕后，以<code class="highlighter-rouge">ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE</code>为<code class="highlighter-rouge">key</code>将<code class="highlighter-rouge">IoC Context</code>存储到<code class="highlighter-rouge">ServletContext</code>中。</p>
+
+<h2 id="初始化servlet">初始化Servlet</h2>
+
+<p><code class="highlighter-rouge">Servlet</code>可以在<code class="highlighter-rouge">web.xml</code>中配置多个，在<code class="highlighter-rouge">Spring</code>中，最基本的<code class="highlighter-rouge">Servlet</code>为<code class="highlighter-rouge">DispatcherServlet</code>，对应的配置实例如下所示。</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;servlet&gt;</span>
+    <span class="nt">&lt;servlet-name&gt;</span>appServlet<span class="nt">&lt;/servlet-name&gt;</span>
+    <span class="nt">&lt;servlet-class&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="nt">&lt;/servlet-class&gt;</span>
+    <span class="nt">&lt;init-param&gt;</span>
+        <span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+        <span class="nt">&lt;param-value&gt;</span>/WEB-INF/spring/appServlet/appServlet-context.xml<span class="nt">&lt;/param-value&gt;</span>
+    <span class="nt">&lt;/init-param&gt;</span>
+    <span class="nt">&lt;load-on-startup&gt;</span>1<span class="nt">&lt;/load-on-startup&gt;</span>
+<span class="nt">&lt;/servlet&gt;</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">DispatcherServlet</code>会建立自己的<code class="highlighter-rouge">IoC Context</code>，用以持有相关的<code class="highlighter-rouge">Bean</code>，在初始化自己的<code class="highlighter-rouge">IoC Context</code>的过程中，先通过<code class="highlighter-rouge">WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE</code>，从<code class="highlighter-rouge">ServletContext</code>中获取<code class="highlighter-rouge">WebApplicationContext</code>，将<code class="highlighter-rouge">WebApplicationContext</code>作为<code class="highlighter-rouge">DispatcherServlet的IoC Context</code>的 <code class="highlighter-rouge">parent Context</code>。<code class="highlighter-rouge">DispatcherServlet</code>自己的<code class="highlighter-rouge">IoC Context</code>的初始化工作在<code class="highlighter-rouge">DispatcherServlet</code>的<code class="highlighter-rouge">initStrategies</code>方法中完成，包括控制器映射，视图解析等，<code class="highlighter-rouge">initStrategies</code>
+方法如下所示。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">initStrategies</span><span class="o">(</span><span class="n">ApplicationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initMultipartResolver</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initLocaleResolver</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initThemeResolver</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initHandlerMappings</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initHandlerAdapters</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initHandlerExceptionResolvers</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initRequestToViewNameTranslator</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initViewResolvers</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">initFlashMapManager</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">DispatcherServlet</code>自己的<code class="highlighter-rouge">IoC Context</code>的类型也是<code class="highlighter-rouge">XmlWebApplicationContext</code>，初始化完毕后，<code class="highlighter-rouge">Spring</code>将以与<code class="highlighter-rouge">DispatcherServlet</code>的<code class="highlighter-rouge">servlet-name</code>属性相关的符号作为<code class="highlighter-rouge">key</code>，将<code class="highlighter-rouge">IoC Context</code>保存到	<code class="highlighter-rouge">ServletContext</code>中。这样每个<code class="highlighter-rouge">Servlet</code>就都可以持有自己的<code class="highlighter-rouge">Context</code>，也就是都拥有自己的<code class="highlighter-rouge">Bean</code>空间，同时，各个<code class="highlighter-rouge">Servlet</code>之间还共享着<code class="highlighter-rouge">key</code>为<code class="highlighter-rouge">WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE</code>的<code class="highlighter-rouge">WebApplicationContext</code>，其中定义的<code class="highlighter-rouge">Bean</code>为各个<code class="highlighter-rouge">Servlet</code>共享的<code class="highlighter-rouge">Bean</code>。</p>
+
+<h2 id="参考">参考</h2>
+
+<ul>
+  <li><a href="https://segmentfault.com/q/1010000000210417">segmentfault</a></li>
+</ul>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/ - Spring IoC Context启动过程解析 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2016/LinkedList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">← Previous Post</a>
+      <a class="next" href="/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

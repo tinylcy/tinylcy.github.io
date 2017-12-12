@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用机器指令和汇编指令编程（三） - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="用机器指令和汇编指令编程（三）">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="程序执行过程的跟踪">
+<meta property="og:description" content="程序执行过程的跟踪">
+<link rel="canonical" href="http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/">
+<meta property="og:url" content="http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-06-26T07:12:42+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"程序执行过程的跟踪","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/","publisher":null,"image":null,"headline":"用机器指令和汇编指令编程（三）","dateModified":"2016-06-26T07:12:42+08:00","datePublished":"2016-06-26T07:12:42+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">用机器指令和汇编指令编程（三）</h1>
+    <p class="post-meta">
+       <time datetime="2016-06-26T07:12:42+08:00" itemprop="datePublished">
+          Jun 25, 2016
+       </time>
+       
+        <!-- | <span class="time">
+            1
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="程序执行过程的跟踪">程序执行过程的跟踪</h2>
+
+<p>可以使用<code class="highlighter-rouge">Debug</code>来跟踪一个程序的执行过程，示例程序<code class="highlighter-rouge">1.asm</code>如下所示。</p>
+
+<pre><code class="language-armasm">assume cs:codesg
+
+codesg segment
+
+    mov ax,0123h
+    mov bx,0456h
+    add ax,bx
+    add ax,ax
+
+    mov ax,4c00h
+    int 21h
+
+codesg ends
+end
+</code></pre>
+
+<p>使用<code class="highlighter-rouge">masm</code>编译<code class="highlighter-rouge">1.asm</code>，生成<code class="highlighter-rouge">1.obj</code>，然后将<code class="highlighter-rouge">1.obj</code>使用连接器<code class="highlighter-rouge">Link.exe</code>连接，生成<code class="highlighter-rouge">1.exe</code>。输入<code class="highlighter-rouge">debug 1.exe</code>，将程序载入内存，并使用<code class="highlighter-rouge">R</code>命令查看各个寄存器的设置情况。</p>
+
+<p><img src="/img/img-2016-06-25-Image%201.png" alt="Alt text"></p>
+
+<p>当程序载入内存后，<code class="highlighter-rouge">cx</code>中存放的是程序的长度。<code class="highlighter-rouge">1.exe</code>中程序的机器码共有<code class="highlighter-rouge">15</code>字节，所以此时<code class="highlighter-rouge">cx</code>的值为<code class="highlighter-rouge">000FH</code>。</p>
+
+<p>现在考虑程序被装载到内存的什么地方？从上图中可以得到如下信息。</p>
+<ul>
+  <li>程序加载后<code class="highlighter-rouge">ds</code>中存放着程序所在内存区的段地址，并且这个内存区的偏移地址为<code class="highlighter-rouge">0</code>。因此，程序所在的内存区的地址为<code class="highlighter-rouge">ds:0</code>。</li>
+  <li>这个内存区的前<code class="highlighter-rouge">256</code>字节存放的是<code class="highlighter-rouge">PSP</code>，<code class="highlighter-rouge">DOS</code>通过<code class="highlighter-rouge">PSP</code>和程序进行通信。从<code class="highlighter-rouge">256</code>字节处开始存放的是我们编写的程序。</li>
+</ul>
+
+<p>所以，从<code class="highlighter-rouge">ds</code>中可以得到<code class="highlighter-rouge">PSP</code>的段地址<code class="highlighter-rouge">SA</code>，且<code class="highlighter-rouge">PSP</code>的偏移地址为<code class="highlighter-rouge">0</code>，所以<code class="highlighter-rouge">PSP</code>的物理地址为<code class="highlighter-rouge">SA × 16 + 0</code>。因为<code class="highlighter-rouge">PSP</code>占据了<code class="highlighter-rouge">256(100H)</code>字节，所以程序的物理地址为<code class="highlighter-rouge">SA × 16 + 100H = (SA + 16) × 16 + 0</code>。这个地址可以通过段地址和偏移地址表示：<code class="highlighter-rouge">SA + 10H:0</code>。</p>
+
+<p>从上图可知，此时<code class="highlighter-rouge">ds</code>的值为<code class="highlighter-rouge">075AH</code>，则<code class="highlighter-rouge">PSP</code>的地址为<code class="highlighter-rouge">075AH:0</code>，所以程序的地址应为<code class="highlighter-rouge">076A:0</code>，注意此时<code class="highlighter-rouge">CS:IP</code>的值正为<code class="highlighter-rouge">076A:0</code>，进一步证明了<code class="highlighter-rouge">CS:IP</code>指向的是程序执行的下一条指令<code class="highlighter-rouge">(MOV AX,0123)</code>。</p>
+
+<p>使用<code class="highlighter-rouge">U</code>命令查看从<code class="highlighter-rouge">076A:0</code>开始的其它命令。</p>
+
+<p><img src="/img/img-2016-06-25-Image%202.png" alt="Alt text"></p>
+
+<h2 id="bx和loop指令">[BX]和loop指令</h2>
+
+<h3 id="bx">[BX]</h3>
+
+<p>要完成的描述一个内存单元，需要两种信息：①内存单元的地址；②内存单元的长度。</p>
+<ul>
+  <li>
+<code class="highlighter-rouge">mov ax,[0]</code>表示将一个内存单元的内容送入<code class="highlighter-rouge">ax</code>，这个内存单元的长度为<code class="highlighter-rouge">2</code>字节，偏移地址为<code class="highlighter-rouge">0</code>，段地址存放在<code class="highlighter-rouge">ds</code>中。</li>
+  <li>
+<code class="highlighter-rouge">mov al,[0]</code>表示将一个内存单元的内容送入<code class="highlighter-rouge">al</code>，内存单元的长度为<code class="highlighter-rouge">1</code>字节，偏移地址为<code class="highlighter-rouge">0</code>，段地址存放在<code class="highlighter-rouge">ds</code>中。</li>
+  <li>
+<code class="highlighter-rouge">mov ax,[bx]</code>表示将一个内存单元的内容送入<code class="highlighter-rouge">ax</code>，内存单元的长度为<code class="highlighter-rouge">2</code>字节，偏移地址存放在<code class="highlighter-rouge">bx</code>中，段地址在<code class="highlighter-rouge">ds</code>中。</li>
+  <li>
+<code class="highlighter-rouge">mov al,[bx]</code>表示将一个内存单元的内容送入<code class="highlighter-rouge">al</code>，内存单元的长度为<code class="highlighter-rouge">1</code>字节，偏移地址存放在<code class="highlighter-rouge">bx</code>中，段地址在<code class="highlighter-rouge">ds</code>中。</li>
+</ul>
+
+<h3 id="loop">loop</h3>
+
+<p><code class="highlighter-rouge">loop</code>指令的格式是：<code class="highlighter-rouge">loop 标号</code>，<code class="highlighter-rouge">CPU</code>执行<code class="highlighter-rouge">loop</code>指令的时候，执行两步操作，①<code class="highlighter-rouge">(cx) = (cx) - 1</code>；②判断<code class="highlighter-rouge">cx</code>中的值，不为<code class="highlighter-rouge">0</code>则转至标号处指向，如果为<code class="highlighter-rouge">0</code>则向下执行。注意到<code class="highlighter-rouge">cx</code>中存放着循环次数，影响着<code class="highlighter-rouge">loop</code>执行的执行结果。</p>
+
+<p>使用<code class="highlighter-rouge">loop</code>实现一个具体的任务：实现<code class="highlighter-rouge">2^12</code>的计算。</p>
+
+<pre><code class="language-armasm">assume cs:code
+
+code segment
+	
+	mov ax,2
+	mov cx,11
+	s:add ax,ax
+	loop s
+
+	mov ax,4c00h
+	int 21h
+
+code ends
+end
+</code></pre>
+<p>分析这段程度的运行过程：当首次执行到<code class="highlighter-rouge">add ax,ax</code>时，<code class="highlighter-rouge">ax = ax + ax</code>，然后开始执行<code class="highlighter-rouge">loop s</code>，先将<code class="highlighter-rouge">cx</code>中的值减<code class="highlighter-rouge">1</code>，然后判断<code class="highlighter-rouge">cx</code>中的值是否为<code class="highlighter-rouge">0</code>，若不为<code class="highlighter-rouge">0</code>，则跳转到<code class="highlighter-rouge">s</code>处执行<code class="highlighter-rouge">add ax,ax</code>，如下图所示。</p>
+
+<p><img src="/img/img-2016-06-25-Image%203.png" alt="Alt text"></p>
+
+<p>查看从<code class="highlighter-rouge">CS:IP</code>处的指令，如下图所示。<code class="highlighter-rouge">076A:0008</code>为<code class="highlighter-rouge">loop s</code>指令的地址，并且标号<code class="highlighter-rouge">s</code>已经被翻译成一个地址<code class="highlighter-rouge">0006H</code>，如果在执行<code class="highlighter-rouge">loop 0006</code>时，<code class="highlighter-rouge">cx</code>减<code class="highlighter-rouge">1</code>不为<code class="highlighter-rouge">0</code>，那么就把<code class="highlighter-rouge">IP</code>设置为<code class="highlighter-rouge">0006H</code>，从而使<code class="highlighter-rouge">CS:IP</code>再次指向<code class="highlighter-rouge">076A:0006</code>，实现跳转。因此，<code class="highlighter-rouge">loop</code>指令的本质就是检查<code class="highlighter-rouge">cx</code>，修改<code class="highlighter-rouge">IP</code>。</p>
+
+<p><img src="/img/img-2016-06-25-Image%204.png" alt="Alt text"></p>
+
+<h3 id="loop和bx的联合应用">loop和[bx]的联合应用</h3>
+
+<p>考虑这样一个问题：计算<code class="highlighter-rouge">FFFF:0~FFFF:B</code>单元中的数据的和，将结果存储在<code class="highlighter-rouge">dx</code>中。</p>
+
+<p>分析：</p>
+<ul>
+  <li>运算后的结果是否会超出<code class="highlighter-rouge">dx</code>所能存储的范围？
+ <code class="highlighter-rouge">FFFF:0~FFFF:B</code>内存单元中的数据是字节型的数据，范围在<code class="highlighter-rouge">0~255</code>，<code class="highlighter-rouge">12</code>个这样的整数相加不会超过<code class="highlighter-rouge">65535</code>。</li>
+  <li>能否将<code class="highlighter-rouge">FFFF:0~FFFF:B</code>中的数据直接累加到<code class="highlighter-rouge">dx</code>中？
+不行，因为<code class="highlighter-rouge">FFFF:0~FFFF:B</code>中的数据是<code class="highlighter-rouge">8</code>位的，不能直接累加到<code class="highlighter-rouge">16</code>位的寄存器中。</li>
+  <li>能否将<code class="highlighter-rouge">FFFF:0~FFFF:B</code>累加到<code class="highlighter-rouge">dl</code>中，并设置<code class="highlighter-rouge">(dh) = 0</code>，从而实现累加？
+ 不能，因为<code class="highlighter-rouge">dl</code>是<code class="highlighter-rouge">8</code>位寄存器，累加会造成进位丢失。</li>
+</ul>
+
+<p>解决办法：用一个<code class="highlighter-rouge">16</code>位的寄存器作为中介，将内存单元中的<code class="highlighter-rouge">8</code>位数据赋值到<code class="highlighter-rouge">16</code>位的寄存器中，然后再将该寄存器中的数据加到<code class="highlighter-rouge">dx</code>上。</p>
+
+<p>使用<code class="highlighter-rouge">ax</code>作为中介寄存器，并通过<code class="highlighter-rouge">loop</code>循环将<code class="highlighter-rouge">FFFF:0~FFFF:B</code>内存单元中的值赋值到<code class="highlighter-rouge">ax</code>中，再进行累加。</p>
+
+<pre><code class="language-armasm">assume cs:code
+
+code segment
+	
+	mov ax,0FFFFH
+	mov ds,ax
+	mov bx,0
+	mov dx,0
+	mov cx,12
+	s : mov al,[bx]
+	mov ah,0
+	add dx,ax
+	inc bx
+	loop s
+
+	mov ax,4c00H
+	int 21h
+
+code ends
+end
+</code></pre>
+
+<p>注意第一条指令<code class="highlighter-rouge">mov ax,0FFFFH</code>，在汇编源程序中，数据不能以字母开头，所以要在前面加上<code class="highlighter-rouge">0</code>。</p>
+
+<h2 id="总结">总结</h2>
+
+<ul>
+  <li>程序被加载进内存后，会创建一个<code class="highlighter-rouge">256</code>字节的<code class="highlighter-rouge">PSP</code>，从这段内存区的<code class="highlighter-rouge">256</code>字节处开始，才将程序装入。<code class="highlighter-rouge">ds</code>中存放着<code class="highlighter-rouge">PSP</code>的段地址，且此时偏移地址为<code class="highlighter-rouge">0</code>。我们所编写的汇编指令是从<code class="highlighter-rouge">(ds) + 10H:0</code>处开始，即<code class="highlighter-rouge">CS = (ds + 10H)</code>，<code class="highlighter-rouge">IP = 0</code>。</li>
+  <li>
+<code class="highlighter-rouge"> loop s</code>实现程序循环的本质是修改<code class="highlighter-rouge">IP</code>的值。在执行<code class="highlighter-rouge">loop s</code>时，需要先将<code class="highlighter-rouge">(cx)</code>减<code class="highlighter-rouge">1</code>，然后检查<code class="highlighter-rouge">(cx)</code>是否为<code class="highlighter-rouge">0</code>，若不为<code class="highlighter-rouge">0</code>则修改<code class="highlighter-rouge">IP</code>，再次执行循环体。</li>
+</ul>
+
+<h2 id="参考">参考</h2>
+
+<ul>
+  <li><a href="https://book.douban.com/subject/3037562/">汇编语言</a></li>
+</ul>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/ - 用机器指令和汇编指令编程（三） by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">← Previous Post</a>
+      <a class="next" href="/2016/%E7%9B%AE%E5%BD%95%E4%B8%8E%E6%96%87%E4%BB%B6%E5%B1%9E%E6%80%A7-%E7%BC%96%E5%86%99ls/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

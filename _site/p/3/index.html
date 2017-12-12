@@ -5,26 +5,27 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>辰洋的blog</title>
+  <title>辰洋的博客</title>
   <!-- Begin Jekyll SEO tag v2.3.0 -->
-<meta property="og:title" content="辰洋的blog">
+<meta property="og:title" content="辰洋的博客">
 <meta property="og:locale" content="en_US">
 <meta name="description" content="Welcome to my awesome blog.">
 <meta property="og:description" content="Welcome to my awesome blog.">
 <link rel="canonical" href="http://localhost:4000/p/3/">
 <meta property="og:url" content="http://localhost:4000/p/3/">
-<meta property="og:site_name" content="辰洋的blog">
+<meta property="og:site_name" content="辰洋的博客">
 <link rel="prev" href="http://localhost:4000/p/2">
+<link rel="next" href="http://localhost:4000/p/4">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@">
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"http://localhost:4000/p/3/","publisher":null,"image":null,"headline":"辰洋的blog","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"http://localhost:4000/p/3/","publisher":null,"image":null,"headline":"辰洋的博客","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
-  <link rel="alternate" type="application/rss+xml" title="辰洋的blog" href="http://localhost:4000/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
   <link rel="stylesheet" href="/assets/css/nangka.css">
 
   
@@ -41,7 +42,7 @@
                 <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
             </svg>
         </a>
-        <a class="site-title" href="/">辰洋的blog</a>
+        <a class="site-title" href="/">辰洋的博客</a>
         <nav class="site-nav">
             <div class="trigger">
             
@@ -53,6 +54,18 @@
             
                 
                         <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
                 
             
                 
@@ -85,28 +98,61 @@
     <div class="page-content">
       <div class="wrapper">
         <div class="home">
-  <h1 class="page-heading">Posts</h1>
+  <!-- <h1 class="page-heading">Posts</h1> -->
   <ul class="post-list">
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/sample-post/">Sample post</a>
+          <a class="post-link" href="/2017/CSAPP-Shell-Lab/">CSAPP: Shell Lab</a>
         </h2>
-          <span class="post-meta">Jan 15, 2016</span>
+          <span class="post-meta">Jan 10, 2017</span>
         <p class="description">
             
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure...
+                这个实验通过实现一个支持作业控制的Unix Shell，让我们对进程控制和信号控制更加熟悉。课程Lab已经帮助我们搭建起了Shell的整体框架，并实现了与本次实验不太相关的代码，核心部分需要我们自己完成。整体框架Shell从标准输入（stdin）读取用户输入的命令，然后解析命令，Shell支持两种类型的命令：如果用户输入的是的内置命令（如quit、jobs等），那么直接执行该命令；如果用户输入的是某个可执行文件的路径，那么通过fork一个子进程，在子进程中加载并执行命令。Shell把每次用...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/welcome-to-jekyll/">Welcome to Jekyll!</a>
+          <a class="post-link" href="/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">MapReduce论文阅读</a>
         </h2>
-          <span class="post-meta">Jan 15, 2016</span>
+          <span class="post-meta">Jan 7, 2017</span>
         <p class="description">
             
-                You’ll find this post in your _posts directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run jekyll serve, which launches a web server and auto-r...
+                大四时曾经粗略的阅读过这篇论文，并且已经写过不少的MapReduce程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进MIT 6.824: Distributed Systems，而完成这门课程的第一个lab的前提便是阅读这篇论文。这篇笔记重点分析了MapReduce的执行流程以及容错机制，因为是个人理解，若有分析不妥之处欢迎发送邮件至tinylcy (at) gmail.com讨论交流。Execution Overview根据不同的环境，...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2017/Bigtable%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">Bigtable论文阅读</a>
+        </h2>
+          <span class="post-meta">Jan 4, 2017</span>
+        <p class="description">
+            
+                本文是我对Bigtable论文进行第一轮阅读所做的笔记。对于理解欠妥的地方，欢迎发送邮件至tinylcy (at) gmail.com讨论。Data Model  A Bigtable is a sparse, distributed, persistent multi-dimensional sorted map. The map is indexed by a row key, column key, and a timestamp; each value in the map is ...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2017/2016%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E5%8F%8A2017%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">2016年度总结及2017年度计划</a>
+        </h2>
+          <span class="post-meta">Jan 1, 2017</span>
+        <p class="description">
+            
+                从2016年12月开始持续使用Pomotodo起，我逐渐意识到给自己定下量化计划是一件能够提升学习效率的事情。2017年的核心目标依然是提高自己，但是会采用具体的量化的指标来代替模糊性描述。其实这就类似于我们在git commit时候，如果以git commit -m "fix some bugs"的形式commit，那么在后期这些descriptions并不会带给我们任何帮助。2016总结  2016年3月至6月我需要完成学校的课程，但是总体来说，课程的质量不算高，我没有在这些课程及考试...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Spring IoC容器初始化 — Resource定位源码分析</a>
+        </h2>
+          <span class="post-meta">Dec 7, 2016</span>
+        <p class="description">
+            
+                在Spring IoC容器的设计中，有两个主要的容器系列。一个是实现了BeanFactory接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是ApplicationContext应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。IoC容器的初始化过程Spring IoC容器的初始化过程分为三个阶段：Resource定位、BeanDefinition的载入和向IoC容器注册BeanDefinition。Spring把这三个阶段分离，并使用不同的...
             </p>
       </li>
     
@@ -115,7 +161,7 @@
 <!-- Pagination links -->
   <div class="pagination">
      <a href="/p/2" class="prev">Newer Posts</a> 
-    
+     <a href="/p/4" class="next">Older Posts</a>
   </div>
 
       </div>
@@ -123,7 +169,7 @@
     <footer class="site-footer">
   <div class="wrapper">
       <div class="copy">
-          2017 © 辰洋的blog
+          2017 © 辰洋的博客
       </div>
   </div>
 </footer>

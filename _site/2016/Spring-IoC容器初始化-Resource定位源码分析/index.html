@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spring IoC容器初始化 — Resource定位源码分析 - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="Spring IoC容器初始化 — Resource定位源码分析">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="在Spring IoC容器的设计中，有两个主要的容器系列。一个是实现了BeanFactory接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是ApplicationContext应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。">
+<meta property="og:description" content="在Spring IoC容器的设计中，有两个主要的容器系列。一个是实现了BeanFactory接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是ApplicationContext应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。">
+<link rel="canonical" href="http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+<meta property="og:url" content="http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-12-07T23:53:56+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"在Spring IoC容器的设计中，有两个主要的容器系列。一个是实现了BeanFactory接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是ApplicationContext应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","publisher":null,"image":null,"headline":"Spring IoC容器初始化 — Resource定位源码分析","dateModified":"2016-12-07T23:53:56+08:00","datePublished":"2016-12-07T23:53:56+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Spring IoC容器初始化 — Resource定位源码分析</h1>
+    <p class="post-meta">
+       <time datetime="2016-12-07T23:53:56+08:00" itemprop="datePublished">
+          Dec 7, 2016
+       </time>
+       
+        <!-- | <span class="time">
+            9
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <p>在<code class="highlighter-rouge">Spring IoC</code>容器的设计中，有两个主要的容器系列。一个是实现了<code class="highlighter-rouge">BeanFactory</code>接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是<code class="highlighter-rouge">ApplicationContext</code>应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。</p>
+
+<h2 id="ioc容器的初始化过程">IoC容器的初始化过程</h2>
+
+<p><code class="highlighter-rouge">Spring IoC</code>容器的初始化过程分为三个阶段：<code class="highlighter-rouge">Resource</code>定位、<code class="highlighter-rouge">BeanDefinition</code>的载入和向<code class="highlighter-rouge">IoC</code>容器注册<code class="highlighter-rouge">BeanDefinition</code>。<code class="highlighter-rouge">Spring</code>把这三个阶段分离，并使用不同的模块来完成，这样可以让用户更加灵活的对这三个阶段进行扩展。</p>
+
+<ul>
+  <li>
+<code class="highlighter-rouge">Resource</code>定位指的是<code class="highlighter-rouge">BeanDefinition</code>的资源定位，它由<code class="highlighter-rouge">ResourceLoader</code>通过统一的<code class="highlighter-rouge">Resource</code>接口来完成，<code class="highlighter-rouge">Resource</code>对各种形式的<code class="highlighter-rouge">BeanDefinition</code>的使用都提供了统一的接口。</li>
+  <li>
+<code class="highlighter-rouge">BeanDefinition</code>的载入是把用户定义好的<code class="highlighter-rouge">Bean</code>表示成<code class="highlighter-rouge">IoC</code>容器内部的数据结构，而这个容器内部的数据结构就是<code class="highlighter-rouge">BeanDefinition</code>，<code class="highlighter-rouge">BeanDefinition</code>实际上就是<code class="highlighter-rouge">POJO</code>对象在<code class="highlighter-rouge">IoC</code>容器中的抽象。通过<code class="highlighter-rouge">BeanDefinition</code>，<code class="highlighter-rouge">IoC</code>容器可以方便的对<code class="highlighter-rouge">POJO</code>对象进行管理。</li>
+  <li>向<code class="highlighter-rouge">IoC</code>容器注册<code class="highlighter-rouge">BeanDefinition</code>是通过调用<code class="highlighter-rouge">BeanDefinitionRegistry</code>接口的实现来完成的，这个注册过程是把载入的<code class="highlighter-rouge">BeanDefinition</code>向<code class="highlighter-rouge">IoC</code>容器进行注册。实际上，在<code class="highlighter-rouge">IoC</code>容器内部维护着一个<code class="highlighter-rouge">HashMap</code>，而这个注册过程其实就将<code class="highlighter-rouge">BeanDefinition</code>添加至这个<code class="highlighter-rouge">HashMap</code>。</li>
+</ul>
+
+<p>我们可以自己定义<code class="highlighter-rouge">Resource</code>、<code class="highlighter-rouge">BeanFactory</code>和<code class="highlighter-rouge">BeanDefinitionReader</code>来初始化一个容器。如下代码片段使用了<code class="highlighter-rouge">DefaultListableBeanFactory</code>作为实际使用的<code class="highlighter-rouge">IoC</code>容器。同时，创建<code class="highlighter-rouge">IoC</code>配置文件（<code class="highlighter-rouge">dispatcher-servlet.xml</code>）的抽象资源，这个抽象资源包含了<code class="highlighter-rouge">BeanDefinition</code>的定义信息。最后，还需要创建一个载入<code class="highlighter-rouge">BeanDefinition</code>的读取器，此处使用<code class="highlighter-rouge">XmlBeanDefinitionReader</code>，通过一个回调配置给<code class="highlighter-rouge">BeanFactory</code>。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ClassPathResource</span> <span class="n">res</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathResource</span><span class="o">(</span><span class="s">"dispatcher-servlet.xml"</span><span class="o">);</span>
+<span class="n">DefaultListableBeanFactory</span> <span class="n">factory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DefaultListableBeanFactory</span><span class="o">();</span>
+<span class="n">XmlBeanDefinitionReader</span> <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="n">XmlBeanDefinitionReader</span><span class="o">(</span><span class="n">factory</span><span class="o">);</span>
+<span class="n">reader</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">res</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>我们也可以通过<code class="highlighter-rouge">ApplicationContext</code>创建一个<code class="highlighter-rouge">IoC</code>容器。在<code class="highlighter-rouge">Spring</code>中，系统已经提供许多定义好的容器实现，而不需要自己组装。如下代码片段以<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>为例创建了一个<code class="highlighter-rouge">IoC</code>容器。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">FileSystemXmlApplicationContext</span> <span class="n">context</span> <span class="o">=</span> 
+        <span class="k">new</span> <span class="nf">FileSystemXmlApplicationContext</span><span class="o">(</span><span class="s">"classpath:dispatcher-servlet.xml"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>无论使用哪种方式初始化<code class="highlighter-rouge">IoC</code>容器，都会经历上述三个阶段。本篇文章将结合<code class="highlighter-rouge">Spring 4.0.2</code>源码，并以<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>为例对<code class="highlighter-rouge">IoC</code>容器初始化的第一阶段，也就是<code class="highlighter-rouge">Resource</code>定位阶段进行分析。</p>
+
+<h2 id="beandefinition的resource定位">BeanDefinition的Resource定位</h2>
+
+<p>下图展示了<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>的继承体系，<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>继承自<code class="highlighter-rouge">AbstractApplicationContext</code>，而<code class="highlighter-rouge">AbstractApplicationContext</code>又继承自<code class="highlighter-rouge">DefaultResourceLoader</code>，<code class="highlighter-rouge">DefaultResourceLoader</code>实现了<code class="highlighter-rouge">ResourceLoader</code>接口。因此<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>具备读取定义了<code class="highlighter-rouge">BeanDefinition</code>的<code class="highlighter-rouge">Resource</code>的能力。</p>
+
+<p><img src="/img/2016-12-07-Image%201.png" alt="Alt text"></p>
+
+<p>我们的分析入口是<code class="highlighter-rouge">new FileSystemXmlApplicationContext("classpath:dispatcher-servlet.xml");</code>，这句代码调用了<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>的构造方法。<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>的构造方法源码如下（只提取与本次分析关联的代码）。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="nf">FileSystemXmlApplicationContext</span><span class="o">(</span><span class="n">String</span> <span class="n">configLocation</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">(</span><span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="n">configLocation</span><span class="o">},</span> <span class="kc">true</span><span class="o">,</span> <span class="o">(</span><span class="n">ApplicationContext</span><span class="o">)</span><span class="kc">null</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nf">FileSystemXmlApplicationContext</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">configLocations</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">refresh</span><span class="o">,</span> 	
+                                           <span class="n">ApplicationContext</span> <span class="n">parent</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">parent</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">setConfigLocations</span><span class="o">(</span><span class="n">configLocations</span><span class="o">);</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">refresh</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">refresh</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>在创建<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>时，我们仅传入了包含<code class="highlighter-rouge">BeanDefinition</code>的配置文件路径（<code class="highlighter-rouge">classpath:dispatcher-servlet.xml</code>），由此调用<code class="highlighter-rouge">FileSystemXmlApplicationContext(String configLocation)</code>构造方法。接着，<code class="highlighter-rouge">FileSystemXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)</code>构造方法被间接调用，在该构造方法内部，<code class="highlighter-rouge">refresh</code>方法完成了整个<code class="highlighter-rouge">IoC</code>容器的初始化。因此，<code class="highlighter-rouge">refresh</code>方法是我们分析的下一个入口。</p>
+
+<p><code class="highlighter-rouge">refresh</code>方法的具体实现定义在<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>的父类<code class="highlighter-rouge">AbstractApplicationContext</code>中，对应的源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">BeansException</span><span class="o">,</span> <span class="n">IllegalStateException</span> <span class="o">{</span>
+        <span class="n">Object</span> <span class="n">var1</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">startupShutdownMonitor</span><span class="o">;</span>
+        <span class="kd">synchronized</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">startupShutdownMonitor</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">prepareRefresh</span><span class="o">();</span>
+            <span class="n">ConfigurableListableBeanFactory</span> <span class="n">beanFactory</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">obtainFreshBeanFactory</span><span class="o">();</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">prepareBeanFactory</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">postProcessBeanFactory</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">invokeBeanFactoryPostProcessors</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">registerBeanPostProcessors</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">initMessageSource</span><span class="o">();</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">initApplicationEventMulticaster</span><span class="o">();</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">onRefresh</span><span class="o">();</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">registerListeners</span><span class="o">();</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">finishBeanFactoryInitialization</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">finishRefresh</span><span class="o">();</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">BeansException</span> <span class="n">var5</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">destroyBeans</span><span class="o">();</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">cancelRefresh</span><span class="o">(</span><span class="n">var5</span><span class="o">);</span>
+                <span class="k">throw</span> <span class="n">var5</span><span class="o">;</span>
+            <span class="o">}</span>
+
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>在<code class="highlighter-rouge">refresh</code>方法中，通过<code class="highlighter-rouge">obtainFreshBeanFactory</code>方法，<code class="highlighter-rouge">ConfigurableListableBeanFactory</code>类型的<code class="highlighter-rouge">BeanFactory</code>被创建。我们接着进入<code class="highlighter-rouge">obtainFreshBeanFactory</code>方法，<code class="highlighter-rouge">obtainFreshBeanFactory</code>方法也定义在<code class="highlighter-rouge">AbstractApplicationContext</code>中。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">protected</span> <span class="n">ConfigurableListableBeanFactory</span> <span class="nf">obtainFreshBeanFactory</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">refreshBeanFactory</span><span class="o">();</span>
+        <span class="n">ConfigurableListableBeanFactory</span> <span class="n">beanFactory</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getBeanFactory</span><span class="o">();</span>
+        <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">logger</span><span class="o">.</span><span class="na">isDebugEnabled</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">"Bean factory for "</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">getDisplayName</span><span class="o">()</span> <span class="o">+</span> <span class="s">": "</span> <span class="o">+</span> <span class="n">beanFactory</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">beanFactory</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">refreshBeanFactory</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">BeansException</span><span class="o">,</span> <span class="n">IllegalStateException</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>我们重点关注<code class="highlighter-rouge">refreshBeanFactory</code>方法的实现。在<code class="highlighter-rouge">AbstractApplicationContext</code>中，<code class="highlighter-rouge">refreshBeanFactory</code>方法仅仅是个声明，具体的实现委托给了子类完成。此处，<code class="highlighter-rouge">refreshBeanFactory</code>方法的具体实现定义在了<code class="highlighter-rouge">AbstractRefreshableApplicationContext</code>，<code class="highlighter-rouge">AbstractRefreshableApplicationContext</code>正是继承自<code class="highlighter-rouge">AbstractApplicationContext</code>，这点我们可以从上文的继承体系图可以得知。<code class="highlighter-rouge">refreshBeanFactory</code>方法在<code class="highlighter-rouge">AbstractRefreshableApplicationContext</code>中的定义如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">protected</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">refreshBeanFactory</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">hasBeanFactory</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">destroyBeans</span><span class="o">();</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">closeBeanFactory</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">DefaultListableBeanFactory</span> <span class="n">ex</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">createBeanFactory</span><span class="o">();</span>
+            <span class="n">ex</span><span class="o">.</span><span class="na">setSerializationId</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">customizeBeanFactory</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+            <span class="n">Object</span> <span class="n">var2</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">beanFactoryMonitor</span><span class="o">;</span>
+            <span class="kd">synchronized</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">beanFactoryMonitor</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">beanFactory</span> <span class="o">=</span> <span class="n">ex</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">var5</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">ApplicationContextException</span><span class="o">(</span><span class="s">"I/O error parsing bean definition source for "</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">getDisplayName</span><span class="o">(),</span> <span class="n">var5</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="n">DefaultListableBeanFactory</span> <span class="n">var1</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span><span class="o">,</span> <span class="n">IOException</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">refreshBeanFactory</code>方法首先会判断是否已经建立的<code class="highlighter-rouge">BeanFactory</code>，如果已经建立，那么需要销毁并关闭该<code class="highlighter-rouge">BeanFactory</code>。接着，<code class="highlighter-rouge">refreshBeanFactory</code>方法通过<code class="highlighter-rouge">createBeanFactory</code>方法创建了一个<code class="highlighter-rouge">IoC</code>容器供<code class="highlighter-rouge">ApplicationContext</code>使用，且这个<code class="highlighter-rouge">IoC</code>容器的实际类型为<code class="highlighter-rouge">DefaultListableBeanFactory</code>。同时，<code class="highlighter-rouge">refreshBeanFactory</code>方法将这个<code class="highlighter-rouge">IoC</code>容器作为参数，调用<code class="highlighter-rouge">loadBeanDefinitions</code>载入了<code class="highlighter-rouge">BeanDefinition</code>（本文暂不分析载入过程的具体操作）。</p>
+
+<p><code class="highlighter-rouge">loadBeanDefinitions</code>方法也仅仅在<code class="highlighter-rouge">AbstractRefreshableApplicationContext</code>中声明，具体的实现定义在<code class="highlighter-rouge">AbstractXmlApplicationContext</code>中，从继承体系图我们可以得知<code class="highlighter-rouge">AbstractXmlApplicationContext</code>正是<code class="highlighter-rouge">AbstractRefreshableApplicationContext</code>的子类。<code class="highlighter-rouge">loadBeanDefinitions</code>方法对应的源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="n">DefaultListableBeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="n">XmlBeanDefinitionReader</span> <span class="n">beanDefinitionReader</span> <span class="o">=</span> <span class="k">new</span> <span class="n">XmlBeanDefinitionReader</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+        <span class="n">beanDefinitionReader</span><span class="o">.</span><span class="na">setEnvironment</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getEnvironment</span><span class="o">());</span>
+        <span class="n">beanDefinitionReader</span><span class="o">.</span><span class="na">setResourceLoader</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+        <span class="n">beanDefinitionReader</span><span class="o">.</span><span class="na">setEntityResolver</span><span class="o">(</span><span class="k">new</span> <span class="n">ResourceEntityResolver</span><span class="o">(</span><span class="k">this</span><span class="o">));</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">initBeanDefinitionReader</span><span class="o">(</span><span class="n">beanDefinitionReader</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">beanDefinitionReader</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="n">XmlBeanDefinitionReader</span> <span class="n">reader</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="n">Resource</span><span class="o">[]</span> <span class="n">configResources</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getConfigResources</span><span class="o">();</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">configResources</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">reader</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">configResources</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="n">String</span><span class="o">[]</span> <span class="n">configLocations</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getConfigLocations</span><span class="o">();</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">configLocations</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">reader</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">configLocations</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>在<code class="highlighter-rouge">loadBeanDefinitions(DefaultListableBeanFactory beanFactory)</code>中，定义了<code class="highlighter-rouge">BeanDefinition</code>的读入器<code class="highlighter-rouge">beanDefinitionReader</code>。<code class="highlighter-rouge">Spring</code>把定位、读入和注册的过程解耦，这正是体现之处之一。接着<code class="highlighter-rouge">beanDefinitionReader</code>作为参数，调用<code class="highlighter-rouge">loadBeanDefinitions(XmlBeanDefinitionReader reader)</code>方法，如果<code class="highlighter-rouge">configResources</code>为空，那么<code class="highlighter-rouge">reader</code>就会根据<code class="highlighter-rouge">configLocations</code>调用<code class="highlighter-rouge">reader</code>的<code class="highlighter-rouge">loadBeanDefinitions</code>去加载相应的<code class="highlighter-rouge">Resource</code>。在<code class="highlighter-rouge">AbstractBeanDefinitionReader</code>和<code class="highlighter-rouge">XmlBeanDefinitionReader</code>中个自定义了不同的<code class="highlighter-rouge">loadBeanDefinitions</code>方法，与我们本次分析相关的代码定义在<code class="highlighter-rouge">AbstractBeanDefinitionReader</code>中，如下所示。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">locations</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeanDefinitionStoreException</span> <span class="o">{</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">notNull</span><span class="o">(</span><span class="n">locations</span><span class="o">,</span> <span class="s">"Location array must not be null"</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="n">String</span><span class="o">[]</span> <span class="n">var3</span> <span class="o">=</span> <span class="n">locations</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">var4</span> <span class="o">=</span> <span class="n">locations</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">var5</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">var5</span> <span class="o">&lt;</span> <span class="n">var4</span><span class="o">;</span> <span class="o">++</span><span class="n">var5</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">location</span> <span class="o">=</span> <span class="n">var3</span><span class="o">[</span><span class="n">var5</span><span class="o">];</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="k">this</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">location</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="n">counter</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="n">String</span> <span class="n">location</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeanDefinitionStoreException</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">location</span><span class="o">,</span> <span class="o">(</span><span class="n">Set</span><span class="o">)</span><span class="kc">null</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="n">String</span> <span class="n">location</span><span class="o">,</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">Resource</span><span class="o">&gt;</span> <span class="n">actualResources</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeanDefinitionStoreException</span> <span class="o">{</span>
+        <span class="n">ResourceLoader</span> <span class="n">resourceLoader</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getResourceLoader</span><span class="o">();</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">resourceLoader</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">BeanDefinitionStoreException</span><span class="o">(</span><span class="s">"Cannot import bean definitions from location ["</span> <span class="o">+</span> <span class="n">location</span> <span class="o">+</span> <span class="s">"]: no ResourceLoader available"</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">loadCount</span><span class="o">;</span>
+            <span class="k">if</span><span class="o">(!(</span><span class="n">resourceLoader</span> <span class="k">instanceof</span> <span class="n">ResourcePatternResolver</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">Resource</span> <span class="n">var11</span> <span class="o">=</span> <span class="n">resourceLoader</span><span class="o">.</span><span class="na">getResource</span><span class="o">(</span><span class="n">location</span><span class="o">);</span>
+                <span class="n">loadCount</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">((</span><span class="n">Resource</span><span class="o">)</span><span class="n">var11</span><span class="o">);</span>
+                <span class="k">if</span><span class="o">(</span><span class="n">actualResources</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">actualResources</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">var11</span><span class="o">);</span>
+                <span class="o">}</span>
+
+                <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">logger</span><span class="o">.</span><span class="na">isDebugEnabled</span><span class="o">())</span> <span class="o">{</span>
+                    <span class="k">this</span><span class="o">.</span><span class="na">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">"Loaded "</span> <span class="o">+</span> <span class="n">loadCount</span> <span class="o">+</span> <span class="s">" bean definitions from location ["</span> <span class="o">+</span> <span class="n">location</span> <span class="o">+</span> <span class="s">"]"</span><span class="o">);</span>
+                <span class="o">}</span>
+
+                <span class="k">return</span> <span class="n">loadCount</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">Resource</span><span class="o">[]</span> <span class="n">resource</span> <span class="o">=</span>
+                        <span class="o">((</span><span class="n">ResourcePatternResolver</span><span class="o">)</span><span class="n">resourceLoader</span><span class="o">).</span><span class="na">getResources</span><span class="o">(</span><span class="n">location</span><span class="o">);</span>
+                    <span class="n">loadCount</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">loadBeanDefinitions</span><span class="o">(</span><span class="n">resource</span><span class="o">);</span>
+                    <span class="k">if</span><span class="o">(</span><span class="n">actualResources</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">Resource</span><span class="o">[]</span> <span class="n">var6</span> <span class="o">=</span> <span class="n">resource</span><span class="o">;</span>
+                        <span class="kt">int</span> <span class="n">var7</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+
+                        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">var8</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">var8</span> <span class="o">&lt;</span> <span class="n">var7</span><span class="o">;</span> <span class="o">++</span><span class="n">var8</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="n">Resource</span> <span class="n">resource1</span> <span class="o">=</span> <span class="n">var6</span><span class="o">[</span><span class="n">var8</span><span class="o">];</span>
+                            <span class="n">actualResources</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">resource1</span><span class="o">);</span>
+                        <span class="o">}</span>
+                    <span class="o">}</span>
+
+                    <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">logger</span><span class="o">.</span><span class="na">isDebugEnabled</span><span class="o">())</span> <span class="o">{</span>
+                        <span class="k">this</span><span class="o">.</span><span class="na">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">"Loaded "</span> <span class="o">+</span> <span class="n">loadCount</span> <span class="o">+</span> <span class="s">" bean definitions from location pattern ["</span> <span class="o">+</span> <span class="n">location</span> <span class="o">+</span> <span class="s">"]"</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="k">return</span> <span class="n">loadCount</span><span class="o">;</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">var10</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">throw</span> <span class="k">new</span> <span class="nf">BeanDefinitionStoreException</span><span class="o">(</span><span class="s">"Could not resolve bean definition resource pattern ["</span> <span class="o">+</span> <span class="n">location</span> <span class="o">+</span> <span class="s">"]"</span><span class="o">,</span> <span class="n">var10</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>在<code class="highlighter-rouge">loadBeanDefinitions(String location, Set&lt;Resource&gt; actualResources)</code>方法中，我们可以看到，<code class="highlighter-rouge">Resource</code>的定位工作交给了<code class="highlighter-rouge">ResourceLoader</code>来完成。对于取得<code class="highlighter-rouge">Resource</code>的具体过程，我们可以看看<code class="highlighter-rouge">DefaultResourceLoader</code>是怎样完成的，对应源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="n">Resource</span> <span class="nf">getResource</span><span class="o">(</span><span class="n">String</span> <span class="n">location</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">notNull</span><span class="o">(</span><span class="n">location</span><span class="o">,</span> <span class="s">"Location must not be null"</span><span class="o">);</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">location</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"classpath:"</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="nf">ClassPathResource</span><span class="o">(</span><span class="n">location</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="s">"classpath:"</span><span class="o">.</span><span class="na">length</span><span class="o">()),</span>
+                                         <span class="k">this</span><span class="o">.</span><span class="na">getClassLoader</span><span class="o">());</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">URL</span> <span class="n">ex</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="n">location</span><span class="o">);</span>
+                <span class="k">return</span> <span class="k">new</span> <span class="nf">UrlResource</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">MalformedURLException</span> <span class="n">var3</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">getResourceByPath</span><span class="o">(</span><span class="n">location</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>由于我们传入的<code class="highlighter-rouge">location</code>为<code class="highlighter-rouge">classpath:dispatcher-servlet.xml</code>，因此<code class="highlighter-rouge">getResource</code>方法会生成一个<code class="highlighter-rouge">ClassPathResource</code>并返回，如果我们传入的是一个文件路径，那么会调用<code class="highlighter-rouge">getResourceByPath</code>方法，<code class="highlighter-rouge">getResourceByPath</code>方法定义在<code class="highlighter-rouge">FileSystemXmlApplicationContext</code>中，对应的源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">protected</span> <span class="n">Resource</span> <span class="nf">getResourceByPath</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">path</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">path</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">FileSystemResource</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>到此，我们完成了<code class="highlighter-rouge">IoC</code>容器在初始化过程中的<code class="highlighter-rouge">Resource</code>定位过程的流程分析，这为接下来进行<code class="highlighter-rouge">BeanDefinition</code>数据的载入和解析创造了条件。</p>
+
+<p>后续我会对<code class="highlighter-rouge">BeanDefinition</code>的载入和解析过程结合源码进行分析，欢迎关注。若本文存在分析不妥之处，建议发送邮件至<code class="highlighter-rouge">tinylcy (at) gmail.com</code>交流，直接在页面评论亦可。</p>
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/ - Spring IoC容器初始化 — Resource定位源码分析 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2016/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">← Previous Post</a>
+      <a class="next" href="/2017/2016%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E5%8F%8A2017%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

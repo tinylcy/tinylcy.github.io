@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MapReduce论文阅读 - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="MapReduce论文阅读">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="大四时曾经粗略的阅读过这篇论文，并且已经写过不少的MapReduce程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进MIT 6.824: Distributed Systems，而完成这门课程的第一个lab的前提便是阅读这篇论文。">
+<meta property="og:description" content="大四时曾经粗略的阅读过这篇论文，并且已经写过不少的MapReduce程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进MIT 6.824: Distributed Systems，而完成这门课程的第一个lab的前提便是阅读这篇论文。">
+<link rel="canonical" href="http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">
+<meta property="og:url" content="http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-01-08T05:03:08+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"大四时曾经粗略的阅读过这篇论文，并且已经写过不少的MapReduce程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进MIT 6.824: Distributed Systems，而完成这门课程的第一个lab的前提便是阅读这篇论文。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/","publisher":null,"image":null,"headline":"MapReduce论文阅读","dateModified":"2017-01-08T05:03:08+08:00","datePublished":"2017-01-08T05:03:08+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">MapReduce论文阅读</h1>
+    <p class="post-meta">
+       <time datetime="2017-01-08T05:03:08+08:00" itemprop="datePublished">
+          Jan 7, 2017
+       </time>
+       
+        <!-- | <span class="time">
+            1
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <p>大四时曾经粗略的阅读过这篇<a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/mapreduce-osdi04.pdf">论文</a>，并且已经写过不少的<code class="highlighter-rouge">MapReduce</code>程序，所以介绍性的内容不再赘述。再次阅读这篇论文的原因是为了更系统的学习分布式的相关知识，我开始跟进<a href="http://nil.csail.mit.edu/6.824/2015/index.html">MIT 6.824: Distributed Systems</a>，而完成这门课程的第一个<code class="highlighter-rouge">lab</code>的前提便是阅读这篇论文。</p>
+
+<p>这篇笔记重点分析了<code class="highlighter-rouge">MapReduce</code>的<strong>执行流程</strong>以及<strong>容错机制</strong>，因为是个人理解，若有分析不妥之处欢迎发送邮件至<code class="highlighter-rouge">tinylcy (at) gmail.com</code>讨论交流。</p>
+
+<h2 id="execution-overview">Execution Overview</h2>
+
+<p>根据不同的环境，<code class="highlighter-rouge">MapReduce</code>的实现方式有多种，比如基于共享内存、基于<code class="highlighter-rouge">NUMA</code>多处理器环境等等。而<code class="highlighter-rouge">Google</code>内部实现的<code class="highlighter-rouge">MapReduce</code>基于如下环境。</p>
+
+<ul>
+  <li>双核<code class="highlighter-rouge">x86</code>处理器，<code class="highlighter-rouge">Linux</code>操作系统，每台机器有<code class="highlighter-rouge">2～4GB</code>的内存。</li>
+  <li>使用商用的网络设备，例如<code class="highlighter-rouge">100M</code>／<code class="highlighter-rouge">1G</code>带宽网卡。</li>
+  <li>集群是由成百上千台上述配置的设备组成的，因此集群中节点出现故障应该视为常态。</li>
+  <li>存储设备采用的是廉价的<code class="highlighter-rouge">IDE</code>硬盘。在这种不可靠的硬件上，<code class="highlighter-rouge">Google</code>实现了一个分布式文件系统<code class="highlighter-rouge">GFS</code>，通过备份和冗余来保证可靠性和可用性。</li>
+  <li>用户将作业（<code class="highlighter-rouge">job</code>）提交到调度系统，每个作业由多个任务（<code class="highlighter-rouge">task</code>）组成，调度系统负责将任务分配到集群空闲的节点上。</li>
+</ul>
+
+<p>在<code class="highlighter-rouge">Map</code>阶段，输入数据会被自动划分为<code class="highlighter-rouge">M</code>个分片，这些分片可以在不同的节点上被并行处理。在<code class="highlighter-rouge">Reduce</code>阶段，根据一定的划分规则（例如<code class="highlighter-rouge">hash(key) mod R</code>），中间数据会被划分为<code class="highlighter-rouge">R</code>个分片，这<code class="highlighter-rouge">R</code>个分片也可以被多个节点同时处理。<code class="highlighter-rouge">Reduce</code>阶段的分片个数<code class="highlighter-rouge">R</code>和分片规则可以由用户指定。<code class="highlighter-rouge">MapReduce</code>的执行流程如下图所示。</p>
+
+<p><img src="/img/img-2017-01-07-Image%201.png" alt="Alt text"></p>
+
+<p>整个执行流程可以划分为如下几个阶段，上图中的数字也标识了这几个阶段。</p>
+
+<ul>
+  <li>用户程序将输入数据切分为<code class="highlighter-rouge">M</code>个分片（分片的大小一般为<code class="highlighter-rouge">16～64MB</code>，用户可以设置分片大小），并把用户程序拷贝到集群中的多个节点。因为数据要比程序大得多，所以“拷贝程序”要比“拷贝数据”高效的多。</li>
+  <li>在拷贝程序到节点的过程中，有一个节点比较特殊：<code class="highlighter-rouge">master</code>节点。其余的节点都为<code class="highlighter-rouge">worker</code>节点，<code class="highlighter-rouge">worker</code>节点负责执行具体的任务，这些任务通过<code class="highlighter-rouge">master</code>节点来分配。任务又分为<code class="highlighter-rouge">map task</code>和<code class="highlighter-rouge">reduce task</code>。</li>
+  <li>被分配到<code class="highlighter-rouge">map task</code>的<code class="highlighter-rouge">worker（map worker）</code>会读取相应的输入分片，并将输入分片中的数据解析为一系列的<code class="highlighter-rouge">key/value pairs</code>，然后将这些<code class="highlighter-rouge">key/value pairs</code>输入到用户定义的<code class="highlighter-rouge">map function</code>，<code class="highlighter-rouge">map function</code>输出的<code class="highlighter-rouge">key/value pairs</code>会被缓存到内存中，而不是直接写入磁盘。</li>
+  <li>由<code class="highlighter-rouge">map function</code>输出的，缓存在内存中的<code class="highlighter-rouge">key/value pairs</code>会被划分为<code class="highlighter-rouge">R</code>个分区，并定期写入到<strong>本地</strong>磁盘中。写入磁盘的位置会被推送给<code class="highlighter-rouge">master</code>节点，<code class="highlighter-rouge">master</code>节点会将磁盘的位置信息转发给下一阶段执行<code class="highlighter-rouge">reduce</code>任务的节点（<code class="highlighter-rouge">reduce worker</code>）。</li>
+  <li>
+<code class="highlighter-rouge">reduce worker</code>在接收到磁盘的位置信息后开始读取相应的磁盘中的数据，当所有的数据读取完毕后，<code class="highlighter-rouge">reduce worker</code>会在内存中按照<code class="highlighter-rouge">key</code>将所有的<code class="highlighter-rouge">key/value pairs</code>进行一次排序。论文认为这次排序是必要的原因是不同的<code class="highlighter-rouge">key</code>往往会映射到同一个<code class="highlighter-rouge">reduce worker</code>。</li>
+  <li>
+<code class="highlighter-rouge">reducer worker</code>遍历已排好序的<code class="highlighter-rouge">key/value pairs</code>，每遇到一个不同的<code class="highlighter-rouge">key</code>，便将该<code class="highlighter-rouge">key</code>和对应的一系列<code class="highlighter-rouge">value</code>传递给用户定义的<code class="highlighter-rouge">reduce function</code>，这个过程同时解释了为什么在上一阶段<code class="highlighter-rouge">reduce worker</code>要对数据进行排序（论文<code class="highlighter-rouge">Section 4.2</code>提到了按照key排序的两个优势，一是支持高效随机按<code class="highlighter-rouge">key</code>的查找，二是已经排好序的数据可以方便用户的操作）。<code class="highlighter-rouge">reduce function</code>将输出数据<code class="highlighter-rouge">append</code>到最终的输出文件中。</li>
+  <li>当所有的<code class="highlighter-rouge">map task</code>和<code class="highlighter-rouge">reduce task</code>都完成了，<code class="highlighter-rouge">master</code>唤醒用户程序并返回。</li>
+</ul>
+
+<p>在执行完整个流程后，会有<code class="highlighter-rouge">R</code>个输出文件，每个<code class="highlighter-rouge">reduce worker</code>对应一个。这<code class="highlighter-rouge">R</code>个输出文件一般不需要合并，因为它们往往是下一个<code class="highlighter-rouge">MapReduce</code>处理逻辑的输入数据。</p>
+
+<h2 id="master-data-structures">Master Data Structures</h2>
+
+<ul>
+  <li>
+<code class="highlighter-rouge">master</code>会记录每个<code class="highlighter-rouge">map task</code>和<code class="highlighter-rouge">reduce task</code>的状态，包括<code class="highlighter-rouge">idle</code>、<code class="highlighter-rouge">in-progress</code>和<code class="highlighter-rouge">completed</code>。同时，<code class="highlighter-rouge">master</code>还会记录<code class="highlighter-rouge">non-idle task</code>对应的<code class="highlighter-rouge">worker</code>的信息。</li>
+  <li>对于每个<code class="highlighter-rouge">map task</code>，<code class="highlighter-rouge">master</code>会记录下<code class="highlighter-rouge">map function</code>输出的<code class="highlighter-rouge">R</code>个分片的位置信息和大小。这些信息会被推送到处于<code class="highlighter-rouge">in-progress</code>状态的<code class="highlighter-rouge">reduce worker</code>上。</li>
+</ul>
+
+<h2 id="fault-tolerance">Fault Tolerance</h2>
+
+<p>由于运行在规模庞大并且廉价的硬件上，因此容错性变得非常重要。</p>
+
+<h3 id="worker-failure">Worker Failure</h3>
+
+<p><code class="highlighter-rouge">master</code>会定期<code class="highlighter-rouge">ping</code> <code class="highlighter-rouge">worker</code>，如果<code class="highlighter-rouge">worker</code>没有响应并且超过了一定的次数，那么<code class="highlighter-rouge">master</code>就认为<code class="highlighter-rouge">worker</code>已经<code class="highlighter-rouge">failed</code>了。因此，所有在该<code class="highlighter-rouge">worker</code>上完成的<code class="highlighter-rouge">task</code>的状态将会被重置为初始的<code class="highlighter-rouge">idle</code>状态，并且这些<code class="highlighter-rouge">task</code>需要被重新分配到其它的<code class="highlighter-rouge">worker</code>上去。类似的，该<code class="highlighter-rouge">worker</code>上处于<code class="highlighter-rouge">in-progress</code>状态的<code class="highlighter-rouge">task</code>也会被重置为最初的<code class="highlighter-rouge">idle</code>状态，并被重新分配到其它<code class="highlighter-rouge">worker</code>上去。</p>
+
+<p>对于已完成的<code class="highlighter-rouge">map task</code>，也需要重新被执行。因为<code class="highlighter-rouge">map task</code>的输出是在<code class="highlighter-rouge">worker</code>的本地磁盘上，因为<code class="highlighter-rouge">worker</code>已经失联了，所以<code class="highlighter-rouge">map task</code>的输出数据自然也获取不到。对于已完成的<code class="highlighter-rouge">reduce task</code>，不再需要重新执行。因为<code class="highlighter-rouge">reduce task</code>的输出是在全局的文件系统（<code class="highlighter-rouge">GFS</code>）上。</p>
+
+<p>如果一个<code class="highlighter-rouge">map task</code>一开始运行在<code class="highlighter-rouge">worker A</code>上，接着由于<code class="highlighter-rouge">worker A</code> <code class="highlighter-rouge">failed</code>导致该<code class="highlighter-rouge">map task</code>迁移到<code class="highlighter-rouge">worker B</code>上。那么读取该<code class="highlighter-rouge">map task</code>输出数据并且处于正在执行的<code class="highlighter-rouge">reduce worker</code>会收到重新执行<code class="highlighter-rouge">reduce task</code>的通知，任何还未开始读取数据的<code class="highlighter-rouge">reduce task</code>也会收到通知。<code class="highlighter-rouge">reduce worker</code>接下来会从<code class="highlighter-rouge">worker B</code>上读取数据。</p>
+
+<h3 id="master-failure">Master Failure</h3>
+
+<p>可以通过定期建立检查点的方式来保存<code class="highlighter-rouge">master</code>的状态。但是，<code class="highlighter-rouge">Google</code>当时的做法是考虑到只有一个<code class="highlighter-rouge">master</code>，所以<code class="highlighter-rouge">master</code>出现故障的概率很小，如果出现故障了，重新开始整个<code class="highlighter-rouge">MapReduce</code>计算。</p>
+
+<h2 id="locality">Locality</h2>
+
+<p>网络带宽在计算环境中属于一种非常稀缺的资源，利用输入数据的特性可以减小网络带宽。</p>
+
+<ul>
+  <li>输入数据由<code class="highlighter-rouge">GFS</code>来管理，<code class="highlighter-rouge">GFS</code>把数据存储在集群节点的本地磁盘上，<code class="highlighter-rouge">GFS</code>将文件分割为<code class="highlighter-rouge">64MB</code>大小的块，并且针对每个块会做冗余（一般冗余<code class="highlighter-rouge">2</code>份）。<code class="highlighter-rouge">master</code>利用输入数据的位置信息，将<code class="highlighter-rouge">map task</code>分配给输入数据所在的节点。</li>
+  <li>如果在计算过程中出现了失败的情况，那么<code class="highlighter-rouge">master</code>会把任务调度给离输入数据较近的节点。</li>
+</ul>
+
+<h2 id="task-granularity">Task Granularity</h2>
+
+<p>从上文我们可以得知，<code class="highlighter-rouge">map</code>阶段被划分成<code class="highlighter-rouge">M</code>个<code class="highlighter-rouge">task</code>，<code class="highlighter-rouge">reduce</code>阶段被划分成<code class="highlighter-rouge">R</code>个<code class="highlighter-rouge">task</code>，<code class="highlighter-rouge">M</code>和<code class="highlighter-rouge">R</code>一般会比集群中节点的个数大得多。每个节点运行多个<code class="highlighter-rouge">task</code>有利于动态的负载均衡，加速<code class="highlighter-rouge">worker</code>从失败中恢复。</p>
+
+<p>在具体的实现中，<code class="highlighter-rouge">M</code>和<code class="highlighter-rouge">R</code>的大小是有实际限制的，因为<code class="highlighter-rouge">master</code>至少要做<code class="highlighter-rouge">O(M＋R)</code>次的调度决策，并且需要保持<code class="highlighter-rouge">O(M*R)</code>个状态。</p>
+
+<p>通常情况下，<code class="highlighter-rouge">R</code>的大小是由用户指定的，而对<code class="highlighter-rouge">M</code>的选择要保证每个<code class="highlighter-rouge">task</code>的输入数据大小，即一个输入分片在<code class="highlighter-rouge">16MB～64MB</code>之间，这样可以最大化的利用数据本地性。</p>
+
+<h2 id="backup-tasks">Backup Tasks</h2>
+
+<p>导致整个<code class="highlighter-rouge">MapReduce</code>计算过程被延迟的原因之一是过多的时间花费在最后几个<code class="highlighter-rouge">map task</code>或<code class="highlighter-rouge">reduce task</code>上。导致这个问题的原因由很多，可能是因为<code class="highlighter-rouge">task</code>所在的节点硬盘的读写速度非常慢，同时<code class="highlighter-rouge">master</code>又有可能把新的<code class="highlighter-rouge">task</code>分配给了该节点，所以引入了更加激烈的<code class="highlighter-rouge">CPU</code>竞争、内存竞争。</p>
+
+<p>一种通用的解决方案是在整个<code class="highlighter-rouge">MapReduce</code>计算快要结束时，<code class="highlighter-rouge">master</code>对当前处于<code class="highlighter-rouge">in-progress</code>状态的<code class="highlighter-rouge">task</code>进行备份，无论是原来的<code class="highlighter-rouge">task</code>执行完毕还是备份的<code class="highlighter-rouge">task</code>执行完毕，那么就认为该<code class="highlighter-rouge">task</code>完成了。</p>
+
+<h2 id="参考">参考</h2>
+
+<ul>
+  <li><a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/mapreduce-osdi04.pdf">MapReduce: Simplified Data Processing on Large Clusters</a></li>
+</ul>
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/ - MapReduce论文阅读 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2017/MapReduce%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2017/Bigtable%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">← Previous Post</a>
+      <a class="next" href="/2017/CSAPP-Shell-Lab/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

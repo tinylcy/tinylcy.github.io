@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArrayList源码分析 - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="ArrayList源码分析">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="源码版本为JDK1.7.0_79">
+<meta property="og:description" content="源码版本为JDK1.7.0_79">
+<link rel="canonical" href="http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+<meta property="og:url" content="http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-05-28T20:27:34+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"源码版本为JDK1.7.0_79","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","publisher":null,"image":null,"headline":"ArrayList源码分析","dateModified":"2016-05-28T20:27:34+08:00","datePublished":"2016-05-28T20:27:34+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">ArrayList源码分析</h1>
+    <p class="post-meta">
+       <time datetime="2016-05-28T20:27:34+08:00" itemprop="datePublished">
+          May 28, 2016
+       </time>
+       
+        <!-- | <span class="time">
+            23
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <p>源码版本为<code class="highlighter-rouge">JDK1.7.0_79</code></p>
+
+<p><code class="highlighter-rouge">ArrayList</code>不是线程安全的，只能应用在单线程环境下。</p>
+
+<h2 id="arraylist类定义">ArrayList类定义</h2>
+
+<p>从<code class="highlighter-rouge">ArrayList</code>的类定义可以看出它是支持泛型的，继承自<code class="highlighter-rouge">AbstractList</code>，<code class="highlighter-rouge">AbstractList</code> 实现了<code class="highlighter-rouge">List</code>接口，提供了<code class="highlighter-rouge">List</code>接口的默认实现。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractList</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">AbstractCollection</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">ArrayList</code>自身也实现了<code class="highlighter-rouge">List</code>接口。同时，<code class="highlighter-rouge">ArrayList</code>实现了<code class="highlighter-rouge">Serializable</code>接口，因此它支持序列化，能够通过序列化传输。实现了<code class="highlighter-rouge">RandomAccess</code>接口，支持快速随机访问，实际上就是通过下标进行快速访问，<code class="highlighter-rouge">RandomAccess</code>是一个标记接口，接口内没有定义任何内容。实现了<code class="highlighter-rouge">Cloneable</code>接口，能被克隆。</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">AbstractList</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span>
+        <span class="kd">implements</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;,</span> <span class="n">RandomAccess</span><span class="o">,</span> <span class="n">Cloneable</span><span class="o">,</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">Serializable</span>
+</code></pre></div></div>
+
+<h2 id="arraylist类属性">ArrayList类属性</h2>
+
+<p><code class="highlighter-rouge">ArrayList</code>是基于数组实现的，是一个动态数组，其容量能够自动增长。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* 序列版本号
+*/</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">8683452581122892189L</span><span class="o">;</span>
+
+<span class="cm">/**
+* Default initial capacity. 
+*/</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">DEFAULT_CAPACITY</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+
+<span class="cm">/**
+* Shared empty array instance used for empty instances.
+*/</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">EMPTY_ELEMENTDATA</span> <span class="o">=</span> <span class="o">{};</span>
+
+<span class="cm">/**
+* The array buffer into which the elements of the ArrayList are stored.
+* The capacity of the ArrayList is the length of this array buffer. Any
+* empty ArrayList with elementData == EMPTY_ELEMENTDATA will be expanded to
+* DEFAULT_CAPACITY when the first element is added.
+*/</span>
+<span class="kd">private</span> <span class="kd">transient</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">elementData</span><span class="o">;</span>
+
+<span class="cm">/**
+* The size of the ArrayList (the number of elements it contains).
+*
+* @serial
+*/</span>
+<span class="kd">private</span> <span class="kt">int</span> <span class="n">size</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>数组<code class="highlighter-rouge">elementData</code>为<code class="highlighter-rouge">ArrayList</code>存储元素的<code class="highlighter-rouge">Buffer</code>，<code class="highlighter-rouge">ArrayList</code>的容量即为该数组的长度。当<code class="highlighter-rouge">ArrayList</code>为空时，此时<code class="highlighter-rouge">elementData==EMPTY_ELEMENTDATA</code>，当往<code class="highlighter-rouge">ArrayList</code>添加一个元素时，<code class="highlighter-rouge">elementData</code>的长度就被初始化为<code class="highlighter-rouge">10</code>,也就是<code class="highlighter-rouge">DEFAULT_CAPACITY</code>的值。</p>
+
+<p><code class="highlighter-rouge">size</code>为<code class="highlighter-rouge">elementData</code>含有的元素的个数。</p>
+
+<p>注意到<code class="highlighter-rouge">elementData</code>数组被<code class="highlighter-rouge">transient</code>修饰，因为<code class="highlighter-rouge">ArrayList</code>实现了<code class="highlighter-rouge">Serializable</code>接口，这意味着<code class="highlighter-rouge">ArrayList</code>可以被序列化，也就是说，<code class="highlighter-rouge">ArrayList</code>的属性可以通过网络传输，或者被存储到磁盘持久化。但是在很多情况下，我们并不希望有些属性被传输或者存储，比如一些敏感信息。这时使用<code class="highlighter-rouge">trainsent</code>标记属性，就可以使得<code class="highlighter-rouge">ArrayList</code>在序列化的过程中<code class="highlighter-rouge">elementData</code>不参与序列化。因此，<code class="highlighter-rouge">elementData</code>中的数据仅存在于调用者的内存中。</p>
+
+<h2 id="arraylist类构造函数">ArrayList类构造函数</h2>
+
+<p><code class="highlighter-rouge">ArrayList</code>一共定义了三个构造函数。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Constructs an empty list with the specified initial capacity.
+*/</span>
+<span class="kd">public</span> <span class="nf">ArrayList</span><span class="o">(</span><span class="kt">int</span> <span class="n">initialCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">initialCapacity</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Illegal Capacity: "</span><span class="o">+</span>
+                                          <span class="n">initialCapacity</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">elementData</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="n">initialCapacity</span><span class="o">];</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Constructs an empty list with an initial capacity of ten.
+*/</span>
+<span class="kd">public</span> <span class="nf">ArrayList</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">();</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">elementData</span> <span class="o">=</span> <span class="n">EMPTY_ELEMENTDATA</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Constructs a list containing the elements of the specified
+* collection, in the order they are returned by the collection's
+* iterator.
+*/</span>
+<span class="kd">public</span> <span class="nf">ArrayList</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">E</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">elementData</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">toArray</span><span class="o">();</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">elementData</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="c1">// c.toArray might (incorrectly) not return Object[] (see 6260652)</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">elementData</span><span class="o">.</span><span class="na">getClass</span><span class="o">()</span> <span class="o">!=</span> <span class="n">Object</span><span class="o">[].</span><span class="na">class</span><span class="o">)</span>
+        <span class="n">elementData</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">,</span> <span class="n">Object</span><span class="o">[].</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>构造函数<code class="highlighter-rouge">public ArrayList(int initialCapacity){...}</code>为构造给定大小的<code class="highlighter-rouge">elementData</code>数组。</p>
+
+<p>构造函数<code class="highlighter-rouge">public ArrayList() {...}</code>为<code class="highlighter-rouge">ArrayList</code>的默认构造函数，此时<code class="highlighter-rouge">elementData==EMPTY_ELEMENTDATA</code>，数组长度为<code class="highlighter-rouge">0</code>。</p>
+
+<p>构造函数 <code class="highlighter-rouge">public ArrayList(Collection&lt;? extends E&gt; c) {...}</code>使用一个集合来初始化<code class="highlighter-rouge">ArrayList</code>。</p>
+
+<h2 id="arraylist类核心方法">ArrayList类核心方法</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Trims the capacity of this &lt;tt&gt;ArrayList&lt;/tt&gt; instance to be the
+* list's current size.  An application can use this operation to minimize
+* the storage of an &lt;tt&gt;ArrayList&lt;/tt&gt; instance.
+*/</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">trimToSize</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">modCount</span><span class="o">++;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">elementData</span><span class="o">.</span><span class="na">length</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">elementData</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">modCount</code>为<code class="highlighter-rouge">ArrayList</code>的父类<code class="highlighter-rouge">AbstractList</code>中定义的属性，其作用是 <code class="highlighter-rouge">the number of times this list has been structurally modified</code>。</p>
+
+<p><code class="highlighter-rouge">trimToSize</code>的作用是将<code class="highlighter-rouge">ArrayList</code>对象的<code class="highlighter-rouge">capacity</code>减小到<code class="highlighter-rouge">size</code>长度，这样可以减少<code class="highlighter-rouge">ArrayList</code>对象占用的内存。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Increases the capacity of this &lt;tt&gt;ArrayList&lt;/tt&gt; instance, if
+* necessary, to ensure that it can hold at least the number of elements
+* specified by the minimum capacity argument.
+*/</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">ensureCapacity</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">minExpand</span> <span class="o">=</span> <span class="o">(</span><span class="n">elementData</span> <span class="o">!=</span> <span class="n">EMPTY_ELEMENTDATA</span><span class="o">)</span>
+        <span class="c1">// any size if real element table</span>
+        <span class="o">?</span> <span class="mi">0</span>
+        <span class="c1">// larger than default for empty table. It's already supposed to be</span>
+        <span class="c1">// at default size.</span>
+        <span class="o">:</span> <span class="n">DEFAULT_CAPACITY</span><span class="o">;</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">minCapacity</span> <span class="o">&gt;</span> <span class="n">minExpand</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ensureExplicitCapacity</span><span class="o">(</span><span class="n">minCapacity</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">ensureCapacityInternal</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">elementData</span> <span class="o">==</span> <span class="n">EMPTY_ELEMENTDATA</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">minCapacity</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">max</span><span class="o">(</span><span class="n">DEFAULT_CAPACITY</span><span class="o">,</span> <span class="n">minCapacity</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="n">ensureExplicitCapacity</span><span class="o">(</span><span class="n">minCapacity</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">ensureExplicitCapacity</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">modCount</span><span class="o">++;</span>
+
+    <span class="c1">// overflow-conscious code</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">minCapacity</span> <span class="o">-</span> <span class="n">elementData</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">grow</span><span class="o">(</span><span class="n">minCapacity</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* The maximum size of array to allocate.
+* Some VMs reserve some header words in an array.
+* Attempts to allocate larger arrays may result in
+* OutOfMemoryError: Requested array size exceeds VM limit
+*/</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_ARRAY_SIZE</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span> <span class="o">-</span> <span class="mi">8</span><span class="o">;</span>
+
+<span class="cm">/**
+* Increases the capacity to ensure that it can hold at least the
+* number of elements specified by the minimum capacity argument.
+*/</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">grow</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// overflow-conscious code</span>
+    <span class="kt">int</span> <span class="n">oldCapacity</span> <span class="o">=</span> <span class="n">elementData</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">newCapacity</span> <span class="o">=</span> <span class="n">oldCapacity</span> <span class="o">+</span> <span class="o">(</span><span class="n">oldCapacity</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">newCapacity</span> <span class="o">-</span> <span class="n">minCapacity</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">newCapacity</span> <span class="o">=</span> <span class="n">minCapacity</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">newCapacity</span> <span class="o">-</span> <span class="n">MAX_ARRAY_SIZE</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">newCapacity</span> <span class="o">=</span> <span class="n">hugeCapacity</span><span class="o">(</span><span class="n">minCapacity</span><span class="o">);</span>
+    <span class="c1">// minCapacity is usually close to size, so this is a win:</span>
+    <span class="n">elementData</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">newCapacity</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">hugeCapacity</span><span class="o">(</span><span class="kt">int</span> <span class="n">minCapacity</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">minCapacity</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="c1">// overflow</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">OutOfMemoryError</span><span class="o">();</span>
+    <span class="k">return</span> <span class="o">(</span><span class="n">minCapacity</span> <span class="o">&gt;</span> <span class="n">MAX_ARRAY_SIZE</span><span class="o">)</span> <span class="o">?</span>
+        <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span> <span class="o">:</span>
+        <span class="n">MAX_ARRAY_SIZE</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">oldCapacity + (oldCapacity &gt;&gt; 1)</code>确保了一旦扩充容量，那么至少扩充到原来的<code class="highlighter-rouge">1.5</code>倍。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Returns the number of elements in this list.
+*/</span>
+<span class="kd">public</span> <span class="kt">int</span> <span class="nf">size</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">size</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Returns &lt;tt&gt;true&lt;/tt&gt; if this list contains no elements.
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isEmpty</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">size</code>方法和<code class="highlighter-rouge">isEmpty</code>方法都是根据属性<code class="highlighter-rouge">size</code>判断。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Returns &lt;tt&gt;true&lt;/tt&gt; if this list contains the specified element.
+* More formally, returns &lt;tt&gt;true&lt;/tt&gt; if and only if this list contains
+* at least one element &lt;tt&gt;e&lt;/tt&gt; such that
+* &lt;tt&gt;(o==null&amp;nbsp;?&amp;nbsp;e==null&amp;nbsp;:&amp;nbsp;o.equals(e))&lt;/tt&gt;.
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">contains</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">indexOf</span><span class="o">(</span><span class="n">o</span><span class="o">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Returns the index of the first occurrence of the specified element
+* in this list, or -1 if this list does not contain the element.
+* More formally, returns the lowest index &lt;tt&gt;i&lt;/tt&gt; such that
+* &lt;tt&gt;(o==null&amp;nbsp;?&amp;nbsp;get(i)==null&amp;nbsp;:&amp;nbsp;o.equals(get(i)))&lt;/tt&gt;,
+* or -1 if there is no such index.
+*/</span>
+<span class="kd">public</span> <span class="kt">int</span> <span class="nf">indexOf</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">elementData</span><span class="o">[</span><span class="n">i</span><span class="o">]==</span><span class="kc">null</span><span class="o">)</span>
+                <span class="k">return</span> <span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">elementData</span><span class="o">[</span><span class="n">i</span><span class="o">]))</span>
+                <span class="k">return</span> <span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">contains</code>方法中，通过<code class="highlighter-rouge">indexOf</code>方法遍历<code class="highlighter-rouge">elementData</code>数组。若待搜索的元素为<code class="highlighter-rouge">null</code>，那么就返回<code class="highlighter-rouge">elementData</code>中第一个为<code class="highlighter-rouge">null</code>的元素的下标。当然如果<code class="highlighter-rouge">elementData</code>的<code class="highlighter-rouge">size==0</code>，那么就返回<code class="highlighter-rouge">-1</code>。若待搜索的元素不为空，那么就返回对应的元素的下标，否则返回<code class="highlighter-rouge">-1</code>。注意当带搜索的元素不为<code class="highlighter-rouge">null</code>时，是使用<code class="highlighter-rouge">equals</code>方法来判断是否相等。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Returns the index of the last occurrence of the specified element
+* in this list, or -1 if this list does not contain the element.
+* More formally, returns the highest index &lt;tt&gt;i&lt;/tt&gt; such that
+* &lt;tt&gt;(o==null&amp;nbsp;?&amp;nbsp;get(i)==null&amp;nbsp;:&amp;nbsp;o.equals(get(i)))&lt;/tt&gt;,
+* or -1 if there is no such index.
+*/</span>
+<span class="kd">public</span> <span class="kt">int</span> <span class="nf">lastIndexOf</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">--)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">elementData</span><span class="o">[</span><span class="n">i</span><span class="o">]==</span><span class="kc">null</span><span class="o">)</span>
+                <span class="k">return</span> <span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">--)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">elementData</span><span class="o">[</span><span class="n">i</span><span class="o">]))</span>
+                <span class="k">return</span> <span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">lastIndexOf</code>方法与<code class="highlighter-rouge">indexOf</code>方法十分类似，只是它是从最后一个元素开始向前遍历。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Returns a shallow copy of this &lt;tt&gt;ArrayList&lt;/tt&gt; instance.  (The
+* elements themselves are not copied.)
+*/</span>
+<span class="kd">public</span> <span class="n">Object</span> <span class="nf">clone</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+            <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">v</span> <span class="o">=</span> <span class="o">(</span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;)</span> <span class="kd">super</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+        <span class="n">v</span><span class="o">.</span><span class="na">elementData</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+        <span class="n">v</span><span class="o">.</span><span class="na">modCount</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">v</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">CloneNotSupportedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// this shouldn't happen, since we are Cloneable</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">InternalError</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">clone</code>方法首先调用父类的<code class="highlighter-rouge">clone</code>方法返回一个对象的副本，将这个副本对象的<code class="highlighter-rouge">elementData</code>数组地址赋值为原来对象的<code class="highlighter-rouge">elementData</code>数组的地址，并将该副本对象的<code class="highlighter-rouge">modCount</code>重置为<code class="highlighter-rouge">0</code>。该方法返回的是<code class="highlighter-rouge">ArrayList</code>对象的浅副本，即不复制这些元素本身。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Returns an array containing all of the elements in this list
+* in proper sequence (from first to last element).
+*
+* &lt;p&gt;The returned array will be "safe" in that no references to it are
+* maintained by this list.  (In other words, this method must allocate
+* a new array).  The caller is thus free to modify the returned array.
+*
+* &lt;p&gt;This method acts as bridge between array-based and collection-based
+* APIs.
+*
+*/</span>
+<span class="kd">public</span> <span class="n">Object</span><span class="o">[]</span> <span class="nf">toArray</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Returns an array containing all of the elements in this list in proper
+* sequence (from first to last element); the runtime type of the returned
+* array is that of the specified array.  If the list fits in the
+* specified array, it is returned therein.  Otherwise, a new array is
+* allocated with the runtime type of the specified array and the size of
+* this list.
+*
+* &lt;p&gt;If the list fits in the specified array with room to spare
+* (i.e., the array has more elements than the list), the element in
+* the array immediately following the end of the collection is set to
+* &lt;tt&gt;null&lt;/tt&gt;.  (This is useful in determining the length of the
+* list &lt;i&gt;only&lt;/i&gt; if the caller knows that the list does not contain
+* any null elements.)
+*/</span>
+<span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">[]</span> <span class="nf">toArray</span><span class="o">(</span><span class="n">T</span><span class="o">[]</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">)</span>
+        <span class="c1">// Make a new array of a's runtime type, but my contents:</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">T</span><span class="o">[])</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">,</span> <span class="n">a</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="n">size</span><span class="o">)</span>
+        <span class="n">a</span><span class="o">[</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">toArray</code>方法返回的是<code class="highlighter-rouge">elementData</code>数组的副本，而不是<code class="highlighter-rouge">ArrayList</code>对象内的<code class="highlighter-rouge">elementData</code>数组本身。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+<span class="n">E</span> <span class="nf">elementData</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">(</span><span class="n">E</span><span class="o">)</span> <span class="n">elementData</span><span class="o">[</span><span class="n">index</span><span class="o">];</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">elementData</code>方法返回指定下标的元素，<code class="highlighter-rouge">ArrayList</code>的<code class="highlighter-rouge">get</code>方法，<code class="highlighter-rouge">set</code>方法，<code class="highlighter-rouge">add</code>方法，<code class="highlighter-rouge">remove</code>方法和<code class="highlighter-rouge">clear</code>方法都需要调用它。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Returns the element at the specified position in this list.
+*/</span>
+<span class="kd">public</span> <span class="n">E</span> <span class="nf">get</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">rangeCheck</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="nf">elementData</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">get</code>方法首先需要校验下标是否越界，若没有，则返回对应下标的元素。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Replaces the element at the specified position in this list with
+* the specified element.
+*/</span>
+<span class="kd">public</span> <span class="n">E</span> <span class="nf">set</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="n">E</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">rangeCheck</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+    <span class="n">E</span> <span class="n">oldValue</span> <span class="o">=</span> <span class="n">elementData</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+    <span class="n">elementData</span><span class="o">[</span><span class="n">index</span><span class="o">]</span> <span class="o">=</span> <span class="n">element</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">oldValue</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">set</code>方法将<code class="highlighter-rouge">ArrayList</code>指定下标的元素设置为指定的值，并将原值作为返回值返回。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Appends the specified element to the end of this list.
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">add</span><span class="o">(</span><span class="n">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">ensureCapacityInternal</span><span class="o">(</span><span class="n">size</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>  <span class="c1">// Increments modCount!!</span>
+    <span class="n">elementData</span><span class="o">[</span><span class="n">size</span><span class="o">++]</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Inserts the specified element at the specified position in this
+* list. Shifts the element currently at that position (if any) and
+* any subsequent elements to the right (adds one to their indices).
+*/</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="n">E</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">rangeCheckForAdd</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+    <span class="n">ensureCapacityInternal</span><span class="o">(</span><span class="n">size</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>  <span class="c1">// Increments modCount!!</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">index</span><span class="o">,</span> <span class="n">elementData</span><span class="o">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span>
+                    <span class="n">size</span> <span class="o">-</span> <span class="n">index</span><span class="o">);</span>
+    <span class="n">elementData</span><span class="o">[</span><span class="n">index</span><span class="o">]</span> <span class="o">=</span> <span class="n">element</span><span class="o">;</span>
+    <span class="n">size</span><span class="o">++;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">add(int index, E element)</code>方法在指定的位置插入一个元素，首先将<code class="highlighter-rouge">elementData</code>中从<code class="highlighter-rouge">index</code>开始的 <code class="highlighter-rouge">size - index</code> 个元素整体向后移动一位，然后将<code class="highlighter-rouge">element</code>元素插入到<code class="highlighter-rouge">index</code>处。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Removes the element at the specified position in this list.
+* Shifts any subsequent elements to the left (subtracts one from their
+* indices).
+*/</span>
+<span class="kd">public</span> <span class="n">E</span> <span class="nf">remove</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">rangeCheck</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+    <span class="n">modCount</span><span class="o">++;</span>
+    <span class="n">E</span> <span class="n">oldValue</span> <span class="o">=</span> <span class="n">elementData</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+    <span class="kt">int</span> <span class="n">numMoved</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">numMoved</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="o">,</span> <span class="n">elementData</span><span class="o">,</span> <span class="n">index</span><span class="o">,</span>
+                        <span class="n">numMoved</span><span class="o">);</span>
+    <span class="n">elementData</span><span class="o">[--</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// clear to let GC do its work</span>
+
+    <span class="k">return</span> <span class="n">oldValue</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>如果要<code class="highlighter-rouge">remove</code>的元素为<code class="highlighter-rouge">elementData</code>的最后一个元素，那么<code class="highlighter-rouge">numMoved</code>等于<code class="highlighter-rouge">0</code>，因此不需要做数组拷贝的操作。若要删除的元素位于<code class="highlighter-rouge">elementData</code>之间，那么需要将<code class="highlighter-rouge">index</code>后的元素整体向前移动一位，并将<code class="highlighter-rouge">elementData</code>最后的元素置为<code class="highlighter-rouge">null</code>值让<code class="highlighter-rouge">GC</code>回收。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Removes the first occurrence of the specified element from this list,
+* if it is present.  If the list does not contain the element, it is
+* unchanged.  More formally, removes the element with the lowest index
+* &lt;tt&gt;i&lt;/tt&gt; such that
+* &lt;tt&gt;(o==null&amp;nbsp;?&amp;nbsp;get(i)==null&amp;nbsp;:&amp;nbsp;o.equals(get(i)))&lt;/tt&gt;
+* (if such an element exists).  Returns &lt;tt&gt;true&lt;/tt&gt; if this list
+* contained the specified element (or equivalently, if this list
+* changed as a result of the call).
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">remove</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">index</span><span class="o">++)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">elementData</span><span class="o">[</span><span class="n">index</span><span class="o">]</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">fastRemove</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">index</span><span class="o">++)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">elementData</span><span class="o">[</span><span class="n">index</span><span class="o">]))</span> <span class="o">{</span>
+                <span class="n">fastRemove</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="cm">/*
+* Private remove method that skips bounds checking and does not
+* return the value removed.
+*/</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">fastRemove</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">modCount</span><span class="o">++;</span>
+    <span class="kt">int</span> <span class="n">numMoved</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">numMoved</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="o">,</span> <span class="n">elementData</span><span class="o">,</span> <span class="n">index</span><span class="o">,</span>
+                        <span class="n">numMoved</span><span class="o">);</span>
+    <span class="n">elementData</span><span class="o">[--</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// clear to let GC do its work</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">fastRemove</code>和<code class="highlighter-rouge">remove</code>非常类似，仅仅是移除某个元素。<code class="highlighter-rouge">remove(Object o)</code>是将<code class="highlighter-rouge">elementData</code>中的某个对象移除(假设存在)，若传入的要移除的元素为<code class="highlighter-rouge">null</code>，那么移除<code class="highlighter-rouge">elementData</code>中首个为<code class="highlighter-rouge">null</code>的元素，返回<code class="highlighter-rouge">true</code>。若传入的要移除的元素不为<code class="highlighter-rouge">null</code>，遍历<code class="highlighter-rouge">elementData</code>，找到要移除的元素并移除。若要移除的元素并不存在于<code class="highlighter-rouge">elementData</code>，那么返回<code class="highlighter-rouge">false</code>。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Appends all of the elements in the specified collection to the end of
+* this list, in the order that they are returned by the
+* specified collection's Iterator.  The behavior of this operation is
+* undefined if the specified collection is modified while the operation
+* is in progress.  (This implies that the behavior of this call is
+* undefined if the specified collection is this list, and this
+* list is nonempty.)
+*
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">addAll</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">E</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Object</span><span class="o">[]</span> <span class="n">a</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">toArray</span><span class="o">();</span>
+    <span class="kt">int</span> <span class="n">numNew</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="n">ensureCapacityInternal</span><span class="o">(</span><span class="n">size</span> <span class="o">+</span> <span class="n">numNew</span><span class="o">);</span>  <span class="c1">// Increments modCount</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">,</span> <span class="n">numNew</span><span class="o">);</span>
+    <span class="n">size</span> <span class="o">+=</span> <span class="n">numNew</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">numNew</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Inserts all of the elements in the specified collection into this
+* list, starting at the specified position.  Shifts the element
+* currently at that position (if any) and any subsequent elements to
+* the right (increases their indices).  The new elements will appear
+* in the list in the order that they are returned by the
+* specified collection's iterator.
+*
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">addAll</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">E</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">rangeCheckForAdd</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+    <span class="n">Object</span><span class="o">[]</span> <span class="n">a</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">toArray</span><span class="o">();</span>
+    <span class="kt">int</span> <span class="n">numNew</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="n">ensureCapacityInternal</span><span class="o">(</span><span class="n">size</span> <span class="o">+</span> <span class="n">numNew</span><span class="o">);</span>  <span class="c1">// Increments modCount</span>
+
+    <span class="kt">int</span> <span class="n">numMoved</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">index</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">numMoved</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">index</span><span class="o">,</span> <span class="n">elementData</span><span class="o">,</span> <span class="n">index</span> <span class="o">+</span> <span class="n">numNew</span><span class="o">,</span>
+                        <span class="n">numMoved</span><span class="o">);</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">elementData</span><span class="o">,</span> <span class="n">index</span><span class="o">,</span> <span class="n">numNew</span><span class="o">);</span>
+    <span class="n">size</span> <span class="o">+=</span> <span class="n">numNew</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">numNew</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">addAll(Collection&lt;? extends E&gt; c)</code>是将集合<code class="highlighter-rouge">c</code>追加到<code class="highlighter-rouge">elementData</code>尾部，<code class="highlighter-rouge">addAll(int index, Collection&lt;? extends E&gt; c)</code>是将集合<code class="highlighter-rouge">c</code>插入到指定位置。若指定的<code class="highlighter-rouge">index</code>为<code class="highlighter-rouge">elementData</code>的<code class="highlighter-rouge">size</code>处，那么直接将<code class="highlighter-rouge">c</code>追加到<code class="highlighter-rouge">elementData</code>尾部。否则，需要先将<code class="highlighter-rouge">elementData</code>中以<code class="highlighter-rouge">index</code>下标开始的<code class="highlighter-rouge">numMoved</code>个元素后移一位，然后把<code class="highlighter-rouge">c</code>插入<code class="highlighter-rouge">index</code>处。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Removes from this list all of the elements whose index is between
+* {@code fromIndex}, inclusive, and {@code toIndex}, exclusive.
+* Shifts any succeeding elements to the left (reduces their index).
+* This call shortens the list by {@code (toIndex - fromIndex)} elements.
+* (If {@code toIndex==fromIndex}, this operation has no effect.)
+*/</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">removeRange</span><span class="o">(</span><span class="kt">int</span> <span class="n">fromIndex</span><span class="o">,</span> <span class="kt">int</span> <span class="n">toIndex</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">modCount</span><span class="o">++;</span>
+    <span class="kt">int</span> <span class="n">numMoved</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">toIndex</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">toIndex</span><span class="o">,</span> <span class="n">elementData</span><span class="o">,</span> <span class="n">fromIndex</span><span class="o">,</span>
+                    <span class="n">numMoved</span><span class="o">);</span>
+
+    <span class="c1">// clear to let GC do its work</span>
+    <span class="kt">int</span> <span class="n">newSize</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="o">(</span><span class="n">toIndex</span><span class="o">-</span><span class="n">fromIndex</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">newSize</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="n">elementData</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">newSize</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">removeRange</code>将指定范围内的元素移除，首先将<code class="highlighter-rouge">toIndex</code>之后的元素拷贝到<code class="highlighter-rouge">fromIndex</code>之后，调整<code class="highlighter-rouge">elementData</code>的<code class="highlighter-rouge">size</code>为<code class="highlighter-rouge">newSize</code>，然后将<code class="highlighter-rouge">newSize</code>之后的元素全部置空供<code class="highlighter-rouge">GC</code>回收。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* Removes from this list all of its elements that are contained in the
+* specified collection.
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">removeAll</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">batchRemove</span><span class="o">(</span><span class="n">c</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* Retains only the elements in this list that are contained in the
+* specified collection.  In other words, removes from this list all
+* of its elements that are not contained in the specified collection.
+*/</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">retainAll</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">batchRemove</span><span class="o">(</span><span class="n">c</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">batchRemove</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?&gt;</span> <span class="n">c</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">complement</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">elementData</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">elementData</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span><span class="o">,</span> <span class="n">w</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kt">boolean</span> <span class="n">modified</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(;</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">r</span><span class="o">++)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">c</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">elementData</span><span class="o">[</span><span class="n">r</span><span class="o">])</span> <span class="o">==</span> <span class="n">complement</span><span class="o">)</span>
+                <span class="n">elementData</span><span class="o">[</span><span class="n">w</span><span class="o">++]</span> <span class="o">=</span> <span class="n">elementData</span><span class="o">[</span><span class="n">r</span><span class="o">];</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="c1">// Preserve behavioral compatibility with AbstractCollection,</span>
+        <span class="c1">// even if c.contains() throws.</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">r</span> <span class="o">!=</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">r</span><span class="o">,</span>
+                            <span class="n">elementData</span><span class="o">,</span> <span class="n">w</span><span class="o">,</span>
+                            <span class="n">size</span> <span class="o">-</span> <span class="n">r</span><span class="o">);</span>
+            <span class="n">w</span> <span class="o">+=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">r</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">w</span> <span class="o">!=</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// clear to let GC do its work</span>
+            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">w</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+                <span class="n">elementData</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="n">modCount</span> <span class="o">+=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">w</span><span class="o">;</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">w</span><span class="o">;</span>
+            <span class="n">modified</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">modified</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">removeAll</code>的作用是删除<code class="highlighter-rouge">elemetData</code>中与指定集合<code class="highlighter-rouge">c</code>相同的元素。<code class="highlighter-rouge">retainAll</code>的作用是保留<code class="highlighter-rouge">elementData</code>中与指定集合<code class="highlighter-rouge">c</code>相同的元素，删除其他的元素。<code class="highlighter-rouge">removeAll</code>和<code class="highlighter-rouge">retainAll</code>传入一个<code class="highlighter-rouge">boolean</code>类型的<code class="highlighter-rouge">complement</code>，在<code class="highlighter-rouge">batchRemove</code>中通过<code class="highlighter-rouge">if (c.contains(elementData[r]) == complement) </code>来决定是否保留元素。<code class="highlighter-rouge">removeAll</code>传递过来的<code class="highlighter-rouge">complement</code>为<code class="highlighter-rouge">false</code>，因此当<code class="highlighter-rouge">elementData</code>中的元素不包含在<code class="highlighter-rouge">c</code>中时，保留这个元素，达到了<code class="highlighter-rouge">remove</code>的效果。<code class="highlighter-rouge">retainAll</code>传递过来的<code class="highlighter-rouge">complement</code>为<code class="highlighter-rouge">true</code>，因此当<code class="highlighter-rouge">elementData</code>中的元素包含在<code class="highlighter-rouge">c</code>中，保留这个元素，达到了<code class="highlighter-rouge">retain</code>的效果。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>注意<code class="highlighter-rouge">ArrayList</code>每次在增加元素前都需要调用<code class="highlighter-rouge">ensureCapacityInternal</code>来确保<code class="highlighter-rouge">elementData</code>的容量足够，当容量不够时，调用<code class="highlighter-rouge">ensureExplicitCapacity</code>，<code class="highlighter-rouge">ensureExplicitCapacity</code>调用<code class="highlighter-rouge">grow</code>方法线将容量增加到原来容量的<code class="highlighter-rouge">1.5</code>倍，若果增加为原来的<code class="highlighter-rouge">1.5</code>倍之后容量还不够，那么就把新容量直接设置为传递过来的容量(<code class="highlighter-rouge">minCapacity</code>)。然后调用<code class="highlighter-rouge">Arrays.copyOf</code>将原来的元素拷贝到新数组中。可以看出，当容量不够时，增加元素变成了一个非常耗时的过程。因此建议在实现能够确定元素数量的情况下才使用<code class="highlighter-rouge">ArrayList</code>，否则更加建议使用<code class="highlighter-rouge">LinkedList</code>。</p>
+
+<p><code class="highlighter-rouge">ArrayList</code>的源码中多次调用了两个数组拷贝的方法，分别是<code class="highlighter-rouge">Arrays.copyOf</code>和<code class="highlighter-rouge">System.arraycopy</code>，查看这两个方法的源码。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">[]</span> <span class="nf">copyOf</span><span class="o">(</span><span class="n">T</span><span class="o">[]</span> <span class="n">original</span><span class="o">,</span> <span class="kt">int</span> <span class="n">newLength</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">(</span><span class="n">T</span><span class="o">[])</span> <span class="n">copyOf</span><span class="o">(</span><span class="n">original</span><span class="o">,</span> <span class="n">newLength</span><span class="o">,</span> <span class="n">original</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>该<code class="highlighter-rouge">copyOf</code>方法调用了另一个<code class="highlighter-rouge">copyOf</code>方法：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">,</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">[]</span> <span class="nf">copyOf</span><span class="o">(</span><span class="n">U</span><span class="o">[]</span> <span class="n">original</span><span class="o">,</span> <span class="kt">int</span> <span class="n">newLength</span><span class="o">,</span> <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">T</span><span class="o">[]&gt;</span> <span class="n">newType</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">T</span><span class="o">[]</span> <span class="n">copy</span> <span class="o">=</span> <span class="o">((</span><span class="n">Object</span><span class="o">)</span><span class="n">newType</span> <span class="o">==</span> <span class="o">(</span><span class="n">Object</span><span class="o">)</span><span class="n">Object</span><span class="o">[].</span><span class="na">class</span><span class="o">)</span>
+        <span class="o">?</span> <span class="o">(</span><span class="n">T</span><span class="o">[])</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="n">newLength</span><span class="o">]</span>
+        <span class="o">:</span> <span class="o">(</span><span class="n">T</span><span class="o">[])</span> <span class="n">Array</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span><span class="n">newType</span><span class="o">.</span><span class="na">getComponentType</span><span class="o">(),</span> <span class="n">newLength</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">original</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">copy</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span>
+                    <span class="n">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">original</span><span class="o">.</span><span class="na">length</span><span class="o">,</span> <span class="n">newLength</span><span class="o">));</span>
+    <span class="k">return</span> <span class="n">copy</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>该方法创建了一个新的数组，然后调用<code class="highlighter-rouge">System.arraycopy</code>将元素拷贝到新数组中。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">arraycopy</span><span class="o">(</span><span class="n">Object</span> <span class="n">src</span><span class="o">,</span>  <span class="kt">int</span>  <span class="n">srcPos</span><span class="o">,</span>
+                                    <span class="n">Object</span> <span class="n">dest</span><span class="o">,</span> <span class="kt">int</span> <span class="n">destPos</span><span class="o">,</span>
+                                    <span class="kt">int</span> <span class="n">length</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">arraycopy</code>是一个本地方法，通过调用系统的<code class="highlighter-rouge">C/C++</code>方法实现。该方法可以保证在同一个数组内的元素的复制和移动。</p>
+
+<p>通过源码的分析，可以更加深刻的理解为什么说<code class="highlighter-rouge">ArrayList</code>的查找效率高而增加、删除元素的效率低。</p>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/ - ArrayList源码分析 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2016/Why-String-is-Immutable-or-Final-in-Java/">← Previous Post</a>
+      <a class="next" href="/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%80/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>初探Webx之约定胜于配置 - 辰洋的博客</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="初探Webx之约定胜于配置">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="实习期间接触到了早有耳闻的Webx，于是很自然的按照官方文档运行了一个 Demo ，粗略的阅读了一下代码，发现并不能很快的梳理清Web请求的处理逻辑，以及视图层和控制层之间的关联关系。execute()为什么会被调用？doChinese()为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解Web请求在Webx中经历的处理流程，为此我阅读了Webx部分源码，并以此文作为小结。">
+<meta property="og:description" content="实习期间接触到了早有耳闻的Webx，于是很自然的按照官方文档运行了一个 Demo ，粗略的阅读了一下代码，发现并不能很快的梳理清Web请求的处理逻辑，以及视图层和控制层之间的关联关系。execute()为什么会被调用？doChinese()为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解Web请求在Webx中经历的处理流程，为此我阅读了Webx部分源码，并以此文作为小结。">
+<link rel="canonical" href="http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/">
+<meta property="og:url" content="http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/">
+<meta property="og:site_name" content="辰洋的博客">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-07-13T06:15:18+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"实习期间接触到了早有耳闻的Webx，于是很自然的按照官方文档运行了一个 Demo ，粗略的阅读了一下代码，发现并不能很快的梳理清Web请求的处理逻辑，以及视图层和控制层之间的关联关系。execute()为什么会被调用？doChinese()为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解Web请求在Webx中经历的处理流程，为此我阅读了Webx部分源码，并以此文作为小结。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/","publisher":null,"image":null,"headline":"初探Webx之约定胜于配置","dateModified":"2017-07-13T06:15:18+08:00","datePublished":"2017-07-13T06:15:18+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="辰洋的博客" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">辰洋的博客</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">About</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">Archive</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">DarkTime</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">初探Webx之约定胜于配置</h1>
+    <p class="post-meta">
+       <time datetime="2017-07-13T06:15:18+08:00" itemprop="datePublished">
+          Jul 12, 2017
+       </time>
+       
+        <!-- | <span class="time">
+            9
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <p>实习期间接触到了早有耳闻的<code class="highlighter-rouge">Webx</code>，于是很自然的按照官方文档运行了一个 <a href="http://openwebx.org/docs/firstapp.html">Demo</a> ，粗略的阅读了一下代码，发现并不能很快的梳理清<code class="highlighter-rouge">Web</code>请求的处理逻辑，以及视图层和控制层之间的关联关系。<code class="highlighter-rouge">execute()</code>为什么会被调用？<code class="highlighter-rouge">doChinese()</code>为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解<code class="highlighter-rouge">Web</code>请求在<code class="highlighter-rouge">Webx</code>中经历的处理流程，为此我阅读了<code class="highlighter-rouge">Webx</code>部分源码，并以此文作为小结。</p>
+
+<p>在分析之前，我们需要强调<code class="highlighter-rouge">Webx</code>的一个重要设计理念——约定胜于配置。“约定”即规则，规则是预先定义的，工程师只需要按着规则来做事，就不需要额外的“配置”。对比其它一些框架，往往每增加一个页面，都需要在配置文件中增加若干行内容。</p>
+
+<p>注意，本篇文章仅用于解答上文提出的两个疑问，更多<code class="highlighter-rouge">Webx</code>的设计理念及原理性知识请参阅<a href="http://openwebx.org/docs/">官方文档</a>。</p>
+
+<h2 id="execute为什么会被调用">execute()为什么会被调用？</h2>
+
+<p>本文以解析请求<code class="highlighter-rouge"> http://localhost:8080/webx/simple/say_hi.do</code>为例来回答第一个问题，在<code class="highlighter-rouge">SayHi</code>类中<code class="highlighter-rouge">execute()</code>处添加断点，启动<code class="highlighter-rouge">Tomcat</code>，程序执行至断点处，查看此时当前线程的函数调用栈，如下图所示（截取了部分）。</p>
+
+<p><img src="/img/img-2017-07-12.png" alt=""></p>
+
+<p>想要更好的理解该函数调用栈的信息，需要先从理论上对<code class="highlighter-rouge">Webx</code>处理一个<code class="highlighter-rouge">Web</code>请求有一个认知。</p>
+
+<ul>
+  <li>首先，增强<code class="highlighter-rouge">request</code>、<code class="highlighter-rouge">response</code>、<code class="highlighter-rouge">session</code>的功能，并把它们打包成更易使用的<code class="highlighter-rouge">RequestContext</code>对象。</li>
+  <li>其次，它会调用相应子应用的<code class="highlighter-rouge">pipeline</code>，用它来做进一步的处理。</li>
+</ul>
+
+<p><code class="highlighter-rouge">pipeline</code>是<code class="highlighter-rouge">Webx</code>的一种机制，这种机制给予开发者极大的自由来自定制处理请求的流程。<code class="highlighter-rouge">pipeline</code>由一系列的<code class="highlighter-rouge">valve</code>构成，一个请求在获取响应（<code class="highlighter-rouge">Module</code>）前需经历这一系列<code class="highlighter-rouge">valve</code>。<code class="highlighter-rouge">Webx</code>将<code class="highlighter-rouge">URL</code>映射成<code class="highlighter-rouge">target</code>，由开发者定制不同类型的<code class="highlighter-rouge">target</code>所匹配的<code class="highlighter-rouge">pipeline</code>。例如，当前请求的<code class="highlighter-rouge">target</code>为<code class="highlighter-rouge">/simple/say_hi.do</code>，与之对应的<code class="highlighter-rouge">pipeline</code>如下所示。</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;when&gt;</span>
+    <span class="c">&lt;!-- 执行不带模板的screen，无layout。 --&gt;</span>
+    <span class="nt">&lt;pl-conditions:target-extension-condition</span> <span class="na">extension=</span><span class="s">"do"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;pl-valves:performAction</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;pl-valves:performScreen</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/when&gt;</span>
+</code></pre></div></div>
+
+<p>结合<code class="highlighter-rouge">pipeline</code>与函数调用栈，在执行<code class="highlighter-rouge">execute()</code>之前，请求经历了一系列<code class="highlighter-rouge">invoke()</code>与<code class="highlighter-rouge">invokeNext()</code>。首先执行<code class="highlighter-rouge">&lt;pl-valves:performAction /&gt;</code>对应<code class="highlighter-rouge">PerformActionValve</code>中的<code class="highlighter-rouge">invoke()</code>与<code class="highlighter-rouge">invokeNext()</code>，由于当前请求并不包含表单提交，所以<code class="highlighter-rouge">PerformActionValve</code>不做任何操作。接着执行<code class="highlighter-rouge">&lt;pl-valves:performScreen /&gt;</code>对应的<code class="highlighter-rouge">PerformScreenValve</code>中的<code class="highlighter-rouge">invoke()</code>，这也是我们分析的重点，该<code class="highlighter-rouge">invoke</code>方法对应的源码如下所示。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">invoke</span><span class="o">(</span><span class="n">PipelineContext</span> <span class="n">pipelineContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">TurbineRunData</span> <span class="n">rundata</span> <span class="o">=</span> <span class="n">TurbineUtil</span><span class="o">.</span><span class="na">getTurbineRunData</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">request</span><span class="o">);</span>
+        <span class="k">if</span><span class="o">(!</span><span class="n">rundata</span><span class="o">.</span><span class="na">isRedirected</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">setContentType</span><span class="o">(</span><span class="n">rundata</span><span class="o">);</span>
+            <span class="n">Object</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">performScreenModule</span><span class="o">(</span><span class="n">rundata</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">setOutputValue</span><span class="o">(</span><span class="n">pipelineContext</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="n">pipelineContext</span><span class="o">.</span><span class="na">invokeNext</span><span class="o">();</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>进入<code class="highlighter-rouge">performScreenModule</code>方法，其源码如下所示（省略部分无关代码）。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">protected</span> <span class="n">Object</span> <span class="nf">performScreenModule</span><span class="o">(</span><span class="n">TurbineRunData</span> <span class="n">rundata</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">PerformScreenValve</span><span class="o">.</span><span class="na">ModuleFinder</span> <span class="n">finder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PerformScreenValve</span><span class="o">.</span><span class="na">ModuleFinder</span><span class="o">(</span><span class="n">rundata</span><span class="o">.</span><span class="na">getTarget</span><span class="o">());</span>
+        <span class="n">rundata</span><span class="o">.</span><span class="na">setLayoutEnabled</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">Module</span> <span class="n">e</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="na">getScreenModule</span><span class="o">();</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">e</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">ScreenEventUtil</span><span class="o">.</span><span class="na">setEventName</span><span class="o">(</span><span class="n">rundata</span><span class="o">.</span><span class="na">getRequest</span><span class="o">(),</span> <span class="n">finder</span><span class="o">.</span><span class="na">event</span><span class="o">);</span>
+                <span class="n">Object</span> <span class="n">var4</span><span class="o">;</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="k">if</span><span class="o">(!(</span><span class="n">e</span> <span class="k">instanceof</span> <span class="n">ModuleReturningValue</span><span class="o">))</span> <span class="o">{</span>
+                        <span class="n">e</span><span class="o">.</span><span class="na">execute</span><span class="o">();</span>
+                        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+                    <span class="o">}</span>
+                    <span class="n">var4</span> <span class="o">=</span> <span class="o">((</span><span class="n">ModuleReturningValue</span><span class="o">)</span><span class="n">e</span><span class="o">).</span><span class="na">executeAndReturn</span><span class="o">();</span>
+                <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                    <span class="o">...</span>
+                <span class="o">}</span>
+                <span class="k">return</span> <span class="n">var4</span><span class="o">;</span>
+            <span class="o">}</span> 
+            <span class="o">...</span>
+        <span class="o">}</span> 
+        <span class="o">...</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">performScreenModule</code>首先根据当前<code class="highlighter-rouge">target</code>获取对应的<code class="highlighter-rouge">Module</code>。在<code class="highlighter-rouge">Webx</code>中，<code class="highlighter-rouge">Module</code>承担了用户提交数据的接收与处理、请求的控制与转发、处理结果的展示等重要功能。<code class="highlighter-rouge">Webx</code>缺省定义了三种类型的<code class="highlighter-rouge">Module</code>。</p>
+
+<ul>
+  <li>
+<code class="highlighter-rouge">action</code>：主要用于处理用户提交的数据，以及请求的控制与转发。</li>
+  <li>
+<code class="highlighter-rouge">screen</code>：主要用于处理页面的主体内容。</li>
+  <li>
+<code class="highlighter-rouge">control</code>：主要用于处理页面的部分内容，特别是可重用的内容。</li>
+</ul>
+
+<p>我们接着进入<code class="highlighter-rouge">finder.getScreenModule()</code>，源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="kd">public</span> <span class="n">Module</span> <span class="nf">getScreenModule</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">ModuleLoaderException</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">moduleName</span> <span class="o">=</span> <span class="n">PerformScreenValve</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">getModuleName</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">target</span><span class="o">);</span>
+            <span class="n">Module</span> <span class="n">module</span> <span class="o">=</span> <span class="n">PerformScreenValve</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">moduleLoaderService</span><span class="o">.</span><span class="na">getModuleQuiet</span><span class="o">(</span><span class="s">"screen"</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">moduleName</span><span class="o">);</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">module</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">module</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">parseEvent</span><span class="o">())</span> <span class="o">{</span>
+                    <span class="n">module</span> <span class="o">=</span> <span class="n">PerformScreenValve</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">moduleLoaderService</span><span class="o">.</span><span class="na">getModuleQuiet</span><span class="o">(</span><span class="s">"screen"</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">eventModuleName</span><span class="o">);</span>
+                    <span class="k">if</span><span class="o">(</span><span class="n">module</span> <span class="k">instanceof</span> <span class="n">ModuleEvent</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="k">return</span> <span class="n">module</span><span class="o">;</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+</code></pre></div></div>
+
+<p>打断点一步一步深入下去，进入<code class="highlighter-rouge">getModuleQuiet()</code>，源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="n">Module</span> <span class="nf">getModuleQuiet</span><span class="o">(</span><span class="n">String</span> <span class="n">moduleType</span><span class="o">,</span> <span class="n">String</span> <span class="n">moduleName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ModuleLoaderException</span> <span class="o">{</span>
+        <span class="n">ModuleKey</span> <span class="n">moduleKey</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModuleKey</span><span class="o">(</span><span class="n">moduleType</span><span class="o">,</span> <span class="n">moduleName</span><span class="o">);</span>
+        <span class="n">moduleType</span> <span class="o">=</span> <span class="n">moduleKey</span><span class="o">.</span><span class="na">getModuleType</span><span class="o">();</span>
+        <span class="n">moduleName</span> <span class="o">=</span> <span class="n">moduleKey</span><span class="o">.</span><span class="na">getModuleName</span><span class="o">();</span>
+        <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">cacheEnabled</span><span class="o">.</span><span class="na">booleanValue</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">Module</span> <span class="n">moduleObject</span> <span class="o">=</span> <span class="o">(</span><span class="n">Module</span><span class="o">)</span><span class="k">this</span><span class="o">.</span><span class="na">moduleCache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">moduleKey</span><span class="o">);</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">moduleObject</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">moduleObject</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="n">Object</span> <span class="n">var10</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">Module</span> <span class="n">module</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">ModuleFactory</span><span class="o">[]</span> <span class="n">arr</span><span class="err">$</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">factories</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">len</span><span class="err">$</span> <span class="o">=</span> <span class="n">arr</span><span class="err">$</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+
+        <span class="kt">int</span> <span class="n">i</span><span class="err">$</span><span class="o">;</span>
+        <span class="k">for</span><span class="o">(</span><span class="n">i</span><span class="err">$</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="err">$</span> <span class="o">&lt;</span> <span class="n">len</span><span class="err">$</span><span class="o">;</span> <span class="o">++</span><span class="n">i</span><span class="err">$</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">ModuleFactory</span> <span class="n">adapter</span> <span class="o">=</span> <span class="n">arr</span><span class="err">$</span><span class="o">[</span><span class="n">i</span><span class="err">$</span><span class="o">];</span>
+            <span class="n">var10</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="na">getModule</span><span class="o">(</span><span class="n">moduleType</span><span class="o">,</span> <span class="n">moduleName</span><span class="o">);</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">var10</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span><span class="o">(</span><span class="n">var10</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">var10</span> <span class="k">instanceof</span> <span class="n">Module</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="o">(</span><span class="n">Module</span><span class="o">)</span><span class="n">var10</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="n">ModuleAdapterFactory</span><span class="o">[]</span> <span class="n">var11</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">adapters</span><span class="o">;</span>
+                <span class="n">len</span><span class="err">$</span> <span class="o">=</span> <span class="n">var11</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+
+                <span class="k">for</span><span class="o">(</span><span class="n">i</span><span class="err">$</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="err">$</span> <span class="o">&lt;</span> <span class="n">len</span><span class="err">$</span><span class="o">;</span> <span class="o">++</span><span class="n">i</span><span class="err">$</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">ModuleAdapterFactory</span> <span class="n">var12</span> <span class="o">=</span> <span class="n">var11</span><span class="o">[</span><span class="n">i</span><span class="err">$</span><span class="o">];</span>
+                    <span class="n">module</span> <span class="o">=</span> <span class="n">var12</span><span class="o">.</span><span class="na">adapt</span><span class="o">(</span><span class="n">moduleType</span><span class="o">,</span> <span class="n">moduleName</span><span class="o">,</span> <span class="n">var10</span><span class="o">);</span>
+                    <span class="k">if</span><span class="o">(</span><span class="n">module</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="k">break</span><span class="o">;</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span><span class="o">(</span><span class="n">module</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">var10</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnadaptableModuleException</span><span class="o">(</span><span class="s">"Could not adapt object to module: type="</span> <span class="o">+</span> <span class="n">moduleType</span> <span class="o">+</span> <span class="s">", name="</span> <span class="o">+</span> <span class="n">moduleName</span> <span class="o">+</span> <span class="s">", class="</span> <span class="o">+</span> <span class="n">var10</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">cacheEnabled</span><span class="o">.</span><span class="na">booleanValue</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">module</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">moduleCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">moduleKey</span><span class="o">,</span> <span class="n">module</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="k">return</span> <span class="n">module</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>在<code class="highlighter-rouge">getModuleQuiet()</code>中，首先根据<code class="highlighter-rouge">moduleType</code>和<code class="highlighter-rouge">moduleName</code>创建<code class="highlighter-rouge">modulekey</code>，<code class="highlighter-rouge">Webx</code>会对<code class="highlighter-rouge">Module</code>进行缓存，因此首先根据<code class="highlighter-rouge">moduleKey</code>从缓存中获取<code class="highlighter-rouge">Module</code>。如果缓存中还不存在当前<code class="highlighter-rouge">target</code>对应的<code class="highlighter-rouge">Module</code>，继续深入，进入<code class="highlighter-rouge">DataBindingAdapterFactory</code>类的<code class="highlighter-rouge">adapt</code>方法，源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="n">Module</span> <span class="nf">adapt</span><span class="o">(</span><span class="n">String</span> <span class="n">type</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">Object</span> <span class="n">moduleObject</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ModuleInfo</span> <span class="n">moduleInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModuleInfo</span><span class="o">(</span><span class="n">type</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+        <span class="n">Class</span> <span class="n">moduleClass</span> <span class="o">=</span> <span class="n">moduleObject</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+        <span class="n">Method</span> <span class="n">executeMethod</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="n">moduleClass</span><span class="o">,</span> <span class="s">"execute"</span><span class="o">);</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">executeMethod</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">FastClass</span> <span class="n">fc</span> <span class="o">=</span> <span class="n">FastClass</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">moduleClass</span><span class="o">);</span>
+            <span class="n">FastMethod</span> <span class="n">fm</span> <span class="o">=</span> <span class="n">fc</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="n">executeMethod</span><span class="o">);</span>
+            <span class="kt">boolean</span> <span class="n">skippable</span> <span class="o">=</span> <span class="s">"action"</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="n">type</span><span class="o">);</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="nf">DataBindingAdapter</span><span class="o">(</span><span class="n">moduleObject</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">getMethodInvoker</span><span class="o">(</span><span class="n">fm</span><span class="o">,</span> <span class="n">moduleInfo</span><span class="o">,</span> <span class="n">skippable</span><span class="o">));</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>在<code class="highlighter-rouge">adapt</code>方法中，一切开始变得清晰起来：首先尝试获取<code class="highlighter-rouge">moduleObject</code>的<code class="highlighter-rouge">execute()</code>方法，若存在，那么当前<code class="highlighter-rouge">target</code>对应的Module的最关键部分也就构建完成了。<strong>至此，第一个疑问“为什么<code class="highlighter-rouge">execute()</code>会被调用”得到了解答</strong>。</p>
+
+<p>获取了<code class="highlighter-rouge">Module</code>之后，<code class="highlighter-rouge">executeAndReturn()</code>调用<code class="highlighter-rouge">execute()</code>，完成页面主体内容的处理。<code class="highlighter-rouge">executeAndReturn()</code>源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">executeAndReturn</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">executeMethod</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">moduleObject</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">log</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="dochinese为什么会被调用">doChinese()为什么会被调用？</h2>
+
+<p>此时<code class="highlighter-rouge">Web</code>请求<code class="highlighter-rouge">URL</code>为 <code class="highlighter-rouge">http://localhost:8080/webx/multievent/say_hello_1/chinese.do</code> ，因此相应的<code class="highlighter-rouge">target</code>即为<code class="highlighter-rouge">/multievent/say_hello_1/chinese.do</code>。与第一个问题的请求处理流程相同，<code class="highlighter-rouge">Webx</code>首先根据当前<code class="highlighter-rouge">target</code>去获取<code class="highlighter-rouge">Module</code>，若无法获取，那么认为当前<code class="highlighter-rouge">target</code>是由两部分组成：<code class="highlighter-rouge">event</code>和<code class="highlighter-rouge">eventModuleName</code>，解析<code class="highlighter-rouge">target</code>的源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">parseEvent</span><span class="o">()</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">slashIndex</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">lastIndexOf</span><span class="o">(</span><span class="s">"/"</span><span class="o">);</span>
+            <span class="kt">int</span> <span class="n">dotIndex</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">lastIndexOf</span><span class="o">(</span><span class="s">"."</span><span class="o">);</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">slashIndex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">event</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="n">slashIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="n">dotIndex</span> <span class="o">&gt;</span> <span class="n">slashIndex</span><span class="o">?</span><span class="nl">dotIndex:</span><span class="k">this</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">length</span><span class="o">());</span>
+                <span class="k">this</span><span class="o">.</span><span class="na">eventModuleName</span> <span class="o">=</span> <span class="n">PerformScreenValve</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">getModuleName</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">slashIndex</span><span class="o">));</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+</code></pre></div></div>
+
+<p>继续打断点深入源码，<code class="highlighter-rouge">Webx</code>会将<code class="highlighter-rouge">eventModuleName</code>作为<code class="highlighter-rouge">moduleName</code>获取<code class="highlighter-rouge">Module</code>。同样的，首先尝试获取<code class="highlighter-rouge">execute()</code>，如果获取不到便获取所有的<code class="highlighter-rouge">EventHandler</code>，源码如下。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Method</span><span class="o">&gt;</span> <span class="nf">getEventHandlers</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">moduleClass</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">HashMap</span> <span class="n">handlers</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">Method</span><span class="o">[]</span> <span class="n">arr</span><span class="err">$</span> <span class="o">=</span> <span class="n">moduleClass</span><span class="o">.</span><span class="na">getMethods</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">len</span><span class="err">$</span> <span class="o">=</span> <span class="n">arr</span><span class="err">$</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="err">$</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="err">$</span> <span class="o">&lt;</span> <span class="n">len</span><span class="err">$</span><span class="o">;</span> <span class="o">++</span><span class="n">i</span><span class="err">$</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">Method</span> <span class="n">method</span> <span class="o">=</span> <span class="n">arr</span><span class="err">$</span><span class="o">[</span><span class="n">i</span><span class="err">$</span><span class="o">];</span>
+            <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">checkMethod</span><span class="o">(</span><span class="n">method</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">String</span> <span class="n">methodName</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+                <span class="k">if</span><span class="o">(</span><span class="n">methodName</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="n">methodName</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"do"</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">Character</span><span class="o">.</span><span class="na">isUpperCase</span><span class="o">(</span><span class="n">methodName</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="mi">2</span><span class="o">)))</span> <span class="o">{</span>
+                    <span class="n">String</span> <span class="n">eventName</span> <span class="o">=</span> <span class="n">StringUtil</span><span class="o">.</span><span class="na">toCamelCase</span><span class="o">(</span><span class="n">methodName</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">2</span><span class="o">));</span>
+                    <span class="k">if</span><span class="o">(</span><span class="s">"perform"</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">eventName</span><span class="o">))</span> <span class="o">{</span>
+                        <span class="n">eventName</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                    <span class="o">}</span>
+
+                    <span class="k">if</span><span class="o">(</span><span class="n">handlers</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">handlers</span> <span class="o">=</span> <span class="n">CollectionUtil</span><span class="o">.</span><span class="na">createHashMap</span><span class="o">();</span>
+                    <span class="o">}</span>
+
+                    <span class="n">handlers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">eventName</span><span class="o">,</span> <span class="n">method</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="n">handlers</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p>至此我们理解为什么<code class="highlighter-rouge">doChinese()</code>为什么会被调用了：获取当前<code class="highlighter-rouge">target</code>对应的<code class="highlighter-rouge">screen</code>的类的所有以<code class="highlighter-rouge">do</code>开头的方法，构建<code class="highlighter-rouge">eventName</code>与<code class="highlighter-rouge">Method</code>的映射关系，存储在一个<code class="highlighter-rouge">Map</code>中，注意我们的<code class="highlighter-rouge">target</code>已被划分为<code class="highlighter-rouge">event</code>和<code class="highlighter-rouge">eventModuleName</code>，在<code class="highlighter-rouge">executeAndReturn()</code>中根据<code class="highlighter-rouge">event</code>从<code class="highlighter-rouge">Map</code>中获取相应的<code class="highlighter-rouge">Method</code>并执行，源码如下（省略部分无关代码）。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">executeAndReturn</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">ModuleEventException</span><span class="o">,</span> <span class="n">ModuleEventNotFoundException</span> <span class="o">{</span>
+        <span class="n">Object</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">String</span> <span class="n">event</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getEventName</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">request</span><span class="o">);</span>
+        <span class="n">MethodInvoker</span> <span class="n">handler</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">event</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="o">(</span><span class="n">MethodInvoker</span><span class="o">)</span><span class="k">this</span><span class="o">.</span><span class="na">handlers</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span><span class="o">(</span><span class="n">handler</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="o">(</span><span class="n">MethodInvoker</span><span class="o">)</span><span class="k">this</span><span class="o">.</span><span class="na">handlers</span><span class="o">.</span><span class="na">get</span><span class="o">((</span><span class="n">Object</span><span class="o">)</span><span class="kc">null</span><span class="o">);</span>
+        <span class="o">}</span>
+	   <span class="o">...</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">moduleObject</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">log</span><span class="o">);</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>所以第二个疑问也得到了解答 :P</strong></p>
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/ - 初探Webx之约定胜于配置 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%88%86%E5%B8%83%E5%BC%8FRPC%E6%A1%86%E6%9E%B6/">← Previous Post</a>
+      <a class="next" href="/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/">Next Post →</a>
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2017 © 辰洋的博客
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>
