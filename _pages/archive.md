@@ -4,17 +4,17 @@ title: Archive
 scripts: [search.js]
 permalink: /archive/
 ---
-<div class="archive-header">
+<!-- <div class="archive-header">
     <h2>Archives</h2>
     <span class="icon toggle-search">{% include search.svg %} Search</span>
-</div>
-<div class="search">
+</div> -->
+<!-- <div class="search">
     <div class="wrapper">
         <span class="icon toggle-search">{% include close.svg %}</span>
         <input type="text" class="search-input" id="search-input" placeholder="Search...">
         <ul id="results-container"></ul>
     </div>
-</div>
+</div> -->
 <ul class="archive-lists">
   {% for post in site.posts %}
     {% unless post.next %}
