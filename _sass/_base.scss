@@ -23,9 +23,10 @@ body {
     -o-font-feature-settings: "kern" 1;
     font-feature-settings: "kern" 1;
     font-kerning: normal;
+    background: #EFEFEF;
 
     ::selection {
-        background: rgb(243, 123, 129); /* WebKit/Blink Browsers */
+        background: #ff4629; /* WebKit/Blink Browsers */
     }
 
     @include media-query($on-palm) {
