@@ -1,6 +1,6 @@
 ---
 layout: page
-title: DarkTime
+title: 暗时间
 permalink: /darktime/
 ---
 

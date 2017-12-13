@@ -99,15 +99,15 @@ h1, h2, h3, h4, h5, h6 {
  * Links
  */
 a {
-    color: rgb(115, 168, 144); //$brand-color;
+    color: rgb(3, 101, 100); //$brand-color;
     text-decoration: none;
 
-    &:visited {
-        color: darken(rgb(7, 7, 7), 15%);
-    }
+    // &:visited {
+    //     color: darken(rgb(7, 7, 7), 15%);
+    // }
 
     &:hover {
-        color: rgb(115, 168, 144);//$text-color;
+        color: rgb(38, 157, 128);//$text-color;
         text-decoration: underline;
     }
 }

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Archive
+title: 归档
 scripts: [search.js]
 permalink: /archive/
 ---
@@ -32,4 +32,4 @@ permalink: /archive/
     <li><span class="date">{{ post.date | date:"%b" }}</span> <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></li>
   {% endfor %}
 </div></ul>
-<span class="last-update">Site last generated: {{ site.time | date: "%b %-d, %Y"  }}</span>
+<!-- <span class="last-update">Site last generated: {{ site.time | date: "%b %-d, %Y"  }}</span> -->
