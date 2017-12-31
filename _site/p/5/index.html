@@ -103,6 +103,17 @@
     
       <li>
         <h2>
+          <a class="post-link" href="/2016/Java%E6%B3%9B%E5%9E%8B%E6%80%BB%E7%BB%93/">Java泛型总结</a>
+        </h2>
+          <span class="post-meta">Oct 3, 2016</span>
+        <p class="description">
+            
+                Java泛型是JDK5引入的一个新特性，允许在定义类和接口的时候使用类型参数（type parameter）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在JDK5中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不好的方面说，为了保证与旧版本的兼容性，Java泛型的实现上还存在着不够优雅的地方。类型擦除正确理解泛...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
           <a class="post-link" href="/2016/IO%E9%87%8D%E5%AE%9A%E5%90%91%E5%92%8C%E7%AE%A1%E9%81%93/">I/O重定向和管道</a>
         </h2>
           <span class="post-meta">Aug 19, 2016</span>
@@ -142,17 +153,6 @@
         <p class="description">
             
                 程序执行过程的跟踪可以使用Debug来跟踪一个程序的执行过程，示例程序1.asm如下所示。assume cs:codesgcodesg segment    mov ax,0123h    mov bx,0456h    add ax,bx    add ax,ax    mov ax,4c00h    int 21hcodesg endsend使用masm编译1.asm，生成1.obj，然后将1.obj使用连接器Link.exe连接，生成1.exe。输入debug 1.exe，将程序载入...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">Spring IoC Context启动过程解析</a>
-        </h2>
-          <span class="post-meta">Jun 21, 2016</span>
-        <p class="description">
-            
-                ServletContextWeb容器在启动的过程中，会为每个Web应用程序创建一个对应的ServletContext对象，它代表了当前的Web应用，为Spring IoC容器提供宿主环境。在部署Web工程的时候，Web容器会读取web.xml，创建ServletContext，当前Web工程所有部分都共享这个Context。context-param为ServletContext提供键值对，即Servlet上下文的信息，这些信息Listener、Filter和Servlet都有可能使用到...
             </p>
       </li>
     

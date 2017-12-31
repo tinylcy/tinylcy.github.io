@@ -103,6 +103,17 @@
     
       <li>
         <h2>
+          <a class="post-link" href="/2017/CSAPP-Attack-Lab/">CSAPP: Attack Lab</a>
+        </h2>
+          <span class="post-meta">May 6, 2017</span>
+        <p class="description">
+            
+                Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Programming达到攻击的目的。目前的进度是完成了Part I，等有时间再回来完成Part II。Part ...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
           <a class="post-link" href="/2017/6-824-Lab-1-MapReduce/">6 824 Lab 1 Mapreduce</a>
         </h2>
           <span class="post-meta">May 3, 2017</span>
@@ -142,17 +153,6 @@
         <p class="description">
             
                 Java并发编程实战 一书在介绍ThreadLocal类时（第3章），书中有这么两段话，在我初次阅读时不知道如何去理解。  ThreadLocal对象通常用于防止对可变的单实例变量（Singleton）或全局变量进行共享。  当某个频繁执行的操作需要一个临时变量，例如一个缓冲区，而同时又希望避免在每次执行时都重新分配该临时对象，就可以使用这项技术。例如，在Java 5.0之前，Integer.toString()方法使用ThreadLocal对象来保存一个12字节大小的缓冲区，用于对结果进...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAJava-Class%E8%A7%A3%E6%9E%90%E5%99%A8/">如何实现一个Java Class解析器</a>
-        </h2>
-          <span class="post-meta">Feb 12, 2017</span>
-        <p class="description">
-            
-                最近在写一个私人项目，名字叫做ClassAnalyzer，ClassAnalyzer的目的是能让我们对Java Class文件的设计与结构能够有一个深入的理解。主体框架与基本功能已经完成，还有一些细节功能日后再增加。实际上JDK已经提供了命令行工具javap来反编译Class文件，但本篇文章将阐明我实现解析器的思路。Class文件作为类或者接口信息的载体，每个Class文件都完整的定义了一个类。为了使Java程序可以“编写一次，处处运行”，Java虚拟机规范对Class文件进行了严格的规定...
             </p>
       </li>
     
