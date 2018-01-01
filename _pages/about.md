@@ -14,11 +14,17 @@ permalink: /about/
 
 ### Contact
 
- * **Email** <br/>
+* **Email** <br/>
    *Linux* **:** echo dGlueWxjeUBnbWFpbC5jb20K | base64 -d <br/>
    *OS X* **:** echo dGlueWxjeUBnbWFpbC5jb20K | base64 -D
 
- * **GitHub:** [@tinylcy](https://github.com/tinylcy)
+<p/>
+
+* **GitHub:** [@tinylcy](https://github.com/tinylcy)
+
+<p/>
+
+* **ETH:** 0xaa6b931c698757268e4D8824438B74a39a50a590
 
 <br/>
 
@@ -31,8 +37,8 @@ permalink: /about/
 ### Internship
 
 * **阿里巴巴 - 菜鸟网络 (2017.07 ~ 2017.09)**<br/>
-职位：研发工程师<br/>
-参与核心平台（WMS）服务器端程序设计和开发。
+  职位：研发工程师<br/>
+  参与核心平台（WMS）服务器端程序设计和开发。
 
 <br/>
 
