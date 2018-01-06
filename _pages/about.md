@@ -8,6 +8,8 @@ permalink: /about/
 
 对大型分布式网站架构 & 操作系统感兴趣，擅长并热爱服务器端编程。
 
+常用语言 Java 和 C/C++，喜欢 Golang、Python 和 Node.js。 
+
 有任何问题欢迎讨论 ;D。
 
 <br/>
@@ -22,23 +24,23 @@ permalink: /about/
 
 * **GitHub:** [@tinylcy](https://github.com/tinylcy)
 
-<p/>
-
-* **ETH:** 0xaa6b931c698757268e4D8824438B74a39a50a590
 
 <br/>
 
 ### Publication
 
-* **CBMR: An optimized MapReduce for item-based collaborative filtering recommendation algorithm with empirical analysis.** Concurrency and Computation: Practice and Experience 29(10) (2017). [[PDF]](http://onlinelibrary.wiley.com/doi/10.1002/cpe.4092/epdf)
+* **Li C**, He K. CBMR: An optimized MapReduce for item‐based collaborative filtering recommendation algorithm with empirical analysis[J]. Concurrency and Computation: Practice and Experience, 2017, 29(10).
+
+* He K, **Li C**. Structure-based classification of web documents using Support Vector Machine[C]. Cloud Computing and Intelligence Systems (CCIS), 2016 4th International Conference on. IEEE, 2016: 215-219.
 
 <br/>
 
 ### Internship
 
-* **阿里巴巴 - 菜鸟网络 (2017.07 ~ 2017.09)**<br/>
-  职位：研发工程师<br/>
-  参与核心平台（WMS）服务器端程序设计和开发。
+* **阿里巴巴 - 菜鸟网络** <br/>
+  <h5>中国-杭州 [ 2017 年 7 月 - 2017 年 9 月 ]</h5>
+  职位：*研发工程师* <br/>
+  参与核心平台 (WMS) 服务器端程序设计和开发。
 
 <br/>
 
