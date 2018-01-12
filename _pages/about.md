@@ -6,7 +6,7 @@ permalink: /about/
 
 你好，我是李辰洋，CS 研究生。
 
-对大型分布式网站架构 & 操作系统感兴趣，擅长并热爱服务器端编程。
+对**分布式系统**和**操作系统**感兴趣，擅长并热爱服务器端编程。
 
 常用语言 Java 和 C/C++，喜欢 Golang、Python 和 Node.js。 
 
@@ -27,7 +27,7 @@ permalink: /about/
 
 <br/>
 
-### Publication
+### Publications
 
 * **Li C**, He K. CBMR: An optimized MapReduce for item‐based collaborative filtering recommendation algorithm with empirical analysis[J]. Concurrency and Computation: Practice and Experience, 2017, 29(10).
 

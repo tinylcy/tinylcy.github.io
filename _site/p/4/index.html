@@ -15,7 +15,6 @@
 <meta property="og:url" content="http://localhost:4000/p/4/">
 <meta property="og:site_name" content="STAR 皆空">
 <link rel="prev" href="http://localhost:4000/p/3">
-<link rel="next" href="http://localhost:4000/p/5">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@">
 <meta property="article:publisher" content="1234">
@@ -84,12 +83,6 @@
             
                 
             
-                
-            
-                
-            
-                
-            
             </div>
         </nav>
     </div>
@@ -103,56 +96,89 @@
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Spring IoC容器初始化 — Resource定位源码分析</a>
+          <a class="post-link" href="/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%89/">用机器指令和汇编指令编程（三）</a>
         </h2>
-          <span class="post-meta">Dec 7, 2016</span>
+          <span class="post-meta">Jun 25, 2016</span>
         <p class="description">
             
-                在Spring IoC容器的设计中，有两个主要的容器系列。一个是实现了BeanFactory接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是ApplicationContext应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。IoC容器的初始化过程Spring IoC容器的初始化过程分为三个阶段：Resource定位、BeanDefinition的载入和向IoC容器注册BeanDefinition。Spring把这三个阶段分离，并使用不同的...
+                程序执行过程的跟踪可以使用Debug来跟踪一个程序的执行过程，示例程序1.asm如下所示。assume cs:codesgcodesg segment    mov ax,0123h    mov bx,0456h    add ax,bx    add ax,ax    mov ax,4c00h    int 21hcodesg endsend使用masm编译1.asm，生成1.obj，然后将1.obj使用连接器Link.exe连接，生成1.exe。输入debug 1.exe，将程序载入...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">HashMap源码分析</a>
+          <a class="post-link" href="/2016/Spring-IoC-Context%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%A3%E6%9E%90/">Spring IoC Context启动过程解析</a>
         </h2>
-          <span class="post-meta">Dec 4, 2016</span>
+          <span class="post-meta">Jun 21, 2016</span>
         <p class="description">
             
-                HashMap简介本文针对HashMap的源码分析基于JDK 7，JDK 8在HashMap的实现上有着较大幅度的改进和优化，这部分优化我将另起一篇来阐述。另外，本文仅分析HashMap众多方法中最常用的方法，其余方法有需要时再研究 <img class="emoji" title=":smile:" alt=":smile:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f604.png" height="20" width="20">。HashMap的继承关系如下。public class HashMap&lt;K,V&gt;    extends AbstractMap&lt;K,V&gt;    implements Map&lt;K,V&gt;, Cloneable, ...
+                ServletContextWeb容器在启动的过程中，会为每个Web应用程序创建一个对应的ServletContext对象，它代表了当前的Web应用，为Spring IoC容器提供宿主环境。在部署Web工程的时候，Web容器会读取web.xml，创建ServletContext，当前Web工程所有部分都共享这个Context。context-param为ServletContext提供键值对，即Servlet上下文的信息，这些信息Listener、Filter和Servlet都有可能使用到...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Vector源码分析</a>
+          <a class="post-link" href="/2016/LinkedList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">LinkedList源码分析</a>
         </h2>
-          <span class="post-meta">Dec 2, 2016</span>
+          <span class="post-meta">Jun 10, 2016</span>
         <p class="description">
             
-                Vector简介Vector在JDK 1.0被引入，基于数组实现，并且是一个动态数组，其容量可以自动增长。在很多方法的实现上，Vector加入了同步语句，因此一般来说Vector是线程安全的，可以在多线程环境中运用。本文对Vector源码的分析基于JDK 1.8.0_111，并仅对常用的方法进行分析。public class Vector&lt;E&gt;    extends AbstractList&lt;E&gt;    implements List&lt;E&gt;, Rando...
+                本文涉及的JDK源码版本为1.7.0_79。LinkedList类定义LinkedList是基于双向链表实现的，LinkedList除了被当做数组来使用，还可以作为栈、队列来使用。由于LinkedList内部采用链表的形式存储元素，因此随机访问会比较慢，但是插入、删除元素比较快。和ArrayList一样，LinkedList也是非线程安全的，只有在单线程下才可以使用。为了防止非同步访问，可以采用如下方式创建LinkedList。List list= Collections.synchron...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/Java%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80/">Java对象内存布局</a>
+          <a class="post-link" href="/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%BA%8C/">用机器指令和汇编指令编程（二）</a>
         </h2>
-          <span class="post-meta">Nov 30, 2016</span>
+          <span class="post-meta">Jun 9, 2016</span>
         <p class="description">
             
-                JVM将内存划分为程序计数器（Program Counter Register）、虚拟机栈（VM Stack）、本地方法栈（Native Method Stack）、堆（Heap）以及方法区（Method Area）。作为开发者，我们最关注的是虚拟机栈以及堆这两块区域。虚拟机栈所需要的内存空间在编译期间即可明确，而堆内存所需要的空间需要在运行时才可确定。堆内存用于存放我们在程序中创建的对象，一旦没有足够的空间用于存放这些对象，即会抛出OutOfMemoryError异常。在这种情况下，我们...
+                物理地址CPU访问内存空间时，要给出内存单元的地址。所有的内存单元构成的存储空间是一个一维的线性空间，每一个内存单元在这个空间中都有唯一的地址，将这个唯一的地址称为物理地址。CPU通过地址总线送入存储器的，必须是一个内存单元的物理地址。而在CPU向地址总线上发出物理地址之前，必须要在内部形成这个物理地址。不同的CPU有不同的形成物理地址的方式，此处依旧讨论8086CPU如何在内部形成内存单元的物理地址。16位结构的CPU8086CPU是16位机，也可以说8086CPU是16位结构的CPU。...
             </p>
       </li>
     
       <li>
         <h2>
-          <a class="post-link" href="/2016/Linux-C-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%AE%9E%E7%8E%B0/">Linux C 线程池实现</a>
+          <a class="post-link" href="/2016/%E7%94%A8%E6%9C%BA%E5%99%A8%E6%8C%87%E4%BB%A4%E5%92%8C%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B-%E4%B8%80/">用机器指令和汇编指令编程（一）</a>
         </h2>
-          <span class="post-meta">Nov 17, 2016</span>
+          <span class="post-meta">Jun 5, 2016</span>
         <p class="description">
             
-                学习网络编程时，自己动手实现一个Web Server是一个很有意思的经历。大多数Web Server都有一个特点：在单位时间内需要处理大量的请求，并且处理这些请求的时间往往还很短。《深入理解计算机系统》 (CSAPP) 在讲解网络编程时实现了一个经典的Web Server，这个Web Server不仅满足了静态请求，同时还满足了动态请求 (CGI)。虽然这个Web Server能够正常使用，但是仍存在一个明显的缺陷：它是一个迭代式的Web Server，这意味着在一个请求处理完毕前，不能同...
+                Debug的使用什么是DebugDebug是Dos、Windows提供的实模式（8086方式）程序的调试工具，可以使用它来查看CPU各种寄存器中的内容、内存的情况和在机器码级跟踪程序的运行。但是debug命令在64位操作系统下是不能使用的。在cmd中输入debug，会提示：不是内部或外部命令，也不是运行的程序或批处理文件。使用DOSBox在Win7_64下搭建汇编环境DEBUG.EXE，EDIT.COM，MASM.EXE，LINK.EXE等汇编工具，一般在32位的Windows操作系统下有...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2016/ArrayList%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">ArrayList源码分析</a>
+        </h2>
+          <span class="post-meta">May 28, 2016</span>
+        <p class="description">
+            
+                源码版本为JDK1.7.0_79ArrayList不是线程安全的，只能应用在单线程环境下。ArrayList类定义从ArrayList的类定义可以看出它是支持泛型的，继承自AbstractList，AbstractList 实现了List接口，提供了List接口的默认实现。public abstract class AbstractList&lt;E&gt; extends AbstractCollection&lt;E&gt; implements List&lt;E&gt;ArrayL...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2016/Why-String-is-Immutable-or-Final-in-Java/">Why String is Immutable or Final in Java</a>
+        </h2>
+          <span class="post-meta">May 15, 2016</span>
+        <p class="description">
+            
+                引入问题Thinking in Java中写道：“String对象是不可变的，String类中每一个看起来会修改String值的方法，实际上都是创建了一个全新的String对象，以包含修改后的字符串内容。而最初的String对象则丝毫未动”。通过查看源代码，了解到String类被设计成final类型，那么String类被设计成final类型是出于哪些考虑？final关键字首先需要理解Java中final的含义，通常final指的是”这是无法改变的”。不想做改变可能出于两种原因：设计或效率。...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2016/Spring-Hibernate-Template%E8%A7%A3%E6%9E%90/">Spring Hibernate Template解析</a>
+        </h2>
+          <span class="post-meta">May 2, 2016</span>
+        <p class="description">
+            
+                在Spring中，如果选用Hibernate作为持久层框架，往往需要在beans.xml中配置好SessionFactory，然后将SessionFactory注入到对应的DAO类。当我们使用SessionFactory来进行CRUD，配合对应的异常处理，会使得真正有用的业务逻辑代码显得微不足道。而且，除了那部分业务逻辑，创建Session、开启事务、处理异常、关闭资源这一系列代码在大多数场景下都是重复的。为了解决这个问题，Spring引入Hibernate Template让我们专注于业...
             </p>
       </li>
     
@@ -161,7 +187,7 @@
 <!-- Pagination links -->
   <div class="pagination">
      <a href="/p/3" class="prev">Newer Posts</a> 
-     <a href="/p/5" class="next">Older Posts</a>
+    
   </div>
 
       </div>

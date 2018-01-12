@@ -46,5 +46,5 @@ exclude:
   - Gemfile
   - Gemfile.lock
 
-paginate: 5
+paginate: 8
 paginate_path: 'p/:num'
