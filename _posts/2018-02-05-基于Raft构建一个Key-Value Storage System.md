@@ -1,8 +1,8 @@
 ---
-title: '基于 Raft 构建一个分布式 Key-Value Storage System'
+title: '基于Raft构建一个分布式Key-Value Storage System'
 ---
 
-最近在做毕业设计，涉及到 Raft 等一致性协议的问题。在阅读了 Raft [论文](chrome-extension://cdonnmffkdaoajfknoeeecmchibpmkmg/assets/pdf/web/viewer.html?file=https%3A%2F%2Fraft.github.io%2Fraft.pdf)之后，很自然的需要造点东西来加深对论文的理解。我暂时不会尝试去实现 Raft 协议，而是先基于 Raft 构建一个分布式的内存型 Key-Value Store，名字叫做 [Rastore](https://github.com/tinylcy/rastore)。
+最近在做毕业设计，涉及到 Raft 等一致性协议的问题。在阅读了 Raft [论文](chrome-extension://cdonnmffkdaoajfknoeeecmchibpmkmg/assets/pdf/web/viewer.html?file=https%3A%2F%2Fraft.github.io%2Fraft.pdf)之后，为了加深理解，我基于 Raft 构建了一个分布式的内存型 Key-Value Store，名字叫做 [Rastore](https://github.com/tinylcy/rastore)。本文将会对 Rastore 的设计思想做一个简单的梳理。
 
 Raft 的开源实现已有很多，比较流行的是 CoreOS etcd 和 HashiCorp raft。相比而言，HashiCorp raft 实现的比较完整，在使用的时候仅需关注业务逻辑的实现，并 Apply 需要同步的信息，而 CoreOS etcd 则是 Raft 协议的轻量级实现，这意味着很多协议相关的模块都需要我们去实现，这无疑是增加了复杂度，但是带来的好处是更加灵活。Rastore 选择使用 HashiCorp raft 来构建系统。
 
@@ -13,11 +13,11 @@ Rastore 目前具备四个主要特性。
 * Key-Value Store 增删改查操作
 * 状态机快照
 
-Rastore 包括 Store 和 Service 两个核心模块。Store 模块对 HashiCorp raft 进行了封装，实现了 Raft 节点的初始化及启动、Key-Value Store 的增删改查逻辑、集群节点的在线增删和快照的创建及恢复。Service 模块通过提供 RESTFul 接口，给外界提供了更加透明的 Key-Value 存储服务。下图清晰的描述了 Rastore 模块之间的关联。
+Rastore 包括 Store 和 Service 两个核心模块。Store 模块对 HashiCorp raft 进行了封装，实现了 Raft 节点的初始化及启动、Key-Value Store 的增删改查逻辑、集群节点的在线增删和快照的创建及恢复。Service 模块通过提供 RESTFul 接口，给外界提供了更加透明的 Key-Value 存储服务。下图描述了 Rastore 模块之间的关联。
 
 ![](/img/img-2018-02-05-Image-1.jpeg)
 
-Rastore 实现了一个简化版的内存 Key-Value Storage System，源码放在了 [GitHub](https://github.com/tinylcy/rastore) 上。
+Rastore 实现了一个简化版的内存型 Key-Value Storage System，源码放在了 [GitHub](https://github.com/tinylcy/rastore) 上。
 
 ### 附录
 

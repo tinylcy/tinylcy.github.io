@@ -1,9 +1,9 @@
 [
 
 	{
-		"title"    : "基于 Raft 构建一个分布式 Key-Value Storage System",
+		"title"    : "基于Raft构建一个分布式Key-Value Storage System",
 		"category" : "",
-		"desc"     : "最近在做毕业设计，涉及到 Raft 等一致性协议的问题。在阅读了 Raft 论文之后，很自然的需要造点东西来加深对论文的理解。我暂时不会尝试去实现 Raft 协议，而是先基于 Raft 构建一个分布式的内存型 Key-Value Store，名字叫做 Rastore。Raft 的开源实现已有很多，比较流行的是 CoreOS etcd 和 HashiCorp raft。相比而言，HashiCo...",
+		"desc"     : "最近在做毕业设计，涉及到 Raft 等一致性协议的问题。在阅读了 Raft 论文之后，为了加深理解，我基于 Raft 构建了一个分布式的内存型 Key-Value Store，名字叫做 Rastore。本文将会对 Rastore 的设计思想做一个简单的梳理。Raft 的开源实现已有很多，比较流行的是 CoreOS etcd 和 HashiCorp raft。相比而言，HashiCorp ra...",
 		"tags"     : "",
 		"url"      : "/2018/%E5%9F%BA%E4%BA%8ERaft%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AAKey-Value-Storage-System/",
 		"date"     : "2018-02-05 00:00:00 +0800"

@@ -11,8 +11,8 @@
 <meta property="og:locale" content="en_US">
 <meta name="description" content="关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。">
 <meta property="og:description" content="关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。">
-<link rel="canonical" href="http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/">
-<meta property="og:url" content="http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/">
+<link rel="canonical" href="https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/">
+<meta property="og:url" content="https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/">
 <meta property="og:site_name" content="STAR 皆空">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2017-04-05T05:01:21+08:00">
@@ -21,11 +21,11 @@
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/","publisher":null,"image":null,"headline":"理解Golang中的defer","dateModified":"2017-04-05T05:01:21+08:00","datePublished":"2017-04-05T05:01:21+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/"},"@context":"http://schema.org"}</script>
+{"name":null,"description":"关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。","author":null,"@type":"BlogPosting","url":"https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/","publisher":null,"image":null,"headline":"理解Golang中的defer","dateModified":"2017-04-05T05:01:21+08:00","datePublished":"2017-04-05T05:01:21+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/"},"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
-  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="http://localhost:4000/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="https://tinylcy.github.io/feed.xml">
   <link rel="stylesheet" href="/assets/css/nangka.css">
 
   
@@ -230,16 +230,16 @@
         <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
       </li>
       <li class="linkedin">
-        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+        <a href="http://www.linkedin.com/cws/share?url=https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
       </li>
       <li class="twitter">
-        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/ - 理解Golang中的defer by @" target="_blank" title="Share to Twitter">Twitter</a>
+        <a href="https://twitter.com/intent/tweet?text=https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/ - 理解Golang中的defer by @" target="_blank" title="Share to Twitter">Twitter</a>
       </li>
       <li class="gplus">
-        <a href="https://plus.google.com/share?url=http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+        <a href="https://plus.google.com/share?url=https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
       </li>
       <li class="pinterest">
-        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/" target="_blank" title="Share to Pinterest">Pinterest</a>
+        <a href="http://pinterest.com/pin/create/link/?url=https://tinylcy.github.io/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/" target="_blank" title="Share to Pinterest">Pinterest</a>
       </li>
     </ul> -->
 
