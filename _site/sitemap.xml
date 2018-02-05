@@ -129,6 +129,10 @@
 <lastmod>2017-12-31T00:00:00+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/2018/%E5%9F%BA%E4%BA%8ERaft%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AAKey-Value-Storage-System/</loc>
+<lastmod>2018-02-05T00:00:00+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about/</loc>
 </url>
 <url>
@@ -148,5 +152,8 @@
 </url>
 <url>
 <loc>http://localhost:4000/p/4/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/p/5/</loc>
 </url>
 </urlset>
