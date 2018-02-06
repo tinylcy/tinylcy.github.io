@@ -84,8 +84,6 @@
             
                 
             
-                
-            
             </div>
         </nav>
     </div>
@@ -96,17 +94,6 @@
         <div class="home">
   <!-- <h1 class="page-heading">Posts</h1> -->
   <ul class="post-list">
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Spring IoC容器初始化 — Resource定位源码分析</a>
-        </h2>
-          <span class="post-meta">Dec 7, 2016</span>
-        <p class="description">
-            
-                在Spring IoC容器的设计中，有两个主要的容器系列。一个是实现了BeanFactory接口的简单容器系列，这系列容器只实现了容器基本的功能；另一个是ApplicationContext应用上下文，它在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多适配。IoC容器的初始化过程Spring IoC容器的初始化过程分为三个阶段：Resource定位、BeanDefinition的载入和向IoC容器注册BeanDefinition。Spring把这三个阶段分离，并使用不同的...
-            </p>
-      </li>
     
       <li>
         <h2>
@@ -182,6 +169,17 @@
         <p class="description">
             
                 TCP基础网络的传输层有两种方式——TCP和UDP，其中TCP是基于连接的，而UDP不需要连接。它们各自支持一些应用层协议，但也有些协议是两者都支持的，比如DNS，我们通过DNS来比较TCP和UDP的差别。当前我的计算机的ip为192.168.199.134，向DNS服务器发起一个DNS查询，以期获得tinylcy.me所对应的ip地址。DNS默认使用UDP的情况如下所示：通过Wireshark抓取这个过程的网络包，如下所示：使用set vc强制DNS使用TCP：这个过程所有的网络包如下所...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2016/%E7%9B%AE%E5%BD%95%E4%B8%8E%E6%96%87%E4%BB%B6%E5%B1%9E%E6%80%A7-%E7%BC%96%E5%86%99ls/">目录与文件属性：编写ls</a>
+        </h2>
+          <span class="post-meta">Jul 30, 2016</span>
+        <p class="description">
+            
+                问题ls命令可以列出目录中所有文件的名字，以及这些文件的其它信息。注意，ls对文件和目录所做的操作是不同的，ls能判定参数指定的是文件还是目录。如果要自己编写ls，需要掌握三点：  如何列出目录的内容。  如何读取并显示文件的属性。  给出一个名字，如何能够判断出它是目录还是文件。编写ls目录是一种特殊的文件，它的内容是文件和目录的名字。与普通文件不同的是，目录文件永远不会为空，每个目录至少包含两个特殊的项目：.和..，分别代表当前目录和上一级目录。什么函数可以读目录？在联机帮助中根据关键...
             </p>
       </li>
     
