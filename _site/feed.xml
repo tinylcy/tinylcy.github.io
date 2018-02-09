@@ -1,5 +1,118 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-02-06T13:51:24+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
-</subtitle><entry><title type="html">2017年度总结与2018年度计划</title><link href="http://localhost:4000/2017/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/" rel="alternate" type="text/html" title="2017年度总结与2018年度计划" /><published>2017-12-31T00:00:00+08:00</published><updated>2017-12-31T00:00:00+08:00</updated><id>http://localhost:4000/2017/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92</id><content type="html" xml:base="http://localhost:4000/2017/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">&lt;p&gt;今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-02-09T11:03:54+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
+</subtitle><entry><title type="html">我对Raft的理解 - One</title><link href="http://localhost:4000/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/" rel="alternate" type="text/html" title="我对Raft的理解 - One" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>http://localhost:4000/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One</id><content type="html" xml:base="http://localhost:4000/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/">&lt;p&gt;重新阅读了 Raft &lt;a href=&quot;https://raft.github.io/raft.pdf&quot;&gt;论文&lt;/a&gt;，结合 John Ousterhout 在斯坦福大学的课程&lt;a href=&quot;https://www.youtube.com/watch?v=YbZ3zDzDnrw&amp;amp;feature=youtu.be&quot;&gt;视频&lt;/a&gt;，对 Raft 重新梳理了一遍，并决定用文字记录下来。&lt;/p&gt;
+
+&lt;p&gt;Raft 是一个共识算法，何为共识算法？通俗的说，共识算法的目的就是要实现分布式环境下各个节点上数据达成一致。那么节点的数据为什么会出现不一致？原因有很多，例如节点宕机、网络延迟、数据包乱序等等。但是要注意的是，Raft 并不考虑存在恶意的节点的情况，也就是说，不存在主动篡改数据的节点。所以可以理解为：允许节点宕机，但是只要节点没有宕机，那么它就是正常工作的。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-1&quot;&gt;Slide 1&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.001.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Raft 是为 Replicated Logs 设计的共识算法。一条日志对应于一个指令。可以这么理解：如果各个节点的日志在&lt;strong&gt;数量&lt;/strong&gt;和&lt;strong&gt;顺序&lt;/strong&gt;都达成一致，那么节点只需顺序执行日志，就能够得到一致的结果。注意，真正执行日志的是状态机（State Machine），Raft 协调的正是日志和状态机。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-2&quot;&gt;Slide 2&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.002.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;再次回顾 Replicated Log，Raft 需要实现将日志完全一致的复制到其他节点，进而创建多副本状态机（Replicated State Machine），状态机可以理解为一个&lt;strong&gt;确定&lt;/strong&gt;的应用程序，所谓确定是指只要是相同的输入，那么任何状态机都会计算出相同的输出。至于如何实现日志完全一致的复制，则是 Raft 即一致性模块（Consensus Module）需要做的事。&lt;/p&gt;
+
+&lt;p&gt;重新思考，为什么需要在多个节点维护一份完全一致的日志？如果只有 1 个节点提供服务，那么它就会成为整个系统的瓶颈，如果这个节点崩溃了，服务也就不能提供了。所以很自然的，需要让多个节点能够提供服务，也就是说，如果提供服务的某个节点崩溃了，系统中其他节点依旧可以提供等价的服务，但是如何做到等价？这就需要系统中的节点维持一致的状态。注意，实际上并不需要所有的节点同时拥有一致的状态，只要大多数节点拥有即可。大多数指的是：如果一共存在 3 个节点，允许 1 个几点不能正常工作；如果一共有 5 个节点，允许 2 个节点不能正常工作。为什么是大多数？我们将通过接下来的 Slides 进一步理解。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-3&quot;&gt;Slide 3&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.003.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;共识算法通常分为两类：对称式共识算法和非对称式共识算法。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;对称式共识算法指网络中不存在中心节点 Leader，所有的节点都具有相同的地位，节点与节点之间通过互相通信来达成共识，即网络拓扑结构类似 P2P 网络。可想而知，对称式类的共识协议会非常复杂，但是性能会更好，因为网络中的节点可以同时提供服务。&lt;/li&gt;
+  &lt;li&gt;非对称式共识算法会选举出一个 Leader，剩余的节点作为 Follower，客户端只能和 Leader 通信，节点之间的共识通过 Leader 来协调。相比于对称式共识算法，非对称式共识算法能够简化算法的设计，所有的操作都通过 Leader 完成，Follower 只需被动接受来自 Leader 的消息。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Raft 是一种非对称的共识算法，也正是采用了非对称的设计，Raft 得以将整个共识过程分解：&lt;strong&gt;共识算法正常运行&lt;/strong&gt;和 &lt;strong&gt;Leader 变更&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-4&quot;&gt;Slide 4&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.004.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Raft 论文中多次强调 Raft 的设计是围绕算法的&lt;strong&gt;可理解性&lt;/strong&gt;展开，我们将从六个部分对 Raft 进行理解。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Leader 选举，以及如何检测异常并进行新一轮的 Leader 选举。&lt;/li&gt;
+  &lt;li&gt;基本的日志复制操作，也就是 Raft 正常运行是时的操作。&lt;/li&gt;
+  &lt;li&gt;在 Leader 发生变更时如何保证安全性和一致性，这是 Raft 算法最关键的部分。&lt;/li&gt;
+  &lt;li&gt;如何避免过时的 Leader 带来的影响，因为一个 Leader 宕机后再恢复仍然会认为自己是 Leader。&lt;/li&gt;
+  &lt;li&gt;客户端交互，所谓实现线性化语义可以理解为实现幂等性。&lt;/li&gt;
+  &lt;li&gt;配置变更，如何维持在线增删节点时的安全性和一致性。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;slide-5&quot;&gt;Slide 5&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.005.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Raft 算法有几个关键属性，我们需要提前了解。首先是节点的状态，相比于 Paxos，Raft 简化了节点可能的状态，在任何时候，节点可能处于以下三种状态。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Leader。Leader 负责处理客户端的请求，同时还需要协调日志的复制。在任意时刻，最多允许存在 1 个 Leader，也就是说，可能存在 0 个 Leader，什么时候会出现不存在 Leader 的情况？接下来会说明。&lt;/li&gt;
+  &lt;li&gt;Follwer。在 Raft 中，Follower 是一个完全被动的角色，Follower 只会响应消息。注意，在 Raft 中，节点之间的通信是通过 RPC 进行的。&lt;/li&gt;
+  &lt;li&gt;Candidate。Candidate 是节点从 Follower 转变为 Leader 的过渡状态。因为 Follower 是一个完全被动的状态，所以当需要重新选举时，Follower 需要将自己提升为 Candidate，然后发起选举。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Raft 正常运行时只有一个 Leader，剩下的均为 Follower。&lt;/p&gt;
+
+&lt;p&gt;从状态转换图可以看到，所有的节点都是从 Follower 开始，如果 Follower 经过一段时间后收不到来自 Leader 的心跳，那么 Follower 就认为需要 Leader 已经崩溃了，需要进行新一轮的选举，因此 Follower 的状态变更为 Candidate。Candidate 有可能被选举为 Leader，也有可能回退为 Follower，具体情况下文会继续分析。如果 Leader 发现自己已经过时了，它会主动变更为 Follower，Leader 如何发现自己过时了？我们下文也会分析。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-6&quot;&gt;Slide 6&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.006.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Raft 的另一个关键属性是任期（Term），在分布式系统中，由于节点的物理时间戳都不统一，因此需要一个逻辑时间戳来表明事件发生的先后顺序，Term 正是起到了逻辑时间戳的作用。Raft 的运行过程被划分为一系列 Term，一次 Leader 选举会开启一个新的 Term。&lt;/p&gt;
+
+&lt;p&gt;因为一次选举最多允许产生一个 Leader，一次选举又会开启一个新的 Term，所以每个 Leader 都会维护自己当前的 Term（Current Term）。注意，Leader 需要持久化存储 Current Term，当 Leader 宕机后再恢复，Leader 仍然会认为自己是 Leader，除非发现自己已经过时了，如何发现自己过时？依靠的正是 Current Term  的值。&lt;/p&gt;
+
+&lt;p&gt;一次 Term 也可能选不出 Leader，这是因为各个 Candidate 都获得了相同数量的选票，具体细节下文会再阐述。目前我们需要知道的是 Term 在 Raft 中是一个非常关键的属性，Term 始终保持单调递增，而 Raft 认为一个节点的 Term 越大，那么它所拥有的日志就越准确。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-7&quot;&gt;Slide 7&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.007.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;需要注意的是，Raft 有需要持久化存储的状态，包括 Current Term、VotedFor（下文会解析）和日志。每个日志项结构非常简单，包括日志所在 Term、Index 和状态机需要执行的指令。节点之间的 RPC 消息分为两类，一类为选举时的消息，另一类为 Raft 正常运行时的消息。具体细节我们会在下文理解。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-8&quot;&gt;Slide 8&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.008.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Raft 中 Leader 和 Follower 之间需要通过心跳消息来维持关系，Follower 一旦在 Election Timeout 后没有收到来自 Leader 的心跳消息，那么 Follower 就认为 Leader 已经崩溃了，于是就发起一轮新的选举。在 Raft 中，心跳消息复用日志复制消息 AppendEntries 数据结构，只不过不携带任何日志。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-9&quot;&gt;Slide 9&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.009.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;现在开始正式理解 Raft 的选举过程，大部分内容已有所介绍，我们再梳理一遍。&lt;/p&gt;
+
+&lt;p&gt;当新的一轮选举开始时，Follower 首先要自增当前 Term，代表进入新的任期，紧接着变更状态为 Candidate，每个 Candidate 会先给自己投上一票，然后通过发送 RequestVote RPC 消息呼吁其他节点给自己投票。选举结果存在三种可能。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Candidate 收到了大多数节点的投票，那么 Candidate 自然就成为 Leader，然后马上发送心跳消息维护自己的 Leader 地位，并对外提供服务。&lt;/li&gt;
+  &lt;li&gt;Candidate 在等待来自其他节点的选票的过程中收到了来自 Leader 的心跳消息，Candidate 可以看到当前的心跳消息中包含更新的 Term，就会意识到新的 Leader 已经被选举出来，于是就自降为 Follower。&lt;/li&gt;
+  &lt;li&gt;各个 Candidate 都获得了相同数量的选票，那么每个节点都会继续等待选票，没有新的 Leader 产生。等待一定的时间后，重新开启选举过程，知道选出新的 Leader。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;需要考虑的是 Raft 如何避免重复出现 Candidate 瓜分选票的情况：如果当前轮选举 Candidate 瓜分了选票，那么Candidate 会进入下一轮的选举，但是各个 Candidate 开始选举的时刻是随机的。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-10&quot;&gt;Slide 10&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.010.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;继续理解选举过程，选举过程需要保证两个特性：Safety 和 Liveness。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Safety 要求每个 Term 最多只能选举出一个 Leader，Raft 约束每个节点除了能给自己投一票，也只能给其他节点投一票。因此，如果 Candidate A 已经获得了大多数选票，由于每个节点只能向外投一票，因此 Candidate B 不可能获得大多数选票。Safety 特性保证一段时间内只可能存在一个 Leader 提供服务并协调日志的复制，避免因为存在多个 Leader 导致日志不一致。&lt;/li&gt;
+  &lt;li&gt;Safety 要求一段时间内最多只能存在一个 Leader，而 Liveness 保证系统最终必须要有要有一个 Candidate 赢得选举成为 Leader，Leader 无法选举出来意味着系统不能对外提供服务。Raft 实现 Liveness 的方式很简单，在 Slide 9 已经提及：当某一轮选举 Candidate 瓜分了选票，那么各个节点进入下一轮选举等待的时间是随机的，Candidate 随机等待 [T, 2T]， T 为选举超时时间，这样就大大减少了再次瓜分选票的概率。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;小结&quot;&gt;小结&lt;/h4&gt;
+
+&lt;p&gt;对 Raft Leader 选举过程的理解基本结束，Raft 为了提高算法的可理解性，将问题分解，我们接下来会继续理解 Raft 的剩余部分。&lt;/p&gt;</content><author><name></name></author><summary type="html">重新阅读了 Raft 论文，结合 John Ousterhout 在斯坦福大学的课程视频，对 Raft 重新梳理了一遍，并决定用文字记录下来。</summary></entry><entry><title type="html">2017年度总结与2018年度计划</title><link href="http://localhost:4000/2017/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/" rel="alternate" type="text/html" title="2017年度总结与2018年度计划" /><published>2017-12-31T00:00:00+08:00</published><updated>2017-12-31T00:00:00+08:00</updated><id>http://localhost:4000/2017/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92</id><content type="html" xml:base="http://localhost:4000/2017/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">&lt;p&gt;今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。&lt;/p&gt;
 
 &lt;p&gt;上半年读了不少 paper 和技术书籍。在阅读的过程中，我喜欢在学习到一个新的知识点后，尽可能的通过一段程序去验证，那么理解的程度很可能会从「 意会」变成「 感同身受」。因此，当我在若干次阅读 JVM 虚拟机规范时都被冗长的 Class 文件格式搞得想困觉时，我做出了一个决定：自己编程实现 Class 文件的解析，这也是 &lt;a href=&quot;https://github.com/tinylcy/ClassAnalyzer&quot;&gt;ClassAnalyzer&lt;/a&gt; 诞生的原因。写完 ClassAnalyzer 后，春节结束，我便动身回到了学校。&lt;/p&gt;
 
@@ -1618,143 +1731,4 @@ ret
 &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;尽管函数&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值并没有提前声明，但是&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值仍为&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;，这是因为&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值是变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的内存地址，当执行到&lt;code class=&quot;highlighter-rouge&quot;&gt;return&lt;/code&gt;语句时，变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的内存地址值的拷贝会被存储于内存的某个位置，而该位置的值即是最后的返回值，由于变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的地址在整个过程并未被修改，因此通过地址值的拷贝值我们依旧可以观察到&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;语句对变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的操作。&lt;/p&gt;</content><author><name></name></author><category term="Golang" /><summary type="html">关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。</summary></entry><entry><title type="html">谈谈ThreadLocal</title><link href="http://localhost:4000/2017/%E8%B0%88%E8%B0%88ThreadLocal/" rel="alternate" type="text/html" title="谈谈ThreadLocal" /><published>2017-02-25T06:21:03+08:00</published><updated>2017-02-25T06:21:03+08:00</updated><id>http://localhost:4000/2017/%E8%B0%88%E8%B0%88ThreadLocal</id><content type="html" xml:base="http://localhost:4000/2017/%E8%B0%88%E8%B0%88ThreadLocal/">&lt;p&gt;&lt;a href=&quot;https://book.douban.com/subject/10484692/&quot;&gt;Java并发编程实战&lt;/a&gt; 一书在介绍&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;类时（第&lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt;章），书中有这么两段话，在我初次阅读时不知道如何去理解。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;ThreadLocal对象通常用于防止对可变的单实例变量（Singleton）或全局变量进行共享。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当某个频繁执行的操作需要一个临时变量，例如一个缓冲区，而同时又希望避免在每次执行时都重新分配该临时对象，就可以使用这项技术。例如，在Java 5.0之前，Integer.toString()方法使用ThreadLocal对象来保存一个12字节大小的缓冲区，用于对结果进行格式化，而不是使用共享的静态缓冲区（这需要锁机制）或者在每次调用时都分配一个新的缓冲区。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;如果我们要在某种程度上理解这两句话，首先我们需要知道什么是&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;？更重要的是为什么要提出&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;这个概念？&lt;/p&gt;
-
-&lt;p&gt;我们知道，线程并不独立拥有用户空间，用户空间是归进程所有，为同一进程中的所有线程所共享的。所以，用户空间中的任何一个区域，只要有一个线程可以访问，那么同一进程中的所有其它的线程就都能访问。在这个意义上，整个用户空间都是（由同一进程中的）所有线程共享的，不存在只归一个线程使用的变量或数据结构。可是，一般而言，程序对变量或数据结构的访问都是按变量名访问的，经过编译/连接之后就是按地址访问，要是不知道一个变量的地址，实际上就无法正常和正确地加以访问。在这个意义上，则只归一个线程使用的变量或数据结构又是可能的。&lt;/p&gt;
-
-&lt;p&gt;注意&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;只是对全局量和静态变量才有意义。局部量存在于具体线程的堆栈上，而每个线程都有自己的堆栈，所以局部量本来就是“局部”于具体线程的。至于通过动态分配的缓冲区，则取决于保存着缓冲区指针的变量。如果缓冲区指针是全局量，那么同一进程中的所有线程都能访问这个缓冲区；而若是局部量，则别的线程自然就不得其门而入。&lt;/p&gt;
-
-&lt;h2 id=&quot;synchronized&quot;&gt;synchronized&lt;/h2&gt;
-
-&lt;p&gt;在介绍&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;之前，我们先通过一段代码来理解&lt;code class=&quot;highlighter-rouge&quot;&gt;synchronized&lt;/code&gt;是如何实现在同一时刻只允许单个线程访问同步代码块的。&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SynchronizedTest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;synchronized&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;func1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;func2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;kd&quot;&gt;synchronized&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;   
-  
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;将&lt;code class=&quot;highlighter-rouge&quot;&gt;SynchronizedTest&lt;/code&gt;编译之后，&lt;code class=&quot;highlighter-rouge&quot;&gt;SynchronizedTest&lt;/code&gt;中的两个同步方法的字节码（只截取需要的部分 ）如下。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&quot;language-assembly&quot;&gt;  public synchronized void func1();
-    flags: ACC_PUBLIC, ACC_SYNCHRONIZED
-    Code:
-      stack=0, locals=1, args_size=1
-         0: return
-      LineNumberTable:
-        line 10: 0
-
-  public void func2();
-    flags: ACC_PUBLIC
-    Code:
-      stack=2, locals=3, args_size=1
-         0: aload_0
-         1: dup
-         2: astore_1
-         3: monitorenter
-         4: aload_1
-         5: monitorexit
-         6: goto          14
-         9: astore_2
-        10: aload_1
-        11: monitorexit
-        12: aload_2
-        13: athrow
-        14: return
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;synchronized&lt;/code&gt;关键字经过编译之后，会在同步代码块的前后分别形成&lt;code class=&quot;highlighter-rouge&quot;&gt;monitorenter&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;monitorexit&lt;/code&gt;这两个字节码指令，例如&lt;code class=&quot;highlighter-rouge&quot;&gt;func2&lt;/code&gt;方法对应的第&lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt;条和第&lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt;条字节码，这两个字节码都需要一个&lt;code class=&quot;highlighter-rouge&quot;&gt;reference&lt;/code&gt;类型的参数来指明要锁定和解锁的对象。那这里提到的锁和对象之间的关系是什么？关于这个问题，可以参考我的另一篇文章 &lt;a href=&quot;http://tinylcy.me/2016/11/30/Java%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80/&quot;&gt;Java对象内存布局&lt;/a&gt;，在对象的&lt;code class=&quot;highlighter-rouge&quot;&gt;Mark Word&lt;/code&gt;部分，存储着锁标志位，线程通过检查对象头的锁标志位，获知对象的锁状态，然后决定是获取锁还是进入阻塞状态。&lt;code class=&quot;highlighter-rouge&quot;&gt;synchronized&lt;/code&gt;正是通过这个机制实现对共享资源的串行访问。&lt;/p&gt;
-
-&lt;h2 id=&quot;什么是threadlocal&quot;&gt;什么是ThreadLocal&lt;/h2&gt;
-
-&lt;p&gt;关于&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;的概念，直接&lt;code class=&quot;highlighter-rouge&quot;&gt;从ThreadLocal&lt;/code&gt;源码注释入手。&lt;/p&gt;
-
-&lt;blockquote&gt;
-
-  &lt;p&gt;This class provides thread-local variables. These variables differ from their normal counterparts in that each thread that accesses one (via its get or set method) has its own, independently initialized copy of the variable. ThreadLocal instances are typically private static fields in classes that wish to associate state with a thread (e.g., a user ID or Transaction ID).&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;根据注释，我们认识到&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;可以为线程提供一个线程局部的值，既然该值是一个线程的局部变量，自然不存在线程同步的问题。但是注释又说到：&lt;em&gt;ThreadLocal instances are typically private static fields in classes&lt;/em&gt;，这句话如何理解？如果一个变量是&lt;code class=&quot;highlighter-rouge&quot;&gt;static&lt;/code&gt;的变量，那么它就是进程级别的全局变量，那不是意味着&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;是一个线程共享的变量吗？为了解决这个问题，我们需要阅读&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;的源码。&lt;/p&gt;
-
-&lt;p&gt;首先是&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;set&lt;/code&gt;方法，&lt;code class=&quot;highlighter-rouge&quot;&gt;set&lt;/code&gt;方法的作用是为当前线程设置一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;的值&lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt;，源码如下。&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;currentThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;ThreadLocalMap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-            &lt;span class=&quot;nf&quot;&gt;createMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-    &lt;span class=&quot;n&quot;&gt;ThreadLocalMap&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;threadLocals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-    &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;createMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;firstValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;threadLocals&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ThreadLocalMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;firstValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;我们可以看到，&lt;code class=&quot;highlighter-rouge&quot;&gt;set&lt;/code&gt;方法首先调用&lt;code class=&quot;highlighter-rouge&quot;&gt;getMap&lt;/code&gt;方法从当前线程获取类型为&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocalMap&lt;/code&gt;的对象&lt;code class=&quot;highlighter-rouge&quot;&gt;map&lt;/code&gt;，如果&lt;code class=&quot;highlighter-rouge&quot;&gt;map&lt;/code&gt;还没有创建，就通过&lt;code class=&quot;highlighter-rouge&quot;&gt;createMap&lt;/code&gt;方法创建一个。然后&lt;code class=&quot;highlighter-rouge&quot;&gt;set&lt;/code&gt;方法以当前的&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;对象为键，&lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt;为值，存储到当前线程的&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocalMap&lt;/code&gt;对象中。&lt;code class=&quot;highlighter-rouge&quot;&gt;Thread&lt;/code&gt;类中&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocalMap&lt;/code&gt;变量的声明如下。&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;cm&quot;&gt;/* ThreadLocal values pertaining to this thread. This map is maintained
-     * by the ThreadLocal class. */&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;ThreadLocal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ThreadLocalMap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;threadLocals&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;get&lt;/code&gt;方法用于获取与当前线程关联的&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;值，源码如下。&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;currentThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;ThreadLocalMap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;ThreadLocalMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Entry&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getEntry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;setInitialValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;get&lt;/code&gt;方法首先通过&lt;code class=&quot;highlighter-rouge&quot;&gt;getMap&lt;/code&gt;方法获取当前线程的&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocalMap&lt;/code&gt;对象，然后以&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;对象为键获取与该&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;对象关联的值。&lt;/p&gt;
-
-&lt;p&gt;从这两个方法我们知道，&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;对象的确是线程共享的，但是当线程向&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;设置值时，实际上是给当前线程维护的&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocalMap&lt;/code&gt;设置了值。因此线程设置的值为线程私有，但是&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;对象为线程共享。&lt;/p&gt;
-
-&lt;h2 id=&quot;为什么这么设计&quot;&gt;为什么这么设计&lt;/h2&gt;
-
-&lt;p&gt;如果我们要设置线程本地的变量，我们只需要在方法内声明局部变量即可，为什么要通过&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;来设置？对于&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;的设计理念，我们通过&lt;code class=&quot;highlighter-rouge&quot;&gt;Linux/Unix&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;C&lt;/code&gt;程序库&lt;code class=&quot;highlighter-rouge&quot;&gt;libc&lt;/code&gt;的全局变量&lt;code class=&quot;highlighter-rouge&quot;&gt;errno&lt;/code&gt;来理解。当系统调用从内核空间返回用户空间时，如果系统调用出错，那么便设置&lt;code class=&quot;highlighter-rouge&quot;&gt;errno&lt;/code&gt;的值为一个负值，这样就不需要每次在函数内部定义局部变量。但是当多线程的概念和技术被提出后，这套机制就不再适用了，可以使用局部变量，但是不太可能去更改已有的代码了，比较好的解决方案是让每个线程都有自己的&lt;code class=&quot;highlighter-rouge&quot;&gt;errno&lt;/code&gt;。实际上，现在的&lt;code class=&quot;highlighter-rouge&quot;&gt;C&lt;/code&gt;库函数不是把出错代码写入全局量&lt;code class=&quot;highlighter-rouge&quot;&gt;errno&lt;/code&gt;，而是通过一个函数&lt;code class=&quot;highlighter-rouge&quot;&gt;__errno_location()&lt;/code&gt;获取一个地址，再把出错代码写入该地址，其意图就是让不同的线程使用不同的出错代码存储地点，而&lt;code class=&quot;highlighter-rouge&quot;&gt;errno&lt;/code&gt;，现在一般已经变成了一个宏定义。&lt;/p&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#define errno (*__errno_location())
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;考虑另一个场景：我们现在需要设置一个线程局部变量，于是我们在方法内设置了一个局部变量，当我们需要把这个局部变量从一个方法传递到另一个方法，只需要将这个变量作为参数传递即可。假设&lt;code class=&quot;highlighter-rouge&quot;&gt;funcA&lt;/code&gt;需要访问该变量，&lt;code class=&quot;highlighter-rouge&quot;&gt;funcZ&lt;/code&gt;也需要访问该变量，但是&lt;code class=&quot;highlighter-rouge&quot;&gt;funcA&lt;/code&gt;需要通过调用&lt;code class=&quot;highlighter-rouge&quot;&gt;funcB&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC...funcY&lt;/code&gt;才能调用&lt;code class=&quot;highlighter-rouge&quot;&gt;funcZ&lt;/code&gt;，于是该变量需要被声明在所有的方法的签名中。为了避免这个麻烦，我们可以把这个变量设置为进程级别的全局变量，但是此时就需要我们控制线程同步了。于是，&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;就可以发挥作用了。&lt;/p&gt;
-
-&lt;p&gt;我们可以认为&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;存储了一个线程的上下文信息，线程通过访问&lt;code class=&quot;highlighter-rouge&quot;&gt;ThreadLocal&lt;/code&gt;这个进程级别的变量实现了线程级别的访问。&lt;/p&gt;
-
-&lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://book.douban.com/subject/10484692/&quot;&gt;Java并发编程实战&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://book.douban.com/subject/24722612/&quot;&gt;深入理解Java虚拟机&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.longene.org/techdoc/0328131001224576926.html&quot;&gt;漫谈兼容内核&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://github.thinkingbar.com/threadlocal/&quot;&gt;理解 ThreadLocal&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="Java" /><summary type="html">Java并发编程实战 一书在介绍ThreadLocal类时（第3章），书中有这么两段话，在我初次阅读时不知道如何去理解。</summary></entry></feed>
+&lt;p&gt;尽管函数&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值并没有提前声明，但是&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值仍为&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;，这是因为&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值是变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的内存地址，当执行到&lt;code class=&quot;highlighter-rouge&quot;&gt;return&lt;/code&gt;语句时，变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的内存地址值的拷贝会被存储于内存的某个位置，而该位置的值即是最后的返回值，由于变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的地址在整个过程并未被修改，因此通过地址值的拷贝值我们依旧可以观察到&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;语句对变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的操作。&lt;/p&gt;</content><author><name></name></author><category term="Golang" /><summary type="html">关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。</summary></entry></feed>

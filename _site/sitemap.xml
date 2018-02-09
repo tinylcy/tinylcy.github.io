@@ -129,6 +129,10 @@
 <lastmod>2017-12-31T00:00:00+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/</loc>
+<lastmod>2018-02-09T00:00:00+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about/</loc>
 </url>
 <url>
@@ -148,5 +152,8 @@
 </url>
 <url>
 <loc>http://localhost:4000/p/4/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/p/5/</loc>
 </url>
 </urlset>
