@@ -1,5 +1,154 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-02-09T11:03:54+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
-</subtitle><entry><title type="html">我对Raft的理解 - One</title><link href="http://localhost:4000/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/" rel="alternate" type="text/html" title="我对Raft的理解 - One" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>http://localhost:4000/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One</id><content type="html" xml:base="http://localhost:4000/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/">&lt;p&gt;重新阅读了 Raft &lt;a href=&quot;https://raft.github.io/raft.pdf&quot;&gt;论文&lt;/a&gt;，结合 John Ousterhout 在斯坦福大学的课程&lt;a href=&quot;https://www.youtube.com/watch?v=YbZ3zDzDnrw&amp;amp;feature=youtu.be&quot;&gt;视频&lt;/a&gt;，对 Raft 重新梳理了一遍，并决定用文字记录下来。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-02-10T13:40:25+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
+</subtitle><entry><title type="html">我对Raft的理解 - Two</title><link href="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/" rel="alternate" type="text/html" title="我对Raft的理解 - Two" /><published>2018-02-10T00:00:00+08:00</published><updated>2018-02-10T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20the%20Raft%20consensus%20algorithm-Two</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/">&lt;p&gt;我们已对 Raft Leader 选举进行了&lt;a href=&quot;http://tinylcy.me/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/&quot;&gt;理解&lt;/a&gt;，Leader 一旦被选举出来，对外提供服务，对内协调体日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-11&quot;&gt;Slide 11&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.011.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;每个节点都维护了一份私有的日志的拷贝，节点存在宕机的风险，为了保证宕机后能够恢复日志，日志需要持久化存储在类似磁盘等介质中。日志由一组日志项组成，每个日志项（Log Entry）包含三部分：Index、Term 和 Command。Index 指示了日志项在日志中的索引，它是日志项的附加属性，类似数组元素下标；Term 指示了日志项被创建时 Leader 所处的任期；Command 指示了日志项包含的操作。&lt;/p&gt;
+
+&lt;p&gt;Slide 11 中有一个 Leader，4 个 Follower，Leader 需要将日志项正确的复制到 Follower。&lt;strong&gt;注意，Leader 的目标并不在于将所有的日志项都复制到 Follower，而在于复制已经 Committed 的日志项&lt;/strong&gt;。Committed 是 Raft 中另一个非常重要的概念，需要好好理解。那么什么样的日志可以被认为是 Committed 的？我们先给出一个定义：&lt;strong&gt;如果某个日志项已经被复制到了大多数节点，那么就可以认为该日志项是 Committed 了，Raft 需要保证，已经 Committed 的日志项会永远存在于大部分节点的日志中&lt;/strong&gt;。不过，目前这个定义并不能保证日志被正确的复制，还需要添加限制条件。&lt;/p&gt;
+
+&lt;p&gt;按照目前对 Committed 的定义，日志项 1 至日志项 7 已经被 Leader 复制到了大部分节点，因此可以认为前 7 项日志项已经 Committed 了。Committed 的日志项可以被状态机执行，而只有被状态机执行，才能响应客户端。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-12&quot;&gt;Slide 12&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.012.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Raft 反复强调算法的可理解性，在日志复制的过程中，Raft 将问题再次分解：&lt;strong&gt;Leader 正常运行时的日志复制&lt;/strong&gt;和 &lt;strong&gt;Leader 变更后的日志复制&lt;/strong&gt;。Leader 正常运行时的日志复制比较简单，分为以下几个步骤。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;客户端向 Leader 发送指令，如果客户端向 Follower 发送了指令，Follower 会将请求重定向至 Leader。&lt;/li&gt;
+  &lt;li&gt;Leader 创建日志项并 Append 至日志中。&lt;/li&gt;
+  &lt;li&gt;Leader 向 Follower 发送 AppendEntries 消息，消息中包含了任期 Term 和指令（消息内容会在下文扩展）。&lt;/li&gt;
+  &lt;li&gt;Follower 收到 AppendEntries 消息后，也会将日志 Append 至自己的日志中，然后响应 Leader。&lt;/li&gt;
+  &lt;li&gt;如果 Leader 收到了大多数 Follower 的响应，说明日志项已经被复制到大多数节点了，即日志项已 Committed，Leader 将指令传递给状态机执行，并将结果返回给客户端。然后，Leader 向 Follower 发送 AppendEntries 消息，通知 Follower 该日志项已经 Committed，Follower 在收到消息后也会将指令传递给状态机执行。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;如果 Follower 宕机，或者响应特别慢怎么办？Raft 会不断重试 RPC 请求直到成功。但是这对 Raft 的性能并不会有影响，因为 Leader 只需要收到大多数 Follower 的响应即可。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-13&quot;&gt;Slide 13&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.013.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Raft 解决的核心问题是如何安全的复制日志，使大多数节点都拥有已经 Committed 的日志。如果日志能够达成一致，那么 Raft 可以做出以下&lt;strong&gt;承诺&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;位于不同节点的两个日志项如果有相同的 Index 和 Term，那么他们有相同的指令&lt;/strong&gt;。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;位于不同节点的两个日志项如果有相同的 Index 和 Term，那么该日志项之前的所有日志项也是相同的，包括 Index、Term 和指令&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;基于以上两个承诺，可以进一步得出：&lt;strong&gt;如果某个日志项已经是 Committed，那么该日志项之前的所有日志项也已是 Committed 的&lt;/strong&gt;。可以这么理解：如果某个日志项是 Committed 的，那么说明该日志项已经被复制到了大多数节点，根据两个承诺，该日志项之前的所有日志项是也都已经被复制到了大多数节点，因此也是 Committed 的。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注意，不要忘记目前我们仍然简单地认为，只要日志项被复制到大多数节点上就是 Committed 了，接下来我们会修改日志项 Committed 的条件&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;接下来我们开始分析，Raft 是如何能够在复制日志时始终兑现承诺的？&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-14&quot;&gt;Slide 14&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.014.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;基于 Raft 在复制日志时的承诺，我们可以得出重要的一个结论：Index 和 Term 可以唯一确定一个日志项&lt;/strong&gt;。也就是说，如果两个日志项有相同的 Index 和 Term，那么这两个日志项的指令一定相同。这是因为如果 Term 相同，说明是同一个 Leader 创建的日志项，而同一个 Leader 在某个 Index 下创建的日志项一定是相同的。这个结论会贯穿我们对 Raft 剩余部分的理解。我们现在关注 Raft 是如何实现承诺的。&lt;/p&gt;
+
+&lt;p&gt;Leader 在向 Follower 复制日志时，发送的 AppendEntries 消息内会携带&lt;strong&gt;待复制日志项的前一个日志项的 Index 和 Term&lt;/strong&gt;。当 Follower 收到消息时，并不是无条件的 Append，而是会校验消息中的 Index 值和 Term 值是否等于 Follower 最后一个日志项的 Index 值和 Term 值，只有匹配才会 Append，否则直接拒绝。例如，Slide 14 中 Leader 准备复制 （5，3）日志项，消息中会附带上一个日志项（4，2）至 Follower，Slide 14 描述了两种可能的情况。&lt;/p&gt;
+
+&lt;p&gt;基于 Follower 在 Append 日志项时会进行校验，我们尝试证明 Slide 13 中的两个承诺：证明过程实际上就是一个归纳的过程，一开始，所有 Follower 的日志为空时一定是成立，而接下来每次 Append 日志项都会校验前一个日志项是否一致，因此可以保证当前复制成功的日志项之前的所有日志项也都是一致的。&lt;/p&gt;
+
+&lt;p&gt;注意：目前我们还不考虑 Leader 发生变更，这意味着 Leader 一定拥有所有已经 Committed 的日志项，那么如果出现 Leader 变更怎么办？我们会继续理解 Raft，实际上 Raft 在 Leader 选举时也有限制条件，并不是任意 Candidate 都能赢得选举。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-15&quot;&gt;Slide 15&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.015.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;之前的讨论都是基于 Leader 正常运行时的情况，现在我们看看 Leader 发生变更时 Raft 是怎么处理的。&lt;/p&gt;
+
+&lt;p&gt;Slide 15 展示了一种比较混乱的情况，不过我们可以推导 Leader 选举情况。Term 1 各个节点都运行正常，然后发生了 Leader 变更进入 Term 2， S5 成为了 Leader，接着又发生了 Leader 变更，S5 又成为 Leader，在运行一段时间后 S5 崩溃，S4 成为新的 Leader，然后 S4 又崩溃，S3 成为 Leader，然后 S1 成为 Leader，最后 S2 又成为 Leader。期间很可能发生了网络隔离，S1、S2 和 S3 在一个分区，S4 和 S5 在另一个分区。&lt;/p&gt;
+
+&lt;p&gt;注意，我们已经强调过，&lt;strong&gt;Raft 的目的是要把已经 Committed 的日志项到大部分节点，而那些尚未 Committed 的日志项并不需要复制&lt;/strong&gt;。如果某个日志项没有 Committed，那么该日志项对应的客户端也不会收到响应，客户端在超时后重试即可。&lt;strong&gt;所以，Raft 要做的就是让新选举出来的 Leader 包含所有已经 Committed 的日志项，然后再由 Leader 将 Committed 的日志项复制到其他节点上&lt;/strong&gt;。因此，如果 Leader 包含所有已经 Committed 的日志项，那么 Leader 就是所谓的 “The Truth”，所以 Leader 只需要把自己的日志项复制到 Follower 就实现了一致。&lt;/p&gt;
+
+&lt;p&gt;按照我们目前对 Committed 的定义，Term 1 中的所有日志项以及 Term 5 中 Index 等于 3 的日志项已经是 Committed 的。&lt;strong&gt;因此 Raft 要做的就是选举一个拥有所有 Committed 日志项的 Candidate 作为 Leader，然后让 Follower 的日志和 Leader 一致就可以了&lt;/strong&gt;。整个过程是非常自然：新选举出来的 Leader 并不会先和 Follower 进行日志同步，而是在进行日志复制时进行校验，一旦出现不一致再进行日志的复制。同时，为了和 Leader 达成一致，Follower 势必会舍弃自己原有的尚未 Committed 的日志项。&lt;/p&gt;
+
+&lt;p&gt;小结：当 Leader 发生变更，Raft 要求新选举出来的 Leader 必须包含所有已经 Committed 的日志项，Leader 接下来只需要单纯的进行日志复制。 &lt;strong&gt;因此，我们接下来需要理解的问题就是：Raft 是如何保证新选举出来的 Leader 一定是拥有所有 Committed 日志项的&lt;/strong&gt;？&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-16&quot;&gt;Slide 16&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.016.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;为了保证 Leader 变更时的安全性，Raft 提出了一个 Safe Property：&lt;strong&gt;如果一个 Leader 决定某个日志项已经是 Committed 的，那么该日志项会一直出现在未来 Leader 的日志中&lt;/strong&gt;。 Safe Property 其实是和 Slide 15 提到的概念是一致的，即&lt;strong&gt;新选举出来的 Leader 需要包含所有已经 Committed 的日志项&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;为了满足安全性需求，Leader 需要满足以下三点。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Leader 只能 Append 日志项，不能覆盖日志项。&lt;strong&gt;需要注意的是，这点仅仅是针对 Leader 的要求，Leader 包含所有已经 Committed 的日志项，同时 Leader 也可能包含某些尚未 Committed 的日志项，Raft 要做的是将已经 Committed 的日志项复制到 Follower，但是如果把 Leader 尚未 Committed 的日志项复制给 Follower，也是没有问题的。而一旦下次出现 Leader 变更，上个 Leader 中尚未 Committed 的日志项也是会被舍弃的&lt;/strong&gt;。&lt;/li&gt;
+  &lt;li&gt;只有在 Leader 中的日志项才能被 Committed。&lt;/li&gt;
+  &lt;li&gt;只有已经 Committed 的日志项才能被应用到状态机。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;回顾 Slide 15，Raft 要保证新选举出来的 Leader 必须是包含所有已经 Committed 的日志项，接下来我们开始分析 Raft 增加了哪些限制条件来实现这一目标。同时，我们也进一步在日志项 Committed 的定义上增加限制条件。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-17&quot;&gt;Slide 17&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.017.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;前文已经说到，新选举出来的 Leader 应该包含所有 Committed 日志项，但是实际上很难界定一个日志项是否是 Committed 的，按照目前对 Committed 的定义，即很难界定一个日志项是否已经被复制到大部分节点。Slide 17 描述了一种场景：存在三个节点，其中日志项 5 已经被复制到大多数节点，即日志项 5 已经是 Committed 的，如果节点 3 突然宕机，需要从剩余 2 个节点中选举 Leader，此时日志项 5 是否已经 Committed 是无法得知的，因为日志项 5 是否 Committed 取决于节点 3，而节点 3 宕机了。&lt;/p&gt;
+
+&lt;p&gt;Raft 采取的策略是：&lt;strong&gt;选择最有可能包含所有 Committed 日志项的节点作为 Leader&lt;/strong&gt;。&lt;strong&gt;最有可能&lt;/strong&gt;的含义是指&lt;strong&gt;某个节点包含最新且数量最多&lt;/strong&gt;的日志项。其中&lt;strong&gt;最新&lt;/strong&gt;体现在节点最后一个日志项有&lt;strong&gt;最大的 Term&lt;/strong&gt;，&lt;strong&gt;数量最多&lt;/strong&gt;是在&lt;strong&gt;最新&lt;/strong&gt;的基础上，日志项的 &lt;strong&gt;Index 最大&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;现在给 Raft Leader 选举增加限制条件：Candidate 给其他节点发送的 RequestVote 消息中会同时携带 Candidate 最后一个日志项的 Term 和 Index，其他节点在收到 RequestVote 消息后，如果发现消息中的 Term 大于自己当前的 Term，或者 Term 相同，但是消息中的 Index 更大，那么可以认为 Candidate 拥有更完整的日志项，因此就会给 Candidate 投票，否则拒绝投票。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-18&quot;&gt;Slide 18&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.018.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们以具体的场景进一步理解 Leader 选举。5 个节点，S1 为 Leader，其余均为 Follower。S1 将日志项 4 复制到了 S3，此时日志项 4 已经是 Committed 了。如果现在出现 Leader 变更，S4 最多能够获得来自 S5 的投票，S5 不会获得任何投票，只有 S1、S2 或 S3 可以赢得选举，而 S1、S2 和 S3 都是拥有所有已经 Committed 日志项的节点，所以能够保证安全性。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-19&quot;&gt;Slide 19&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.019.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;再分析一个场景。5 个节点，S1 当选为 Term 2 的 Leader，复制日志项 2 至 S2后，S1 宕机。在 Term 3，S5 可以获得来自 S3、S4 和自身的投票并当选为 Leader，S5 创建了 3 个日志项后宕机。进入 Term 4，S1 可以获得来自 S2、S3 和 S4 的投票并当选为 Leader，S1 将日志项 3 复制至 S3 后，日志项 3 已经在被复制到了大多数节点，&lt;strong&gt;那么此时能否认为日志项 3 是 Committed 的呢&lt;/strong&gt;？&lt;/p&gt;
+
+&lt;p&gt;答案是不能，考虑这种场景：当 S1 把 日志项 3 复制到 S3 后，S1 又宕机了。进入 Term 5，S5 可以获得来自 S2、S3 和 S4 的投票，因为 S5 的 Term 更大，所以 S5 可以当选为 Leader。当 S5 成为 Leader 之后，S3 将会用自己的日志项 3 覆盖 S1、S2 和 S3 的日志项 3，&lt;strong&gt;这将导致覆盖已经 Committed 的日志项&lt;/strong&gt;，显然不能保证安全性。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;我们意识到之前关于 Committed 的定义已经不能够保证安全性了，所以我们需要给 Committed 的定义增加限制条件&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-20&quot;&gt;Slide 20&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.020.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;为 Committed 的定义增加一条新的限制：&lt;strong&gt;只有在当前 Term 内创建的新日志项被复制到大部分节点后，之前 Term 内被复制到大部分节点的日志项才是 Committed 的。可以这么理解，如果当前 Term 内的日志项都已经被复制到了大部分节点，那么该日志项之前的日志项更应该是被复制到了大部分节点。而当前 Term 内的日志项被复制到大部分节点，又可以保证比当前 Term 低的节点不可能在下次选举中成为 Leader。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;再次回顾上一个不安全的场景：S1 把在 Term 4 内创建的日志项 4 复制到了大部分节点后，如果 S1 宕机了，S5 是无法获取大部分投票从而无法成为 Leader。因为日志项 4 已经被复制到了大部分节点，所以此时才可以认为日志项 3 已经是 Committed 的。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;截止目前，我们梳理完毕 Raft 算法为了保证安全性给 Leader 选举 和 Committed 定义增加的限制条件。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-21&quot;&gt;Slide 21&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.021.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;通过增加限制条件，我们现在已经可以保证 Raft 的安全性。当 Leader 选举出来后，有些 Follower 可能缺少日志项，有些 Follower 可能存在无关的未提交日志项。&lt;strong&gt;注意，Follower 中如果存在 Leader 不存在的日志项，Follower 并不需要复制给 Leader，因为日志项未提交说明该日志项对应的客户端没有收到响应，客户端可以通过重试解决问题。所以，只需要让 Follower 的日志和 Leader 保持一致即可。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-22&quot;&gt;Slide 22&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.022.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们已经知道，为了和 Leader 的日志一致，Follower 需要删除不相关的日志项和填充缺失的日志项，那么 Raft 是怎么实现的呢？Leader 为每个 Follower 维护了一个 NextIndex 标记，NextIndex 的值初始化为 Leader 最后一个日志项的 Index 加 1。Leader 在向 Follower 发送 AppendEntries 消息时会发现一致性问题，一旦不一致，那么 NextIndex 减 1。&lt;/p&gt;
+
+&lt;p&gt;以 Slide 22 图例说明，Leader 为每个 Follower 的 NextIndex 值初始化为 11，然后进行日志复制，Leader 发送 AppendEntries 消息给 Follower，AppendEntries 消息中会携带 Leader 的&lt;strong&gt;最后一个日志项&lt;/strong&gt;的 Index 和 Term，即（10，6）。如果发生冲突，NextIndex 减 1，Leader 会发送携带（9，6）的 AppendEntries 消息，直至 Leader 发送携带（4，4）的 AppendEntries 消息后，才解决冲突。冲突解决后，Leader 就可以将后续所有的日志项发送给 Follower。&lt;/p&gt;
+
+&lt;p&gt;注意，因为在节点刚当选 Leader 时很可能首先会发送心跳消息（不包含日志的 AppendEntries 消息）给 Follower，因此我们认为是&lt;strong&gt;最后一个日志项的 Index 和 Term&lt;/strong&gt;。如果是普通的 AppendEntries 消息（包含日志），依旧发送包含（10，6）的 AppendEntries 消息给Follower，如果一致那么消息中的日志就直接复制给 Follower，如果不一致 NextIndex 减 1。&lt;/p&gt;
+
+&lt;h4 id=&quot;slide-23&quot;&gt;Slide 23&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/raft.023.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在进行日志复制时，当 Leader 通过调整 NextIndex 找到了冲突日志的起始位置后，就开始复制日志给 Follower。一旦 Follower 的日志项被覆盖，那么该日志项之后的所有日志项都会被舍弃。&lt;/p&gt;
+
+&lt;p&gt;以 Slide 23 为例，当 Leader 将 日志项 4 复制给 Follower 后，Follower 日志项 4 之后的所有日志项便是多余的，可以直接舍弃。&lt;/p&gt;
+
+&lt;h4 id=&quot;小结&quot;&gt;小结&lt;/h4&gt;
+
+&lt;p&gt;Raft 为了保证日志复制时的安全性，为 Leader 选举和日志项的 Committed 增加了限制条件。通过分析各种场景，我们理解了 Raft 增加这些限制条件的原因，以及这些限制条件为什么能够保证安全。&lt;/p&gt;</content><author><name></name></author><summary type="html">我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调体日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。</summary></entry><entry><title type="html">我对Raft的理解 - One</title><link href="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-One/" rel="alternate" type="text/html" title="我对Raft的理解 - One" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20the%20Raft%20consensus%20algorithm-One</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-One/">&lt;p&gt;重新阅读了 Raft &lt;a href=&quot;https://raft.github.io/raft.pdf&quot;&gt;论文&lt;/a&gt;，结合 John Ousterhout 在斯坦福大学的课程&lt;a href=&quot;https://www.youtube.com/watch?v=YbZ3zDzDnrw&amp;amp;feature=youtu.be&quot;&gt;视频&lt;/a&gt;，对 Raft 重新梳理了一遍，并决定用文字记录下来。&lt;/p&gt;
 
 &lt;p&gt;Raft 是一个共识算法，何为共识算法？通俗的说，共识算法的目的就是要实现分布式环境下各个节点上数据达成一致。那么节点的数据为什么会出现不一致？原因有很多，例如节点宕机、网络延迟、数据包乱序等等。但是要注意的是，Raft 并不考虑存在恶意的节点的情况，也就是说，不存在主动篡改数据的节点。所以可以理解为：允许节点宕机，但是只要节点没有宕机，那么它就是正常工作的。&lt;/p&gt;
 
@@ -1622,113 +1771,4 @@ ret
 
 &lt;p&gt;至此，&lt;code class=&quot;highlighter-rouge&quot;&gt;Bomb Lab&lt;/code&gt;包含了&lt;code class=&quot;highlighter-rouge&quot;&gt;6&lt;/code&gt;个&lt;code class=&quot;highlighter-rouge&quot;&gt;phase&lt;/code&gt;全部拆弹成功。将输入序列存储在文件，然后将文件作为&lt;code class=&quot;highlighter-rouge&quot;&gt;bomb&lt;/code&gt;二进制文件的参数，运行结果如下图所示。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/img/img-2017-04-26-Image 10.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name></name></author><category term="CSAPP" /><category term="Assembly" /><summary type="html">Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。</summary></entry><entry><title type="html">理解Golang中的defer</title><link href="http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/" rel="alternate" type="text/html" title="理解Golang中的defer" /><published>2017-04-05T05:01:21+08:00</published><updated>2017-04-05T05:01:21+08:00</updated><id>http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer</id><content type="html" xml:base="http://localhost:4000/2017/%E7%90%86%E8%A7%A3Golang%E4%B8%AD%E7%9A%84defer/">&lt;p&gt;关键字&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;用于实现延迟调用，根据&lt;code class=&quot;highlighter-rouge&quot;&gt;Golang&lt;/code&gt;官方的定义：&lt;em&gt;A defer statement defers the execution of a function until the surrounding function returns.&lt;/em&gt; 。但是，当返回值与&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;相互关联时，如果没有正确理解&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;与&lt;code class=&quot;highlighter-rouge&quot;&gt;return&lt;/code&gt;真正的执行顺序，那么容易出现一些不可描述的现象。&lt;/p&gt;
-
-&lt;p&gt;我们先运行如下代码，根据运行结果来理解&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;，在查看运行结果之前，不妨先想想&lt;code class=&quot;highlighter-rouge&quot;&gt;main&lt;/code&gt;函数的输出是什么。&lt;/p&gt;
-
-&lt;div class=&quot;language-go highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;package&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;fmt&quot;&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;funcA&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;funcB&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;funcA&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;defer&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;defer2:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;defer&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;defer1:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;funcB&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;defer&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;defer2:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;defer&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;defer1:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;运行结果如下。&lt;/p&gt;
-
-&lt;div class=&quot;language-go highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;defer1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;defer2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;defer1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;defer2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;根据运行结果，我们可以看到，&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;语句的执行顺序以及打印出来的变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的值是意料之内的，区别在于函数的返回值，而&lt;code class=&quot;highlighter-rouge&quot;&gt;funcA&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;funcB&lt;/code&gt;这两个函数唯一的区别则是函数的返回值有没有被命名，因此导致两个函数返回值不同的原因也应该和返回值是否命名有关。&lt;/p&gt;
-
-&lt;p&gt;在计算机科学中，我相信很多原理性的东西都是可以相互解释的。在本篇文章中，我决定用&lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;中的&lt;code class=&quot;highlighter-rouge&quot;&gt;try-catch-finally&lt;/code&gt;来解释&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;的运行机制。首先，先看看如下&lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;代码片段，并考虑返回值有哪几种情况。&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;如果我们对&lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;熟悉，那么应该知道，无论在&lt;code class=&quot;highlighter-rouge&quot;&gt;try&lt;/code&gt;块中是否出现异常，&lt;code class=&quot;highlighter-rouge&quot;&gt;finally&lt;/code&gt;块中的语句是一定要执行的，但是函数的返回值只可能是&lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;或者&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;，绝对不会是&lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt;。我们通过查看这段&lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;代码对应的字节码指令来理解这一点。&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;nl&quot;&gt;flags:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ACC_PUBLIC&lt;/span&gt;
-    &lt;span class=&quot;nl&quot;&gt;Code:&lt;/span&gt;
-      &lt;span class=&quot;n&quot;&gt;stack&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;locals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args_size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;iconst_1&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;istore_1&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;iload_1&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;istore_2&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;iconst_3&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;istore_1&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;iload_2&lt;/span&gt;
-         &lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ireturn&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;这段字节码对应于&lt;code class=&quot;highlighter-rouge&quot;&gt;try-finally&lt;/code&gt;这条执行轨迹：&lt;code class=&quot;highlighter-rouge&quot;&gt;iconst_1&lt;/code&gt;将常量&lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;压入操作数栈；&lt;code class=&quot;highlighter-rouge&quot;&gt;istore_1&lt;/code&gt;将栈顶元素弹出并存储于局部变量表&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot1&lt;/code&gt;处；&lt;code class=&quot;highlighter-rouge&quot;&gt;iload_1&lt;/code&gt;将局部变量表&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot1&lt;/code&gt;处的元素压入操作数栈；&lt;code class=&quot;highlighter-rouge&quot;&gt;istore_2&lt;/code&gt;将操作数栈顶元素弹出并存储于局部变量表&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot2&lt;/code&gt;处；&lt;code class=&quot;highlighter-rouge&quot;&gt;iconst_3&lt;/code&gt;将常量&lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt;压入操作数栈；&lt;code class=&quot;highlighter-rouge&quot;&gt;istore_1&lt;/code&gt;将操作数栈顶元素弹出并存储于局部变量表&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot1&lt;/code&gt;处；&lt;code class=&quot;highlighter-rouge&quot;&gt;iload_2&lt;/code&gt;将局部变量表&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot2&lt;/code&gt;处的元素压入操作数栈；&lt;code class=&quot;highlighter-rouge&quot;&gt;ireturn&lt;/code&gt;返回栈顶元素。&lt;/p&gt;
-
-&lt;p&gt;第&lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;条指令和第&lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;条指令实现了&lt;code class=&quot;highlighter-rouge&quot;&gt;x = 1&lt;/code&gt;，并且&lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt;的值存储于局部变量表的&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot1&lt;/code&gt;处；第&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;条指令和第&lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt;条指令将&lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt;的值拷贝了一份，并存储在局部变量表的&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot2&lt;/code&gt;处。第&lt;code class=&quot;highlighter-rouge&quot;&gt;4&lt;/code&gt;条指令和第&lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt;条指令实现了&lt;code class=&quot;highlighter-rouge&quot;&gt;x = 3&lt;/code&gt;；第&lt;code class=&quot;highlighter-rouge&quot;&gt;6&lt;/code&gt;条指令和第&lt;code class=&quot;highlighter-rouge&quot;&gt;7&lt;/code&gt;条指令将存储于局部变量表&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot2&lt;/code&gt;处的&lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt;的拷贝值返回，由于&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot2&lt;/code&gt;中的值是执行&lt;code class=&quot;highlighter-rouge&quot;&gt;finally&lt;/code&gt;块中语句之前&lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt;的值，因此返回值等于&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;。&lt;/p&gt;
-
-&lt;p&gt;基于以上解释，我们再来重新理解&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;。对于函数&lt;code class=&quot;highlighter-rouge&quot;&gt;funcA&lt;/code&gt;，当执行至&lt;code class=&quot;highlighter-rouge&quot;&gt;return&lt;/code&gt;时，变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的值等于&lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;，与&lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;类似，&lt;code class=&quot;highlighter-rouge&quot;&gt;Golang&lt;/code&gt;会将返回值的拷贝值（即变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的值）存储于内存中的某个位置&lt;code class=&quot;highlighter-rouge&quot;&gt;pos&lt;/code&gt;（对应于局部变量表的&lt;code class=&quot;highlighter-rouge&quot;&gt;Slot2&lt;/code&gt;处），然后执行&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;语句，当&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;语句执行完后，尽管变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的值已增加至&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;，但是返回值依赖于地址&lt;code class=&quot;highlighter-rouge&quot;&gt;pos&lt;/code&gt;处的值，因此&lt;code class=&quot;highlighter-rouge&quot;&gt;funcA&lt;/code&gt;返回&lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;；对于函数&lt;code class=&quot;highlighter-rouge&quot;&gt;funcB&lt;/code&gt;，由于&lt;code class=&quot;highlighter-rouge&quot;&gt;funcB&lt;/code&gt;已经命名了函数的返回值为变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;，这意味着函数的返回值的地址即为变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的地址。当执行至&lt;code class=&quot;highlighter-rouge&quot;&gt;return&lt;/code&gt;时，尽管变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的值为&lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;，但是紧接着的&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;语句使得变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的值增加至&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;，由于&lt;code class=&quot;highlighter-rouge&quot;&gt;funcA&lt;/code&gt;的返回值的地址为变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的地址，因此&lt;code class=&quot;highlighter-rouge&quot;&gt;funcB&lt;/code&gt;最后的返回值为&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;。&lt;/p&gt;
-
-&lt;p&gt;为了验证我们的解释，运行如下代码。&lt;/p&gt;
-
-&lt;div class=&quot;language-go highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;funcC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()))&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;funcC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;defer&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;defer2:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;defer&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-		&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;defer1:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}()&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-	&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;x&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;x&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;尽管函数&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值并没有提前声明，但是&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值仍为&lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;，这是因为&lt;code class=&quot;highlighter-rouge&quot;&gt;funcC&lt;/code&gt;的返回值是变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的内存地址，当执行到&lt;code class=&quot;highlighter-rouge&quot;&gt;return&lt;/code&gt;语句时，变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的内存地址值的拷贝会被存储于内存的某个位置，而该位置的值即是最后的返回值，由于变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的地址在整个过程并未被修改，因此通过地址值的拷贝值我们依旧可以观察到&lt;code class=&quot;highlighter-rouge&quot;&gt;defer&lt;/code&gt;语句对变量&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt;的操作。&lt;/p&gt;</content><author><name></name></author><category term="Golang" /><summary type="html">关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。</summary></entry></feed>
+&lt;p&gt;&lt;img src=&quot;/img/img-2017-04-26-Image 10.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name></name></author><category term="CSAPP" /><category term="Assembly" /><summary type="html">Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。</summary></entry></feed>
