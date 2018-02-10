@@ -9,8 +9,8 @@
   <!-- Begin Jekyll SEO tag v2.3.0 -->
 <meta property="og:title" content="我对Raft的理解 - Two">
 <meta property="og:locale" content="en_US">
-<meta name="description" content="我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调体日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。">
-<meta property="og:description" content="我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调体日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。">
+<meta name="description" content="我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。">
+<meta property="og:description" content="我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。">
 <link rel="canonical" href="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/">
 <meta property="og:url" content="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/">
 <meta property="og:site_name" content="STAR 皆空">
@@ -21,7 +21,7 @@
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调体日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/","publisher":null,"image":null,"headline":"我对Raft的理解 - Two","dateModified":"2018-02-10T00:00:00+08:00","datePublished":"2018-02-10T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/"},"@context":"http://schema.org"}</script>
+{"name":null,"description":"我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/","publisher":null,"image":null,"headline":"我对Raft的理解 - Two","dateModified":"2018-02-10T00:00:00+08:00","datePublished":"2018-02-10T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/"},"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -108,7 +108,7 @@
     </p>
   </header>
   <div class="post-content" itemprop="articleBody">
-    <p>我们已对 Raft Leader 选举进行了<a href="http://tinylcy.me/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/">理解</a>，Leader 一旦被选举出来，对外提供服务，对内协调体日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。</p>
+    <p>我们已对 Raft Leader 选举进行了<a href="http://tinylcy.me/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/">理解</a>，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。</p>
 
 <h4 id="slide-11">Slide 11</h4>
 
