@@ -2,7 +2,7 @@
 title: 我对Raft的理解 - Two
 ---
 
-我们已对 Raft Leader 选举进行了[理解](http://tinylcy.me/2018/%E6%88%91%E5%AF%B9Raft%E7%9A%84%E7%90%86%E8%A7%A3-One/)，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。
+我们已对 Raft Leader 选举进行了[理解](http://tinylcy.me/2018/Understanding-the-Raft-consensus-algorithm-One/)，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。
 
 #### Slide 11
 
