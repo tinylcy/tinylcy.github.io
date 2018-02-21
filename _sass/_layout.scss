@@ -201,6 +201,20 @@
             font-size: 18px;
         }
     }
+
+    a {
+        color: rgb(72, 121, 54); //$brand-color;
+        text-decoration: none;
+    
+        // &:visited {
+        //     color: darken(rgb(7, 7, 7), 15%);
+        // }
+    
+        &:hover {
+            color: rgb(55, 52, 117);//$text-color;
+            text-decoration: underline;
+        }
+    }
 }
 .pagination, .post-navigation{
   a{

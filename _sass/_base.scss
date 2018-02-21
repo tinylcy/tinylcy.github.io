@@ -104,7 +104,7 @@ h1, h2, h3, h4, h5, h6 {
  * Links
  */
 a {
-    color: rgb(68, 141, 38); //$brand-color;
+    color: rgb(55, 52, 117); //$brand-color;
     text-decoration: none;
 
     // &:visited {
@@ -112,12 +112,10 @@ a {
     // }
 
     &:hover {
-        color: rgb(98, 173, 68);//$text-color;
+        color: rgb(55, 52, 117);//$text-color;
         text-decoration: underline;
     }
 }
-
-
 
 /**
  * Blockquotes
