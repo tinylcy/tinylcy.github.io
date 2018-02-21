@@ -104,7 +104,7 @@ h1, h2, h3, h4, h5, h6 {
  * Links
  */
 a {
-    color: rgb(3, 101, 100); //$brand-color;
+    color: rgb(68, 141, 38); //$brand-color;
     text-decoration: none;
 
     // &:visited {
@@ -112,7 +112,7 @@ a {
     // }
 
     &:hover {
-        color: rgb(38, 157, 128);//$text-color;
+        color: rgb(98, 173, 68);//$text-color;
         text-decoration: underline;
     }
 }

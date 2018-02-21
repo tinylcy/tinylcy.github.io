@@ -38,7 +38,7 @@ Raft 是一种非对称的共识算法，也正是采用了非对称的设计，
 Raft 论文中多次强调 Raft 的设计是围绕算法的**可理解性**展开，我们将从六个部分对 Raft 进行理解。
 
 * Leader 选举，以及如何检测异常并进行新一轮的 Leader 选举。
-* 基本的日志复制操作，也就是 Raft 正常运行是时的操作。
+* 基本的日志复制操作，也就是 Raft 正常运行时的操作。
 * 在 Leader 发生变更时如何保证安全性和一致性，这是 Raft 算法最关键的部分。
 * 如何避免过时的 Leader 带来的影响，因为一个 Leader 宕机后再恢复仍然会认为自己是 Leader。
 * 客户端交互，所谓实现线性化语义可以理解为实现幂等性。
@@ -51,10 +51,10 @@ Raft 论文中多次强调 Raft 的设计是围绕算法的**可理解性**展�
 Raft 算法有几个关键属性，我们需要提前了解。首先是节点的状态，相比于 Paxos，Raft 简化了节点可能的状态，在任何时候，节点可能处于以下三种状态。
 
 * Leader。Leader 负责处理客户端的请求，同时还需要协调日志的复制。在任意时刻，最多允许存在 1 个 Leader，也就是说，可能存在 0 个 Leader，什么时候会出现不存在 Leader 的情况？接下来会说明。
-* Follwer。在 Raft 中，Follower 是一个完全被动的角色，Follower 只会响应消息。注意，在 Raft 中，节点之间的通信是通过 RPC 进行的。
+* Follower。在 Raft 中，Follower 是一个完全被动的角色，Follower 只会响应消息。注意，在 Raft 中，节点之间的通信是通过 RPC 进行的。
 * Candidate。Candidate 是节点从 Follower 转变为 Leader 的过渡状态。因为 Follower 是一个完全被动的状态，所以当需要重新选举时，Follower 需要将自己提升为 Candidate，然后发起选举。
 
-Raft 正常运行时只有一个 Leader，剩下的均为 Follower。
+Raft 正常运行时只有一个 Leader，其余节点均为 Follower。
 
 从状态转换图可以看到，所有的节点都是从 Follower 开始，如果 Follower 经过一段时间后收不到来自 Leader 的心跳，那么 Follower 就认为需要 Leader 已经崩溃了，需要进行新一轮的选举，因此 Follower 的状态变更为 Candidate。Candidate 有可能被选举为 Leader，也有可能回退为 Follower，具体情况下文会继续分析。如果 Leader 发现自己已经过时了，它会主动变更为 Follower，Leader 如何发现自己过时了？我们下文也会分析。
 
@@ -90,7 +90,7 @@ Raft 中 Leader 和 Follower 之间需要通过心跳消息来维持关系，Fol
 
 * Candidate 收到了大多数节点的投票，那么 Candidate 自然就成为 Leader，然后马上发送心跳消息维护自己的 Leader 地位，并对外提供服务。
 * Candidate 在等待来自其他节点的选票的过程中收到了来自 Leader 的心跳消息，Candidate 可以看到当前的心跳消息中包含更新的 Term，就会意识到新的 Leader 已经被选举出来，于是就自降为 Follower。
-* 各个 Candidate 都获得了相同数量的选票，那么每个节点都会继续等待选票，没有新的 Leader 产生。等待一定的时间后，重新开启选举过程，知道选出新的 Leader。
+* 各个 Candidate 都获得了相同数量的选票，那么每个节点都会继续等待选票，没有新的 Leader 产生。等待一定的时间后，重新开启选举过程，直到选举出新的 Leader。
 
 需要考虑的是 Raft 如何避免重复出现 Candidate 瓜分选票的情况：如果当前轮选举 Candidate 瓜分了选票，那么Candidate 会进入下一轮的选举，但是各个 Candidate 开始选举的时刻是随机的。
 
@@ -100,8 +100,8 @@ Raft 中 Leader 和 Follower 之间需要通过心跳消息来维持关系，Fol
 
 继续理解选举过程，选举过程需要保证两个特性：Safety 和 Liveness。
 
-* Safety 要求每个 Term 最多只能选举出一个 Leader，Raft 约束每个节点除了能给自己投一票，也只能给其他节点投一票。因此，如果 Candidate A 已经获得了大多数选票，由于每个节点只能向外投一票，因此 Candidate B 不可能获得大多数选票。Safety 特性保证一段时间内只可能存在一个 Leader 提供服务并协调日志的复制，避免因为存在多个 Leader 导致日志不一致。
-* Safety 要求一段时间内最多只能存在一个 Leader，而 Liveness 保证系统最终必须要有要有一个 Candidate 赢得选举成为 Leader，Leader 无法选举出来意味着系统不能对外提供服务。Raft 实现 Liveness 的方式很简单，在 Slide 9 已经提及：当某一轮选举 Candidate 瓜分了选票，那么各个节点进入下一轮选举等待的时间是随机的，Candidate 随机等待 [T, 2T]， T 为选举超时时间，这样就大大减少了再次瓜分选票的概率。
+* Safety 要求每个 Term 最多只能选举出一个 Leader，Raft 约束每个节点除了能给自己投一票，也给其他节点只能投一票。因此，如果 Candidate A 已经获得了大多数选票，由于每个节点只能向外投一票，因此 Candidate B 不可能获得大多数选票。Safety 特性保证一段时间内只可能存在一个 Leader 提供服务并协调日志的复制，避免因为存在多个 Leader 导致日志不一致。
+* Safety 保证在一段时间内最多只能存在一个 Leader，而 Liveness 保证系统最终必须要有要有一个 Candidate 赢得选举成为 Leader，Leader 无法选举出来意味着系统不能对外提供服务。Raft 实现 Liveness 的方式很简单，在 Slide 9 已经提及：当某一轮选举 Candidate 瓜分了选票，那么各个节点进入下一轮选举等待的时间是随机的，Candidate 随机等待 [T, 2T]， T 为选举超时时间，这样就大大减少了再次瓜分选票的概率。
 
 #### 小结
 

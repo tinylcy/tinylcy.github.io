@@ -10,7 +10,7 @@ title: 我对Raft的理解 - Two
 
 每个节点都维护了一份私有的日志的拷贝，节点存在宕机的风险，为了保证宕机后能够恢复日志，日志需要持久化存储在类似磁盘等介质中。日志由一组日志项组成，每个日志项（Log Entry）包含三部分：Index、Term 和 Command。Index 指示了日志项在日志中的索引，它是日志项的附加属性，类似数组元素下标；Term 指示了日志项被创建时 Leader 所处的任期；Command 指示了日志项包含的操作。
 
-Slide 11 中有一个 Leader，4 个 Follower，Leader 需要将日志项正确的复制到 Follower。**注意，Leader 的目标并不在于将所有的日志项都复制到 Follower，而在于复制已经 Committed 的日志项**。Committed 是 Raft 中另一个非常重要的概念，需要好好理解。那么什么样的日志可以被认为是 Committed 的？我们先给出一个定义：**如果某个日志项已经被复制到了大多数节点，那么就可以认为该日志项是 Committed 了，Raft 需要保证，已经 Committed 的日志项会永远存在于大部分节点的日志中**。不过，目前这个定义并不能保证日志被正确的复制，还需要添加限制条件。
+Slide 11 中有 1 个 Leader，4 个 Follower，Leader 需要将日志项正确的复制到 Follower。**注意，Leader 的目标并不在于将所有的日志项都复制到 Follower，而在于复制已经 Committed 的日志项**。Committed 是 Raft 中另一个非常重要的概念，需要好好理解。那么什么样的日志可以被认为是 Committed 的？我们先给出一个定义：**如果某个日志项已经被复制到了大多数节点，那么就可以认为该日志项是 Committed 了，Raft 需要保证，已经 Committed 的日志项会永远存在于大部分节点的日志中**。不过，目前这个定义并不能保证日志被正确的复制，还需要添加限制条件。
 
 按照目前对 Committed 的定义，日志项 1 至日志项 7 已经被 Leader 复制到了大部分节点，因此可以认为前 7 项日志项已经 Committed 了。Committed 的日志项可以被状态机执行，而只有被状态机执行，才能响应客户端。
 
@@ -18,7 +18,7 @@ Slide 11 中有一个 Leader，4 个 Follower，Leader 需要将日志项正确�
 
 ![](/img/raft.012.jpeg)
 
-Raft 反复强调算法的可理解性，在日志复制的过程中，Raft 将问题再次分解：**Leader 正常运行时的日志复制**和 **Leader 变更后的日志复制**。Leader 正常运行时的日志复制比较简单，分为以下几个步骤。
+Raft 反复强调算法的可理解性，在日志复制的过程中，Raft 将问题再次分解：**Leader 正常运行时的日志复制**和 **Leader 变更后的日志复制**。Leader 正常运行时的日志复制比较简单，分为以下 5 个步骤。
 
 * 客户端向 Leader 发送指令，如果客户端向 Follower 发送了指令，Follower 会将请求重定向至 Leader。
 * Leader 创建日志项并 Append 至日志中。

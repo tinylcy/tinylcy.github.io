@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-02-17T10:29:36+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-02-21T19:56:28+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
 </subtitle><entry><title type="html">我对Raft的理解 - Two</title><link href="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/" rel="alternate" type="text/html" title="我对Raft的理解 - Two" /><published>2018-02-10T00:00:00+08:00</published><updated>2018-02-10T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20the%20Raft%20consensus%20algorithm-Two</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/">&lt;p&gt;我们已对 Raft Leader 选举进行了&lt;a href=&quot;http://tinylcy.me/2018/Understanding-the-Raft-consensus-algorithm-One/&quot;&gt;理解&lt;/a&gt;，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。&lt;/p&gt;
 
 &lt;h4 id=&quot;slide-11&quot;&gt;Slide 11&lt;/h4&gt;
@@ -7,7 +7,7 @@
 
 &lt;p&gt;每个节点都维护了一份私有的日志的拷贝，节点存在宕机的风险，为了保证宕机后能够恢复日志，日志需要持久化存储在类似磁盘等介质中。日志由一组日志项组成，每个日志项（Log Entry）包含三部分：Index、Term 和 Command。Index 指示了日志项在日志中的索引，它是日志项的附加属性，类似数组元素下标；Term 指示了日志项被创建时 Leader 所处的任期；Command 指示了日志项包含的操作。&lt;/p&gt;
 
-&lt;p&gt;Slide 11 中有一个 Leader，4 个 Follower，Leader 需要将日志项正确的复制到 Follower。&lt;strong&gt;注意，Leader 的目标并不在于将所有的日志项都复制到 Follower，而在于复制已经 Committed 的日志项&lt;/strong&gt;。Committed 是 Raft 中另一个非常重要的概念，需要好好理解。那么什么样的日志可以被认为是 Committed 的？我们先给出一个定义：&lt;strong&gt;如果某个日志项已经被复制到了大多数节点，那么就可以认为该日志项是 Committed 了，Raft 需要保证，已经 Committed 的日志项会永远存在于大部分节点的日志中&lt;/strong&gt;。不过，目前这个定义并不能保证日志被正确的复制，还需要添加限制条件。&lt;/p&gt;
+&lt;p&gt;Slide 11 中有 1 个 Leader，4 个 Follower，Leader 需要将日志项正确的复制到 Follower。&lt;strong&gt;注意，Leader 的目标并不在于将所有的日志项都复制到 Follower，而在于复制已经 Committed 的日志项&lt;/strong&gt;。Committed 是 Raft 中另一个非常重要的概念，需要好好理解。那么什么样的日志可以被认为是 Committed 的？我们先给出一个定义：&lt;strong&gt;如果某个日志项已经被复制到了大多数节点，那么就可以认为该日志项是 Committed 了，Raft 需要保证，已经 Committed 的日志项会永远存在于大部分节点的日志中&lt;/strong&gt;。不过，目前这个定义并不能保证日志被正确的复制，还需要添加限制条件。&lt;/p&gt;
 
 &lt;p&gt;按照目前对 Committed 的定义，日志项 1 至日志项 7 已经被 Leader 复制到了大部分节点，因此可以认为前 7 项日志项已经 Committed 了。Committed 的日志项可以被状态机执行，而只有被状态机执行，才能响应客户端。&lt;/p&gt;
 
@@ -15,7 +15,7 @@
 
 &lt;p&gt;&lt;img src=&quot;/img/raft.012.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Raft 反复强调算法的可理解性，在日志复制的过程中，Raft 将问题再次分解：&lt;strong&gt;Leader 正常运行时的日志复制&lt;/strong&gt;和 &lt;strong&gt;Leader 变更后的日志复制&lt;/strong&gt;。Leader 正常运行时的日志复制比较简单，分为以下几个步骤。&lt;/p&gt;
+&lt;p&gt;Raft 反复强调算法的可理解性，在日志复制的过程中，Raft 将问题再次分解：&lt;strong&gt;Leader 正常运行时的日志复制&lt;/strong&gt;和 &lt;strong&gt;Leader 变更后的日志复制&lt;/strong&gt;。Leader 正常运行时的日志复制比较简单，分为以下 5 个步骤。&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;客户端向 Leader 发送指令，如果客户端向 Follower 发送了指令，Follower 会将请求重定向至 Leader。&lt;/li&gt;
@@ -187,7 +187,7 @@
 
 &lt;ul&gt;
   &lt;li&gt;Leader 选举，以及如何检测异常并进行新一轮的 Leader 选举。&lt;/li&gt;
-  &lt;li&gt;基本的日志复制操作，也就是 Raft 正常运行是时的操作。&lt;/li&gt;
+  &lt;li&gt;基本的日志复制操作，也就是 Raft 正常运行时的操作。&lt;/li&gt;
   &lt;li&gt;在 Leader 发生变更时如何保证安全性和一致性，这是 Raft 算法最关键的部分。&lt;/li&gt;
   &lt;li&gt;如何避免过时的 Leader 带来的影响，因为一个 Leader 宕机后再恢复仍然会认为自己是 Leader。&lt;/li&gt;
   &lt;li&gt;客户端交互，所谓实现线性化语义可以理解为实现幂等性。&lt;/li&gt;
@@ -202,11 +202,11 @@
 
 &lt;ul&gt;
   &lt;li&gt;Leader。Leader 负责处理客户端的请求，同时还需要协调日志的复制。在任意时刻，最多允许存在 1 个 Leader，也就是说，可能存在 0 个 Leader，什么时候会出现不存在 Leader 的情况？接下来会说明。&lt;/li&gt;
-  &lt;li&gt;Follwer。在 Raft 中，Follower 是一个完全被动的角色，Follower 只会响应消息。注意，在 Raft 中，节点之间的通信是通过 RPC 进行的。&lt;/li&gt;
+  &lt;li&gt;Follower。在 Raft 中，Follower 是一个完全被动的角色，Follower 只会响应消息。注意，在 Raft 中，节点之间的通信是通过 RPC 进行的。&lt;/li&gt;
   &lt;li&gt;Candidate。Candidate 是节点从 Follower 转变为 Leader 的过渡状态。因为 Follower 是一个完全被动的状态，所以当需要重新选举时，Follower 需要将自己提升为 Candidate，然后发起选举。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Raft 正常运行时只有一个 Leader，剩下的均为 Follower。&lt;/p&gt;
+&lt;p&gt;Raft 正常运行时只有一个 Leader，其余节点均为 Follower。&lt;/p&gt;
 
 &lt;p&gt;从状态转换图可以看到，所有的节点都是从 Follower 开始，如果 Follower 经过一段时间后收不到来自 Leader 的心跳，那么 Follower 就认为需要 Leader 已经崩溃了，需要进行新一轮的选举，因此 Follower 的状态变更为 Candidate。Candidate 有可能被选举为 Leader，也有可能回退为 Follower，具体情况下文会继续分析。如果 Leader 发现自己已经过时了，它会主动变更为 Follower，Leader 如何发现自己过时了？我们下文也会分析。&lt;/p&gt;
 
@@ -243,7 +243,7 @@
 &lt;ul&gt;
   &lt;li&gt;Candidate 收到了大多数节点的投票，那么 Candidate 自然就成为 Leader，然后马上发送心跳消息维护自己的 Leader 地位，并对外提供服务。&lt;/li&gt;
   &lt;li&gt;Candidate 在等待来自其他节点的选票的过程中收到了来自 Leader 的心跳消息，Candidate 可以看到当前的心跳消息中包含更新的 Term，就会意识到新的 Leader 已经被选举出来，于是就自降为 Follower。&lt;/li&gt;
-  &lt;li&gt;各个 Candidate 都获得了相同数量的选票，那么每个节点都会继续等待选票，没有新的 Leader 产生。等待一定的时间后，重新开启选举过程，知道选出新的 Leader。&lt;/li&gt;
+  &lt;li&gt;各个 Candidate 都获得了相同数量的选票，那么每个节点都会继续等待选票，没有新的 Leader 产生。等待一定的时间后，重新开启选举过程，直到选举出新的 Leader。&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;需要考虑的是 Raft 如何避免重复出现 Candidate 瓜分选票的情况：如果当前轮选举 Candidate 瓜分了选票，那么Candidate 会进入下一轮的选举，但是各个 Candidate 开始选举的时刻是随机的。&lt;/p&gt;
@@ -255,8 +255,8 @@
 &lt;p&gt;继续理解选举过程，选举过程需要保证两个特性：Safety 和 Liveness。&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Safety 要求每个 Term 最多只能选举出一个 Leader，Raft 约束每个节点除了能给自己投一票，也只能给其他节点投一票。因此，如果 Candidate A 已经获得了大多数选票，由于每个节点只能向外投一票，因此 Candidate B 不可能获得大多数选票。Safety 特性保证一段时间内只可能存在一个 Leader 提供服务并协调日志的复制，避免因为存在多个 Leader 导致日志不一致。&lt;/li&gt;
-  &lt;li&gt;Safety 要求一段时间内最多只能存在一个 Leader，而 Liveness 保证系统最终必须要有要有一个 Candidate 赢得选举成为 Leader，Leader 无法选举出来意味着系统不能对外提供服务。Raft 实现 Liveness 的方式很简单，在 Slide 9 已经提及：当某一轮选举 Candidate 瓜分了选票，那么各个节点进入下一轮选举等待的时间是随机的，Candidate 随机等待 [T, 2T]， T 为选举超时时间，这样就大大减少了再次瓜分选票的概率。&lt;/li&gt;
+  &lt;li&gt;Safety 要求每个 Term 最多只能选举出一个 Leader，Raft 约束每个节点除了能给自己投一票，也给其他节点只能投一票。因此，如果 Candidate A 已经获得了大多数选票，由于每个节点只能向外投一票，因此 Candidate B 不可能获得大多数选票。Safety 特性保证一段时间内只可能存在一个 Leader 提供服务并协调日志的复制，避免因为存在多个 Leader 导致日志不一致。&lt;/li&gt;
+  &lt;li&gt;Safety 保证在一段时间内最多只能存在一个 Leader，而 Liveness 保证系统最终必须要有要有一个 Candidate 赢得选举成为 Leader，Leader 无法选举出来意味着系统不能对外提供服务。Raft 实现 Liveness 的方式很简单，在 Slide 9 已经提及：当某一轮选举 Candidate 瓜分了选票，那么各个节点进入下一轮选举等待的时间是随机的，Candidate 随机等待 [T, 2T]， T 为选举超时时间，这样就大大减少了再次瓜分选票的概率。&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h4 id=&quot;小结&quot;&gt;小结&lt;/h4&gt;
