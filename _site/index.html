@@ -83,8 +83,6 @@
             
                 
             
-                
-            
             </div>
         </nav>
     </div>
@@ -98,31 +96,9 @@
     
       <li>
         <h2>
-          <a class="post-link" href="/2018/Understanding-the-Raft-consensus-algorithm-Two/">我对Raft的理解 - Two</a>
+          <a class="post-link" href="/2018/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">2017年度总结与2018年度计划</a>
         </h2>
-          <span class="post-meta">Feb 10, 2018</span>
-        <p class="description">
-            
-                我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。Slide 11每个节点都维护了一份私有的日志的拷贝，节点存在宕机的风险，为了保证宕机后能够恢复日志，日志需要持久化存储在类似磁盘等介质中。日志由一组日志项组成，每个日志项（Log Entry）包含三部分：Index、Term 和 Command。Inde...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2018/Understanding-the-Raft-consensus-algorithm-One/">我对Raft的理解 - One</a>
-        </h2>
-          <span class="post-meta">Feb 9, 2018</span>
-        <p class="description">
-            
-                重新阅读了 Raft 论文，结合 John Ousterhout 在斯坦福大学的课程视频，对 Raft 重新梳理了一遍，并决定用文字记录下来。Raft 是一个共识算法，何为共识算法？通俗的说，共识算法的目的就是要实现分布式环境下各个节点上数据达成一致。那么节点的数据为什么会出现不一致？原因有很多，例如节点宕机、网络延迟、数据包乱序等等。但是要注意的是，Raft 并不考虑存在恶意的节点的情况，也就是说，不存在主动篡改数据的节点。所以可以理解为：允许节点宕机，但是只要节点没有宕机，那么它就是正...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2017/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">2017年度总结与2018年度计划</a>
-        </h2>
-          <span class="post-meta">Dec 31, 2017</span>
+          <span class="post-meta">Jan 1, 2018</span>
         <p class="description">
             
                 今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。上半年读了不少 paper 和技术书籍。在阅读的过程中，我喜欢在学习到一个新的知识点后，尽可能的通过一段程序去验证，那么理解的程度很可能会从「 意...
@@ -181,6 +157,28 @@
         <p class="description">
             
                 Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Programming达到攻击的目的。目前的进度是完成了Part I，等有时间再回来完成Part II。Part ...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2017/6-824-Lab-1-MapReduce/">6 824 Lab 1 Mapreduce</a>
+        </h2>
+          <span class="post-meta">May 3, 2017</span>
+        <p class="description">
+            
+                开始学习大名鼎鼎的MIT 6.824: Distributed Systems课程，我跟的是2016年的课程，课程的主要内容是读Paper和做Lab，使用的语言为Go。五一假期期间我基本做完了Lab 1，感觉难度还是相当大的。本篇文章是我对Lab 1的一个总结。MapReduce每次读MapReduce论文，都会有新的收获，也自知还有理解不到位的地方。Execution Overview  输入数据被划分为M个分片，由map worker产生的中间key-value pairs被划分为R个...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2017/CSAPP-Bomb-Lab/">CSAPP: Bomb Lab</a>
+        </h2>
+          <span class="post-meta">Apr 26, 2017</span>
+        <p class="description">
+            
+                Bomb Lab是CS:APP一书中第二个实验，实验中的bomb实际上是一个程序的二进制文件，该程序由一系列phase组成，每个phase需要我们输入一个字符串，然后该程序会进行校验，如果输入的字符串不满足拆弹要求，那么就会打印BOOM!!!。完成整个实验的思路是通过objdump对bome进行反编译（objdump -d bomb &gt; bomb.txt），获取所有的汇编代码。提取每个阶段对应的代码并借助gdb进行分析，逐一拆弹。Phase 1phase_1对应的代码如下所示。000...
             </p>
       </li>
     
