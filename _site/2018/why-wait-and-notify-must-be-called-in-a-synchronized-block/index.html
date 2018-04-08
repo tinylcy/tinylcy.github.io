@@ -113,8 +113,8 @@
 <p>先从 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html">官方文档</a> 入手，官方文档展示了一段代码告诉读者们 wait 方法应如何使用。如果当前线程（即调用 obj.wait 方法的线程）不是 monitor 的 owner，抛出 IllegalMonitorStateException。synchronized 关键字在经过编译后，会在同步代码块的前后生成 monitorenter 和 monitorexit 这两个字节码指令，它们都需要一个 reference 类型的参数指明要锁定和解锁的对象，这也是「monitor」的由来。</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">synchronized</span> <span class="o">(</span><span class="n">obj</span><span class="o">)</span> <span class="o">{</span>
-	<span class="k">while</span> <span class="o">(&lt;</span><span class="n">condition</span> <span class="n">does</span> <span class="n">not</span> <span class="n">hold</span><span class="o">&gt;)</span>
-		<span class="n">obj</span><span class="o">.</span><span class="na">wait</span><span class="o">(</span><span class="n">timeout</span><span class="o">);</span>
+    <span class="k">while</span> <span class="o">(&lt;</span><span class="n">condition</span> <span class="n">does</span> <span class="n">not</span> <span class="n">hold</span><span class="o">&gt;)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="na">wait</span><span class="o">(</span><span class="n">timeout</span><span class="o">);</span>
     <span class="o">...</span> <span class="c1">// Perform action appropriate to condition</span>
 <span class="o">}</span>
 </code></pre></div></div>

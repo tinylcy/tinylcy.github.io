@@ -7,8 +7,8 @@ title: 'Why wait/notify must be called in a synchronized block'
 
 ```java
 synchronized (obj) {
-	while (<condition does not hold>)
-		obj.wait(timeout);
+    while (<condition does not hold>)
+        obj.wait(timeout);
     ... // Perform action appropriate to condition
 }
 ```
