@@ -254,13 +254,14 @@
   }
 
   a{
-    background: #515865;
+    background: rgb(55, 52, 117);
     padding: 7px 12px;
     border-radius: 3px;
     border: 1px solid #eee;
     text-decoration: none;
     color: #fff;
     display: inline-block;
+    font-size: 15px;
 
     &+a{
       margin-left: 10px;
