@@ -99,6 +99,28 @@
     
       <li>
         <h2>
+          <a class="post-link" href="/2017/Bigtable%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">Bigtable论文阅读</a>
+        </h2>
+          <span class="post-meta">Jan 4, 2017</span>
+        <p class="description">
+            
+                本文是我对Bigtable论文进行第一轮阅读所做的笔记。对于理解欠妥的地方，欢迎发送邮件至tinylcy (at) gmail.com讨论。Data Model  A Bigtable is a sparse, distributed, persistent multi-dimensional sorted map. The map is indexed by a row key, column key, and a timestamp; each value in the map is ...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2017/2016%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E5%8F%8A2017%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">2016年度总结及2017年度计划</a>
+        </h2>
+          <span class="post-meta">Jan 1, 2017</span>
+        <p class="description">
+            
+                从2016年12月开始持续使用Pomotodo起，我逐渐意识到给自己定下量化计划是一件能够提升学习效率的事情。2017年的核心目标依然是提高自己，但是会采用具体的量化的指标来代替模糊性描述。其实这就类似于我们在git commit时候，如果以git commit -m "fix some bugs"的形式commit，那么在后期这些descriptions并不会带给我们任何帮助。2016总结  2016年3月至6月我需要完成学校的课程，但是总体来说，课程的质量不算高，我没有在这些课程及考试...
+            </p>
+      </li>
+    
+      <li>
+        <h2>
           <a class="post-link" href="/2016/Spring-IoC%E5%AE%B9%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96-Resource%E5%AE%9A%E4%BD%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Spring IoC容器初始化 — Resource定位源码分析</a>
         </h2>
           <span class="post-meta">Dec 7, 2016</span>
@@ -160,28 +182,6 @@
         <p class="description">
             
                 Java泛型是JDK5引入的一个新特性，允许在定义类和接口的时候使用类型参数（type parameter）。声明的类型参数在使用的时候使用具体的类型来替换。泛型最主要的应用是在JDK5中的新集合类框架中。对于泛型概念的引入，开发社区的观点是褒贬不一。从好的方面上说，泛型的引入可以解决之前的集合类框架在使用过程中通常会出现的运行时刻类型错误，因为编译器可以在编译时刻就发现很多明显的错误。从不好的方面说，为了保证与旧版本的兼容性，Java泛型的实现上还存在着不够优雅的地方。类型擦除正确理解泛...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2016/IO%E9%87%8D%E5%AE%9A%E5%90%91%E5%92%8C%E7%AE%A1%E9%81%93/">I/O重定向和管道</a>
-        </h2>
-          <span class="post-meta">Aug 19, 2016</span>
-        <p class="description">
-            
-                标准I/O与重定向的若干概念3个标准文件描述符所有的Unix工具都使用文件描述符0、1和2。如下图所示，标准输入文件的描述符是0，标准输出的文件描述符是1，标准错误输出的文件描述符则是2。Unix假设文件描述符0、1和2都已经被打开，可以分别进行读、写和写的操作。重定向I/O的是shell而不是程序通过使用输出重定向标志，命令cmd&gt;filename告诉shell将文件描述符1定位到文件。于是shell就将文件描述符与指定的文件连接起来。程序持续不断地将数据写到文件描述符1中，根本没...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2016/TCP%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/">TCP拥塞控制</a>
-        </h2>
-          <span class="post-meta">Aug 14, 2016</span>
-        <p class="description">
-            
-                TCP基础网络的传输层有两种方式——TCP和UDP，其中TCP是基于连接的，而UDP不需要连接。它们各自支持一些应用层协议，但也有些协议是两者都支持的，比如DNS，我们通过DNS来比较TCP和UDP的差别。当前我的计算机的ip为192.168.199.134，向DNS服务器发起一个DNS查询，以期获得tinylcy.me所对应的ip地址。DNS默认使用UDP的情况如下所示：通过Wireshark抓取这个过程的网络包，如下所示：使用set vc强制DNS使用TCP：这个过程所有的网络包如下所...
             </p>
       </li>
     
