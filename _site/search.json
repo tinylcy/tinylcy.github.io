@@ -1,6 +1,15 @@
 [
 
 	{
+		"title"    : "RocketMQ 初探",
+		"category" : "",
+		"desc"     : "五月，我又回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue...",
+		"tags"     : "",
+		"url"      : "/2018/Understanding-RockerMQ-basic/",
+		"date"     : "2018-06-09 00:00:00 +0800"
+	} ,
+
+	{
 		"title"    : "Why wait/notify must be called in a synchronized block",
 		"category" : "",
 		"desc"     : "在 Java 并发编程中，调用 Object wait/notify 方法的代码段必须要被包含在 synchronized 块中，接着即是耳熟能详的：调用 wait 方法时，先释放锁，然后线程进入阻塞状态，直至被 notify，然后重新尝试获得锁。看似一气呵成的一顿猛如虎的操作，其个中缘由到底是什么？有些我们看起来理所当然的东西，难道真的是理所当然的吗？本篇文章即谈谈，为什么调用 wait/...",

@@ -1,5 +1,165 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-05-20T17:38:19+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
-</subtitle><entry><title type="html">Why wait/notify must be called in a synchronized block</title><link href="http://localhost:4000/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/" rel="alternate" type="text/html" title="Why wait/notify must be called in a synchronized block" /><published>2018-04-08T00:00:00+08:00</published><updated>2018-04-08T00:00:00+08:00</updated><id>http://localhost:4000/2018/why%20wait%20and%20notify%20must%20be%20called%20in%20a%20synchronized%20block</id><content type="html" xml:base="http://localhost:4000/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/">&lt;p&gt;在 Java 并发编程中，调用 Object wait/notify 方法的代码段必须要被包含在 synchronized 块中，接着即是耳熟能详的：调用 wait 方法时，先释放锁，然后线程进入阻塞状态，直至被 notify，然后重新尝试获得锁。看似一气呵成的一顿猛如虎的操作，其个中缘由到底是什么？有些我们看起来理所当然的东西，难道真的是理所当然的吗？本篇文章即谈谈，为什么调用 wait/notify 方法的代码段必须要被包含在 synchronized 块中。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-06-10T14:16:14+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
+</subtitle><entry><title type="html">RocketMQ 初探</title><link href="http://localhost:4000/2018/Understanding-RockerMQ-basic/" rel="alternate" type="text/html" title="RocketMQ 初探" /><published>2018-06-09T00:00:00+08:00</published><updated>2018-06-09T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20RockerMQ%20basic</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-RockerMQ-basic/">&lt;p&gt;五月，我又回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。&lt;/p&gt;
+
+&lt;p&gt;本文是 RocketMQ 系列的首篇文章，暂不涉及源码，重点对 RocketMQ 中的核心概念进行梳理。&lt;/p&gt;
+
+&lt;h3 id=&quot;基本概念&quot;&gt;基本概念&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Producer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;消息生产者，负责创建消息，一般由业务系统负责产生消息。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Consumer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;消息消费者，一般由后台系统异步消费消息。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Push Consumer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Consumer 的一种，应用通常向 Consumer 对象注册一个 Listener 接口，一旦接收到消息，Push Consumer 对象立刻回调 Listener 接口的方法。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Pull Consumer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Consumer 的一种，应用通常主动调用 Consumer 的拉取消息方法从 Broker 拉取消息，主动权由应用控制。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Producer Group&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;一类 Producer 的集合名称，这类 Producer 通常发送一类消息，且发送逻辑一致。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Consumer Group&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;一类 Consumer 的集合名称，这类 Consumer 通常消息一类消息，且消费逻辑一致。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Broker&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;消息中转角色，负责存储消息和转发消息。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;广播消息&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;一个消息被多个 Consumer 消费，如果 Consumer 属于同一个 Consumer Group，那么消息会被该 Consumer Group 中的每个 Consumer 消费。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;集群消费&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;一个 Consumer Group 中的 Consumer 平均分摊消费消息。例如一个 Topic 存在 9 条消息，并且 Consumer Group 中包含 3 个 Consumer，那么每个 Consumer 各消费 3 条消息。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;顺序消息&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;消息被消费的顺序需要同消息非发送的顺序一致，在 RocketMQ 中，顺序消息指的是局部顺序。消息为满足顺序性，必须由 Producer 单线程发送，且发送至同一个队列，Consumer 根据 Producer 发送的顺序去消费消息。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;普通顺序消息&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;顺序消息的一种。正常情况下可以保证完全的顺序消息，但是一旦发送通信异常，例如 Broker 重启，此时由于队列的总数发生了变化，哈希取模后选择的队列也会发生变化，由此产生短暂的消息顺序不一致。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;严格顺序消息&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;顺序消息的一种。无论正常或是异常情况都能保证消息顺序，但是牺牲了分布式 Failover 特性，即 Broker 集群中只要有一台机器不可用，那么整个集群都不可用，服务可用性大大降低。在已知的应用场景中，数据库 binlog 同步强依赖严格消息顺序。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Message Queue&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;在 RocketMQ 中，所有的消息队列都是持久化、长度无限的数据结构。所谓长度无限是指队列中的每个存储单元都是定长，使用 offset 访问每个存储单元，offset 为 Java Long 类型（64 bit），理论上 100 年内不会溢出，所以可以认为是长度无限。RocketMQ 的消息队列一般保证保存一定时间内的数据，过期数据将会被删除。也可任务一个消息队列就是一个数组，offset 即为数组下标。&lt;/p&gt;
+
+&lt;h3 id=&quot;rocketmq需要解决哪些问题&quot;&gt;RocketMQ需要解决哪些问题&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Publish/Subscribe&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;发布/订阅是消息中间件最基本的功能。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Message Priority&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;由于 RocketMQ 所有的消息都是持久化存储的，如果需要按照优先级对消息进行排序，开销会非常大，因此 RocketMQ 没有特意支持消息优先级。但是可以通过变通的方式实现类似功能，即单独配置一个优先级高的消息队列和一个普通优先级的消息队列，将不同优先级的消息发送至相应的队列。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Message Order&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;消息有序指在消费一系列消息时需要按照这一系列消息的发送顺序进行消费。RocketMQ 可以严格保证消息消费的有序性。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Message Filter&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;消息过滤分为 Broker 端消息过滤和 Consumer 端的消息过滤。&lt;/p&gt;
+
+&lt;p&gt;Broker 端消息过滤的优点在于减少了对于 Consumer 无用消息的网络传输，缺点在于增加了 Broker 的负担，实现相对复杂。&lt;/p&gt;
+
+&lt;p&gt;Consumer 端消息过滤可以通过应用自定义实现，缺点在于可能存在大量的无用的消息被传输至 Consumer 端。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Message Persistence&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;一般而言消息中间件采用四种持久化的方式。（1）持久化至数据库，如 MySQL；（2）持久化至 KV 存储，如 LevelDB、Berkeley DB；（3）文件记录形式持久化，如 Kafka；（4）对内存出具做一个持久化镜像。&lt;/p&gt;
+
+&lt;p&gt;RocketMQ 参考了 Kafka 的持久化方式，充分利用 Linux 文件系统内存 cache 提高性能。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Message Reliability&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;// TODO&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Low Latency Messaging&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;在消息不堆积的情况下，消息到达 Broker 之后，能够立刻到达 Consumer。RocketMQ 采用长轮询 Pull 的方式，可保证消息非常实时，消息实时性不低于采用 Pull 的方式。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;At Least Once&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;At Least Once 指任意一条消息至少投递一次。RocketMQ Consumer 首先 Pull 消息至本地，当消费逻辑完成后，才会向 RocketMQ 集群返回 ACK。如果没有完成消费一定不会 ACK 消息，RocketMQ 会继续投递消息。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Broker  Buffer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;对于一般的消息队列，Broker Buffer 通常指在 Broker 中的一个队列的内存 Buffer，这类 Buffer 通常有大小限制。&lt;/p&gt;
+
+&lt;p&gt;RocketMQ 没有内存 Buffer 的概念，RocketMQ 的队列都是持久化磁盘，数据定期清除。或者说，RocketMQ 的内存 Buffer 被抽象成一个无限长度的队列，但是前提是 Broker 会定期清除过期的数据。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;回溯消费&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;回溯消费指 Consumer 已经消费成功的消息，由于业务上的需求需要重新消费消费，为了支持回溯消费，Broker 在向 Consumer 成功投递消息后，消息仍然需要保留。回溯消费一般是按照时间维度，例如由于 Consumer 系统故障，恢复后需要重新消费 1 小时前的消息，因此 Broker 需要提供一种机制，允许按照时间维度来回退消息消费进度。&lt;/p&gt;
+
+&lt;p&gt;RocketMQ 支持按照时间回溯消费，时间维度精确至毫秒，支持向前回溯，也支持向后回溯。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;消息堆积&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;消息中间件的主要功能是异步解耦，还有一个重要功能是抵挡前端的数据洪峰，保证后端系统的稳定性，这要求消息中间件具备一定的消息堆积能力，消息堆积分为两种情况。&lt;/p&gt;
+
+&lt;p&gt;（1）消息堆积至内存 Buffer，一旦超过内存 Buffer，可以根据一定的丢弃策略来丢弃消息，适用于能够容忍丢弃消息的业务场景。这种情况的消息堆积能力主要取决于内存 Buffer 的大小，消息堆积后性能不会发生明显下降。&lt;/p&gt;
+
+&lt;p&gt;（2）消息堆积至持久化存储系统中，例如 DB、KV 存储和文件记录形式。当消息不能在内存 Cache 命中时，需要访问磁盘，此时会产生大量的读 IO，因此读 IO 的吞吐量直接决定了消息堆积后的访问能力。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;分布式事务&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;分布式事务设计到两阶段提交问题。在数据存储方面一般需要 KV 存储的支持，因为第二阶段的提交回滚需要修改消息状态，此时会涉及到根据 Key 查找 Message 的动作。RocketMQ 在第二阶段没有通过 Key 去查找 Message，而是在第一阶段发送 Prepared 消息时就获取了消息的 offset，在第二阶段通过 offset 访问消息，并修改状态，offset 就是数据的地址。RocketMQ 采用 offset 实现分布式事务，可能会导致系统的脏页过多，需要特别关注。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;定时消息&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;定时消息指消费被发送至 Broker 后，不被 Consumer 立即消费，而是要在特定的时间点或者等待确定的时候后才能被消费。如果需要支持任意的时间精度，在 Broker 层面就需要做消息的排序，同时 RocketMQ 持久化存储消息的特性，势必会造成巨大的性能开销。&lt;/p&gt;
+
+&lt;p&gt;RocketMQ 支持定时消息，但是不支持任意的时间精度，支持特定的 leve，如 5s、10s、1min 等。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;消息重试&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Consumer 消费消息失败后，消息中间件需要提供一种重试机制，令消费再被消费一次。Consumer 消费消息失败分为两种情况。&lt;/p&gt;
+
+&lt;p&gt;（1）由于消息本身的原因，如反序列化失败，消息数据本身无法被处理。这种情况通常需要跳过这条消息，转而消费其他消息，并且失败消息即使立刻重新被消费往往也不会成功，所以一般提供一种定时重试机制。&lt;/p&gt;
+
+&lt;p&gt;（2）由于应用服务器不可用导致消息消费失败。这种情况下即使去消费其他消息往往也会报错，所以建议应用 sleep 一段时间再消费下一条消息，减轻 Broker 重试消息的压力。&lt;/p&gt;
+
+&lt;h3 id=&quot;rocketmq物理部署结构&quot;&gt;RocketMQ物理部署结构&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/img-2018-06-09-rmq-basic-arc.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NameServer Cluster&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;NameServer 提供轻量级的服务发现和路由。每一个 NameServer 记录了所有的路由信息，提供对应的读写服务。NameServer 是一个几乎无状态的节点，可集群部署，节点之间无任何信息同步。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Broker Cluster&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Broker 负责消息的存储。Broker 部署相对负责，分为 Master 和 Slave，一个 Master 可以对应于多个 Slave，但是一个 Slave 只能对应于一个 Master。Master 和 Slave 的对应关系通过指定相同的 BrokerName 和不同的 BrokerId 来定义。每个 Broker 与 NameServer Cluster 中的所有节点建立长连接，定时注册 Topic 信息至所有的 NameServer。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Producer Cluster&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Producer 与 NameServer Cluster 中的一个节点（随机选择）建立长连接，定期从 NameServer 获取 Topic 路由信息，并向提供 Topic 服务的 Master 建立长连接，且定时向 Master 发送心跳。Producer 完全无状态，可以集群部署。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Consumer Cluster&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Consumer 与 NameServer Cluster 中的一个节点（随机选择）建立长连接，定期从 NameServer 获取 Topic 路由信息，并向提供 Topic 服务的 Master 和 Slave 建立长连接，且定时向 Master 和 Slave 发送心跳。Consumer 既可以从 Master 订阅消息，也可以从 Slave 订阅消息，订阅规则由 Broker 配置决定。&lt;/p&gt;
+
+&lt;h3 id=&quot;参考&quot;&gt;参考&lt;/h3&gt;
+
+&lt;p&gt;[1] &lt;a href=&quot;https://rocketmq.apache.org/&quot;&gt;Apache RocketMQ&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[2] &lt;a href=&quot;http://alibaba.github.io/RocketMQ-docs/document/design/RocketMQ_design.pdf&quot;&gt;RocketMQ 原理简介&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">五月，我又回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。</summary></entry><entry><title type="html">Why wait/notify must be called in a synchronized block</title><link href="http://localhost:4000/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/" rel="alternate" type="text/html" title="Why wait/notify must be called in a synchronized block" /><published>2018-04-08T00:00:00+08:00</published><updated>2018-04-08T00:00:00+08:00</updated><id>http://localhost:4000/2018/why%20wait%20and%20notify%20must%20be%20called%20in%20a%20synchronized%20block</id><content type="html" xml:base="http://localhost:4000/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/">&lt;p&gt;在 Java 并发编程中，调用 Object wait/notify 方法的代码段必须要被包含在 synchronized 块中，接着即是耳熟能详的：调用 wait 方法时，先释放锁，然后线程进入阻塞状态，直至被 notify，然后重新尝试获得锁。看似一气呵成的一顿猛如虎的操作，其个中缘由到底是什么？有些我们看起来理所当然的东西，难道真的是理所当然的吗？本篇文章即谈谈，为什么调用 wait/notify 方法的代码段必须要被包含在 synchronized 块中。&lt;/p&gt;
 
 &lt;p&gt;先从 &lt;a href=&quot;https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html&quot;&gt;官方文档&lt;/a&gt; 入手，官方文档展示了一段代码告诉读者们 wait 方法应如何使用。如果当前线程（即调用 obj.wait 方法的线程）不是 monitor 的 owner，抛出 IllegalMonitorStateException。synchronized 关键字在经过编译后，会在同步代码块的前后生成 monitorenter 和 monitorexit 这两个字节码指令，它们都需要一个 reference 类型的参数指明要锁定和解锁的对象，这也是「monitor」的由来。&lt;/p&gt;
 
@@ -1323,91 +1483,4 @@ ret
 
 &lt;h2 id=&quot;part-ii-return-oriented-programming&quot;&gt;Part II: Return-Oriented Programming&lt;/h2&gt;
 
-&lt;h3 id=&quot;-todo&quot;&gt;// TODO&lt;/h3&gt;</content><author><name></name></author><category term="CSAPP" /><category term="Assembly" /><summary type="html">Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Programming达到攻击的目的。</summary></entry><entry><title type="html">6 824 Lab 1 Mapreduce</title><link href="http://localhost:4000/2017/6-824-Lab-1-MapReduce/" rel="alternate" type="text/html" title="6 824 Lab 1 Mapreduce" /><published>2017-05-03T00:00:00+08:00</published><updated>2017-05-03T00:00:00+08:00</updated><id>http://localhost:4000/2017/6-824-Lab-1-MapReduce</id><content type="html" xml:base="http://localhost:4000/2017/6-824-Lab-1-MapReduce/">&lt;p&gt;开始学习大名鼎鼎的&lt;a href=&quot;http://nil.csail.mit.edu/6.824/2016/index.html&quot;&gt;MIT 6.824: Distributed Systems&lt;/a&gt;课程，我跟的是&lt;code class=&quot;highlighter-rouge&quot;&gt;2016&lt;/code&gt;年的课程，课程的主要内容是读&lt;code class=&quot;highlighter-rouge&quot;&gt;Paper&lt;/code&gt;和做&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab&lt;/code&gt;，使用的语言为&lt;code class=&quot;highlighter-rouge&quot;&gt;Go&lt;/code&gt;。五一假期期间我基本做完了&lt;a href=&quot;http://nil.csail.mit.edu/6.824/2016/labs/lab-1.html&quot;&gt;Lab 1&lt;/a&gt;，感觉难度还是相当大的。本篇文章是我对&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab 1&lt;/code&gt;的一个总结。&lt;/p&gt;
-
-&lt;!--more--&gt;
-
-&lt;h2 id=&quot;mapreduce&quot;&gt;MapReduce&lt;/h2&gt;
-
-&lt;p&gt;每次读&lt;a href=&quot;https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/mapreduce-osdi04.pdf&quot;&gt;MapReduce&lt;/a&gt;论文，都会有新的收获，也自知还有理解不到位的地方。&lt;/p&gt;
-
-&lt;h3 id=&quot;execution-overview&quot;&gt;Execution Overview&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;输入数据被划分为&lt;code class=&quot;highlighter-rouge&quot;&gt;M&lt;/code&gt;个分片，由&lt;code class=&quot;highlighter-rouge&quot;&gt;map worker&lt;/code&gt;产生的中间&lt;code class=&quot;highlighter-rouge&quot;&gt;key-value pairs&lt;/code&gt;被划分为&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;个分片。其中&lt;code class=&quot;highlighter-rouge&quot;&gt;M&lt;/code&gt;的大小取决于&lt;code class=&quot;highlighter-rouge&quot;&gt;GFS&lt;/code&gt;块的大小，&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;取决于&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;的个数。所以，整个&lt;code class=&quot;highlighter-rouge&quot;&gt;MapReduce Job&lt;/code&gt;包括&lt;code class=&quot;highlighter-rouge&quot;&gt;M&lt;/code&gt;个&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;个&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;。&lt;/li&gt;
-  &lt;li&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;map&lt;/code&gt;阶段，&lt;code class=&quot;highlighter-rouge&quot;&gt;map worker&lt;/code&gt;把输出的中间&lt;code class=&quot;highlighter-rouge&quot;&gt;key-value pairs&lt;/code&gt;分割成&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;个&lt;code class=&quot;highlighter-rouge&quot;&gt;region&lt;/code&gt;，注意&lt;code class=&quot;highlighter-rouge&quot;&gt;pairs&lt;/code&gt;首先会存储在缓冲区中，然后定期的写入本地磁盘。&lt;code class=&quot;highlighter-rouge&quot;&gt;pairs&lt;/code&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;map worker&lt;/code&gt;上的位置信息会发送给&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;，由&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;通知&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;数据读取位置信息。&lt;/li&gt;
-  &lt;li&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce&lt;/code&gt;阶段，当&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;获取了输入数据的位置信息后，通过&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;读取数据。当&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;获取了所有的相关数据之后，会对它们进行一次排序，排序的目的在于不同&lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;pairs&lt;/code&gt;会汇聚到同一个&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;。&lt;/li&gt;
-  &lt;li&gt;当所有的&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;完成后，一共会产生&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;个输出文件，每个&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;对应一个。一般来说没有必要将这&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;个文件合并成一个文件，因为这&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;个文件往往会作为下一个&lt;code class=&quot;highlighter-rouge&quot;&gt;MapReduce Job&lt;/code&gt;的输入数据。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;master-data-structures&quot;&gt;Master Data Structures&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;会记录所有&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;的状态(&lt;code class=&quot;highlighter-rouge&quot;&gt;idle&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;in-progress&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;completed&lt;/code&gt;)信息。同时，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;还会保存那些处于&lt;code class=&quot;highlighter-rouge&quot;&gt;non-idle&lt;/code&gt;状态的&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;所关联的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;的信息。&lt;/li&gt;
-  &lt;li&gt;对于每个状态为&lt;code class=&quot;highlighter-rouge&quot;&gt;completed&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;会保存该&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;对应的&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;个&lt;code class=&quot;highlighter-rouge&quot;&gt;region&lt;/code&gt;的位置信息和大小信息。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;fault-tolerance&quot;&gt;Fault Tolerance&lt;/h3&gt;
-
-&lt;h4 id=&quot;worker-failure&quot;&gt;Worker Failure&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;通过周期性的&lt;code class=&quot;highlighter-rouge&quot;&gt;ping&lt;/code&gt;所有的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;来确认&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;是否可用，如果某个&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;崩溃了，那么在该&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;上完成的所有&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;都会回退到&lt;code class=&quot;highlighter-rouge&quot;&gt;idle&lt;/code&gt;状态，因此这些&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;会被重新调度到可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;上。同理，如果处于&lt;code class=&quot;highlighter-rouge&quot;&gt;in-progress&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;或&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;所在的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;崩溃了，那么这些&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;也会被重新调度到可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;上重新执行。&lt;/li&gt;
-  &lt;li&gt;如果某个&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;崩溃了，其上处于&lt;code class=&quot;highlighter-rouge&quot;&gt;completed&lt;/code&gt;状态的&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;需要重新被调度执行，这是因为&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;的输出数据是存储于&lt;code class=&quot;highlighter-rouge&quot;&gt;local disk&lt;/code&gt;。相反，如果某个&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;崩溃了，其上处于&lt;code class=&quot;highlighter-rouge&quot;&gt;completed&lt;/code&gt;状态的&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;不需要重新被调度执行，因为&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;的输出数据是存储在&lt;code class=&quot;highlighter-rouge&quot;&gt;global file system&lt;/code&gt;上的。&lt;/li&gt;
-  &lt;li&gt;当&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;在执行&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;时，如果某个&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;对应的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;由&lt;code class=&quot;highlighter-rouge&quot;&gt;worker A&lt;/code&gt;切换到了&lt;code class=&quot;highlighter-rouge&quot;&gt;worker B&lt;/code&gt;(可能是因为&lt;code class=&quot;highlighter-rouge&quot;&gt;worker A&lt;/code&gt;崩溃了)，那么&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;会通知该&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;从&lt;code class=&quot;highlighter-rouge&quot;&gt;worker B&lt;/code&gt;读取数据。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;master-failure&quot;&gt;Master Failure&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;通过定期的做&lt;code class=&quot;highlighter-rouge&quot;&gt;checkpoints&lt;/code&gt;来保证&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;的容错性。&lt;/li&gt;
-  &lt;li&gt;由于&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;只有一个，所以可以认为&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;出故障的概率很小。如果真的出故障了，那么根据需要重新执行&lt;code class=&quot;highlighter-rouge&quot;&gt;MapReduce Job&lt;/code&gt;。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;lab&quot;&gt;Lab&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab 1&lt;/code&gt;包括&lt;code class=&quot;highlighter-rouge&quot;&gt;4&lt;/code&gt;个&lt;code class=&quot;highlighter-rouge&quot;&gt;Part&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 1 &amp;amp; Part 2&lt;/code&gt;实现&lt;code class=&quot;highlighter-rouge&quot;&gt;Sequential MapReduce&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 3 &amp;amp; Part 4&lt;/code&gt;实现&lt;code class=&quot;highlighter-rouge&quot;&gt;Distributed MapReduce&lt;/code&gt;，并且要解决&lt;code class=&quot;highlighter-rouge&quot;&gt;worker failure&lt;/code&gt;。同时，&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab 1&lt;/code&gt;提供了&lt;code class=&quot;highlighter-rouge&quot;&gt;MapReduce&lt;/code&gt;的整个框架，并实现了与核心内容无关的代码。在完成各个&lt;code class=&quot;highlighter-rouge&quot;&gt;Part&lt;/code&gt;之前，我们需要理解&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab 1&lt;/code&gt;实现的两个版本的&lt;code class=&quot;highlighter-rouge&quot;&gt;MapReduce&lt;/code&gt;框架的设计思路。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;以&lt;code class=&quot;highlighter-rouge&quot;&gt;goroutine&lt;/code&gt;的形式存在，当&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;可用时，以&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;的方式向&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;注册，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;通过调用&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;来实现&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;的调度。同时，在&lt;code class=&quot;highlighter-rouge&quot;&gt;Distributed MapReduce&lt;/code&gt;中&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;还需要处理&lt;code class=&quot;highlighter-rouge&quot;&gt;worker failure&lt;/code&gt;。&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;将会以参数的形式存在于&lt;code class=&quot;highlighter-rouge&quot;&gt;Sequential/Distributed MapReduce&lt;/code&gt;。&lt;/li&gt;
-  &lt;li&gt;论文中&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;以块作为分割，而&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab&lt;/code&gt;中的&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;将以文件作为分割。&lt;/li&gt;
-  &lt;li&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;map&lt;/code&gt;阶段，对于每个&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;(一个输入文件)，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;会至少调用一次&lt;code class=&quot;highlighter-rouge&quot;&gt;doMap()&lt;/code&gt;。同理在&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce&lt;/code&gt;阶段，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;对每个&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;至少调用一次&lt;code class=&quot;highlighter-rouge&quot;&gt;doReduce()&lt;/code&gt;。在&lt;code class=&quot;highlighter-rouge&quot;&gt;Sequential MapReduce&lt;/code&gt;中，&lt;code class=&quot;highlighter-rouge&quot;&gt;Sequential()&lt;/code&gt;[&lt;code class=&quot;highlighter-rouge&quot;&gt;master.go&lt;/code&gt;]的核心参数&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;遍历了&lt;code class=&quot;highlighter-rouge&quot;&gt;file slice&lt;/code&gt;，根据当前所处的&lt;code class=&quot;highlighter-rouge&quot;&gt;phase&lt;/code&gt;对每个&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;调用&lt;code class=&quot;highlighter-rouge&quot;&gt;doMap()&lt;/code&gt;或&lt;code class=&quot;highlighter-rouge&quot;&gt;doReduce()&lt;/code&gt;。在&lt;code class=&quot;highlighter-rouge&quot;&gt;Distributed MapReduce&lt;/code&gt;中，&lt;code class=&quot;highlighter-rouge&quot;&gt;Distributed()&lt;/code&gt;[&lt;code class=&quot;highlighter-rouge&quot;&gt;master.go&lt;/code&gt;]的核心参数&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;需要我们去实现(&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 3 &amp;amp; Part 4&lt;/code&gt;)。&lt;/li&gt;
-  &lt;li&gt;在完成了所有的&lt;code class=&quot;highlighter-rouge&quot;&gt;map task&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce task&lt;/code&gt;之后，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;会调用&lt;code class=&quot;highlighter-rouge&quot;&gt;merge()&lt;/code&gt;对&lt;code class=&quot;highlighter-rouge&quot;&gt;reduce worker&lt;/code&gt;的输出文件进行合并。&lt;/li&gt;
-  &lt;li&gt;最后&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;向每个&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;发送&lt;code class=&quot;highlighter-rouge&quot;&gt;Shutdown RPC&lt;/code&gt;，然后关闭整个应用。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;理解完整个&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab&lt;/code&gt;的框架，下面谈谈每个&lt;code class=&quot;highlighter-rouge&quot;&gt;Part&lt;/code&gt;需要注意的地方。&lt;/p&gt;
-
-&lt;h3 id=&quot;part-1-mapreduce-input-and-output&quot;&gt;Part 1: Map/Reduce input and output&lt;/h3&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 1&lt;/code&gt;主要的内容是完成&lt;code class=&quot;highlighter-rouge&quot;&gt;doMap()&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;doReduce()&lt;/code&gt;，在编码前一定要仔细阅读注释给我们提供的信息。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;doMap()&lt;/code&gt;读取输入文件(&lt;code class=&quot;highlighter-rouge&quot;&gt;inFile&lt;/code&gt;)的内容，通过&lt;code class=&quot;highlighter-rouge&quot;&gt;mapF&lt;/code&gt;将其转化为&lt;code class=&quot;highlighter-rouge&quot;&gt;[]KeyValue&lt;/code&gt;。对于每个&lt;code class=&quot;highlighter-rouge&quot;&gt;inFile&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;doMap&lt;/code&gt;将产生&lt;code class=&quot;highlighter-rouge&quot;&gt;nReduce&lt;/code&gt;(对应于论文中的&lt;code class=&quot;highlighter-rouge&quot;&gt;R&lt;/code&gt;)个输出文件。同时，数据以&lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt;的格式存储至输出文件中。&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;doReduce()&lt;/code&gt;从&lt;code class=&quot;highlighter-rouge&quot;&gt;nMap&lt;/code&gt;(对应于论文中的&lt;code class=&quot;highlighter-rouge&quot;&gt;M&lt;/code&gt;)个&lt;code class=&quot;highlighter-rouge&quot;&gt;map worker&lt;/code&gt;读取输入数据(&lt;code class=&quot;highlighter-rouge&quot;&gt;[]KeyValue&lt;/code&gt;)，注意输入数据的格式为&lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt;。根据&lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt;构建出&lt;code class=&quot;highlighter-rouge&quot;&gt;map[key]values&lt;/code&gt;数据结构，对每个&lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt;(&lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;)和对应的&lt;code class=&quot;highlighter-rouge&quot;&gt;values&lt;/code&gt;(&lt;code class=&quot;highlighter-rouge&quot;&gt;[]string&lt;/code&gt;)调用&lt;code class=&quot;highlighter-rouge&quot;&gt;reduceF()&lt;/code&gt;。&lt;code class=&quot;highlighter-rouge&quot;&gt;doReduce()&lt;/code&gt;产生一个输出文件。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;part-2-single-worker-word-count&quot;&gt;Part 2: Single-worker word count&lt;/h3&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 2&lt;/code&gt;实现经典的&lt;code class=&quot;highlighter-rouge&quot;&gt;WordCount&lt;/code&gt;，需要我们实现&lt;code class=&quot;highlighter-rouge&quot;&gt;mapF&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;reduceF&lt;/code&gt;中的逻辑。需要注意的是要按照&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab&lt;/code&gt;提供的切词规范(&lt;code class=&quot;highlighter-rouge&quot;&gt;determined by unicode.IsLetter&lt;/code&gt;)去分词，而不要想当然的用空格作为分隔符。&lt;/p&gt;
-
-&lt;h3 id=&quot;part-3-distributing-mapreduce-tasks&quot;&gt;Part 3: Distributing MapReduce tasks&lt;/h3&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 3&lt;/code&gt;着手实现&lt;code class=&quot;highlighter-rouge&quot;&gt;Distributed MapReduce&lt;/code&gt;，为了模拟真正的分布式环境，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;之间的通信和同步仅通过&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;channel&lt;/code&gt;来实现。&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 3&lt;/code&gt;需要我们实现&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;的调度逻辑。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Distributed MapReduce&lt;/code&gt;的实现逻辑在上文已有所提及，&lt;code class=&quot;highlighter-rouge&quot;&gt;Sequential MapReduce&lt;/code&gt;顺序调度每个&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;执行，而在&lt;code class=&quot;highlighter-rouge&quot;&gt;Distributed MapReduce&lt;/code&gt;中，&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;将&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;调度到当前可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;上去执行。&lt;/li&gt;
-  &lt;li&gt;只有当&lt;code class=&quot;highlighter-rouge&quot;&gt;map/reduce&lt;/code&gt;阶段所有的&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;全部完成后，&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;才能返回。这一点在代码中我是通过&lt;code class=&quot;highlighter-rouge&quot;&gt;sync.WaitGroup&lt;/code&gt;来实现。&lt;/li&gt;
-  &lt;li&gt;在分布式环境下，&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;通过&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;调度&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;执行&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;，同时输入文件的信息也是作为&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;参数传递。&lt;/li&gt;
-  &lt;li&gt;当前可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;存储于&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;registerChannel&lt;/code&gt;中。如果当前没有可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;，那么&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule()&lt;/code&gt;会进入阻塞状态，直至出现新的可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;。只有当存在可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;时才允许创建&lt;code class=&quot;highlighter-rouge&quot;&gt;goroutine&lt;/code&gt;执行&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;(这一点体现在&lt;code class=&quot;highlighter-rouge&quot;&gt;schedule.go&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;line 38&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;line 42&lt;/code&gt;)。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;part-4-handling-worker-failures&quot;&gt;Part 4: Handling worker failures&lt;/h3&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Part 4&lt;/code&gt;需要解决&lt;code class=&quot;highlighter-rouge&quot;&gt;worker failure&lt;/code&gt;，映射到具体的代码实现上，&lt;code class=&quot;highlighter-rouge&quot;&gt;work failure&lt;/code&gt;是指在进行&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;时，&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;服务器返回了&lt;code class=&quot;highlighter-rouge&quot;&gt;call failed&lt;/code&gt;信息。根据论文，我们只需要将&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;重新分配给另一个可用的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;，并将上次&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;失败的输入文件信息作为本次&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;的参数传递。&lt;/p&gt;
-
-&lt;p&gt;需要注意的是，&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;失败并不一定意味着&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;崩溃了，也有可能是因为网络原因导致&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;不可达，所以有可能导致多个&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;在执行着相同的&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;。不过由于&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;的幂等性，这并没有什么问题，&lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt;记录着每个&lt;code class=&quot;highlighter-rouge&quot;&gt;task&lt;/code&gt;对应的真正有效的&lt;code class=&quot;highlighter-rouge&quot;&gt;worker&lt;/code&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;implementation&quot;&gt;Implementation&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Lab 1&lt;/code&gt;的代码实现在&lt;a href=&quot;https://github.com/tinylcy/mit-6.824&quot;&gt;这里&lt;/a&gt;。&lt;/p&gt;</content><author><name></name></author><summary type="html"></summary></entry></feed>
+&lt;h3 id=&quot;-todo&quot;&gt;// TODO&lt;/h3&gt;</content><author><name></name></author><category term="CSAPP" /><category term="Assembly" /><summary type="html">Attack Lab是CS:APP一书中第三个实验，包括Part I和Part II两部分，分别实现Code Injection Attacks和Return-Oriented Programming。Code Injection Attacks主要利用缓冲区溢出执行不安全的代码片段；当栈被标记为nonexecutable或者位置随机时，可以利用Return-Oriented Programming达到攻击的目的。</summary></entry></feed>
