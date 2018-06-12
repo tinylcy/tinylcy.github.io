@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-06-10T14:16:14+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-06-12T13:02:17+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
 </subtitle><entry><title type="html">RocketMQ 初探</title><link href="http://localhost:4000/2018/Understanding-RockerMQ-basic/" rel="alternate" type="text/html" title="RocketMQ 初探" /><published>2018-06-09T00:00:00+08:00</published><updated>2018-06-09T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20RockerMQ%20basic</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-RockerMQ-basic/">&lt;p&gt;五月，我又回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。&lt;/p&gt;
 
 &lt;p&gt;本文是 RocketMQ 系列的首篇文章，暂不涉及源码，重点对 RocketMQ 中的核心概念进行梳理。&lt;/p&gt;
@@ -83,7 +83,7 @@
 
 &lt;p&gt;一般而言消息中间件采用四种持久化的方式。（1）持久化至数据库，如 MySQL；（2）持久化至 KV 存储，如 LevelDB、Berkeley DB；（3）文件记录形式持久化，如 Kafka；（4）对内存出具做一个持久化镜像。&lt;/p&gt;
 
-&lt;p&gt;RocketMQ 参考了 Kafka 的持久化方式，充分利用 Linux 文件系统内存 cache 提高性能。&lt;/p&gt;
+&lt;p&gt;RocketMQ 参考了 Kafka 的持久化方式，充分利用 Linux 文件系统内存 Cache 提高性能。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Message Reliability&lt;/strong&gt;&lt;/p&gt;
 

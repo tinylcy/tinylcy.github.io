@@ -86,7 +86,7 @@ Consumer 端消息过滤可以通过应用自定义实现，缺点在于可能�
 
 一般而言消息中间件采用四种持久化的方式。（1）持久化至数据库，如 MySQL；（2）持久化至 KV 存储，如 LevelDB、Berkeley DB；（3）文件记录形式持久化，如 Kafka；（4）对内存出具做一个持久化镜像。
 
-RocketMQ 参考了 Kafka 的持久化方式，充分利用 Linux 文件系统内存 cache 提高性能。
+RocketMQ 参考了 Kafka 的持久化方式，充分利用 Linux 文件系统内存 Cache 提高性能。
 
 **Message Reliability**
 
