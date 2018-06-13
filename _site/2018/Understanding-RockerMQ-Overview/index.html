@@ -5,9 +5,9 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RocketMQ - Overview - STAR 皆空</title>
+  <title>RocketMQ - 初探 - STAR 皆空</title>
   <!-- Begin Jekyll SEO tag v2.3.0 -->
-<meta property="og:title" content="RocketMQ - Overview">
+<meta property="og:title" content="RocketMQ - 初探">
 <meta property="og:locale" content="en_US">
 <meta name="description" content="五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。">
 <meta property="og:description" content="五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。">
@@ -21,7 +21,7 @@
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2018/Understanding-RockerMQ-Overview/","publisher":null,"image":null,"headline":"RocketMQ - Overview","dateModified":"2018-06-09T00:00:00+08:00","datePublished":"2018-06-09T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/Understanding-RockerMQ-Overview/"},"@context":"http://schema.org"}</script>
+{"name":null,"description":"五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2018/Understanding-RockerMQ-Overview/","publisher":null,"image":null,"headline":"RocketMQ - 初探","dateModified":"2018-06-09T00:00:00+08:00","datePublished":"2018-06-09T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/Understanding-RockerMQ-Overview/"},"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -95,7 +95,7 @@
       <div class="wrapper">
         <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
   <header class="post-header">
-    <h1 class="post-title" itemprop="name headline">RocketMQ - Overview</h1>
+    <h1 class="post-title" itemprop="name headline">RocketMQ - 初探</h1>
     <p class="post-meta">
        <time datetime="2018-06-09T00:00:00+08:00" itemprop="datePublished">
           Jun 9, 2018
@@ -284,7 +284,7 @@
         <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2018/Understanding-RockerMQ-Overview/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
       </li>
       <li class="twitter">
-        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2018/Understanding-RockerMQ-Overview/ - RocketMQ - Overview by @" target="_blank" title="Share to Twitter">Twitter</a>
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2018/Understanding-RockerMQ-Overview/ - RocketMQ - 初探 by @" target="_blank" title="Share to Twitter">Twitter</a>
       </li>
       <li class="gplus">
         <a href="https://plus.google.com/share?url=http://localhost:4000/2018/Understanding-RockerMQ-Overview/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>

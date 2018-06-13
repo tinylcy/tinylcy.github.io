@@ -1,7 +1,7 @@
 [
 
 	{
-		"title"    : "RocketMQ - Overview",
+		"title"    : "RocketMQ - 初探",
 		"category" : "",
 		"desc"     : "五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，...",
 		"tags"     : "",
