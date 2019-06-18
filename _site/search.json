@@ -1,6 +1,15 @@
 [
 
 	{
+		"title"    : "谈谈 RocketMQ NameServer 的设计与实现",
+		"category" : "",
+		"desc"     : "NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文试图以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可...",
+		"tags"     : "",
+		"url"      : "/2019/rocketmq-nameserver/",
+		"date"     : "2019-06-18 00:00:00 +0800"
+	} ,
+
+	{
 		"title"    : "RocketMQ - 初探",
 		"category" : "",
 		"desc"     : "五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，...",

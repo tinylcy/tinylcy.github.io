@@ -4,7 +4,7 @@ title: 关于我
 permalink: /about/
 ---
 
-我是李辰洋，工程师。
+我是李辰洋。目前在杭州，就职于阿里巴巴。
 
 对 **分布式系统** 和 **操作系统** 感兴趣，擅长并热爱服务器端编程。
 
@@ -22,7 +22,11 @@ permalink: /about/
 
 <p/>
 
-* **GitHub:** [@tinylcy](https://github.com/tinylcy)
+* **WeChat:** [请注明来意](/img/wechat.jpg)
+
+<p/>
+
+* **GitHub:**  [@tinylcy](https://github.com/tinylcy)
 
 
 <br/>
