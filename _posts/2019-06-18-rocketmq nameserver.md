@@ -2,7 +2,7 @@
 title: 谈谈 RocketMQ NameServer 的设计与实现
 ---
 
-NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文试图以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？
+NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？
 
 ### NameServer 启动流程
 
@@ -367,7 +367,7 @@ public RemotingCommand processRequest(ChannelHandlerContext ctx,
 
 如果考虑顺序消息，此时条件更加苛刻：为保证消息的顺序性，需要满足从 Provider 到 Broker 到 Consumer 都是单点单线程。所谓单点，自然满足强一致性。因此，在这种场景下可用性是无法得到保证的。
 
-至此，本文提出的第二个问题得到解答：NameServer 在设计上做了 trade-off，在乱序消息的场景下，NameServer 是一个 CP 系统，并不需要强一致性的保证。
+至此，本文提出的第二个问题得到解答：NameServer 在设计上做了 trade-off，在乱序消息的场景下，NameServer 是一个 AP 系统，并不需要强一致性的保证。
 
 ### Broker 失效
 

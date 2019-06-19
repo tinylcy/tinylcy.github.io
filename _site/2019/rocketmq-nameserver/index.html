@@ -9,8 +9,8 @@
   <!-- Begin Jekyll SEO tag v2.3.0 -->
 <meta property="og:title" content="谈谈 RocketMQ NameServer 的设计与实现">
 <meta property="og:locale" content="en_US">
-<meta name="description" content="NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文试图以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？">
-<meta property="og:description" content="NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文试图以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？">
+<meta name="description" content="NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？">
+<meta property="og:description" content="NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？">
 <link rel="canonical" href="https://tinylcy.github.io/2019/rocketmq-nameserver/">
 <meta property="og:url" content="https://tinylcy.github.io/2019/rocketmq-nameserver/">
 <meta property="og:site_name" content="STAR 皆空">
@@ -21,7 +21,7 @@
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文试图以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？","author":null,"@type":"BlogPosting","url":"https://tinylcy.github.io/2019/rocketmq-nameserver/","publisher":null,"image":null,"headline":"谈谈 RocketMQ NameServer 的设计与实现","dateModified":"2019-06-18T00:00:00+08:00","datePublished":"2019-06-18T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"https://tinylcy.github.io/2019/rocketmq-nameserver/"},"@context":"http://schema.org"}</script>
+{"name":null,"description":"NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？","author":null,"@type":"BlogPosting","url":"https://tinylcy.github.io/2019/rocketmq-nameserver/","publisher":null,"image":null,"headline":"谈谈 RocketMQ NameServer 的设计与实现","dateModified":"2019-06-18T00:00:00+08:00","datePublished":"2019-06-18T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"https://tinylcy.github.io/2019/rocketmq-nameserver/"},"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -108,7 +108,7 @@
     </p>
   </header>
   <div class="post-content" itemprop="articleBody">
-    <p>NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文试图以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？</p>
+    <p>NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？</p>
 
 <h3 id="nameserver-启动流程">NameServer 启动流程</h3>
 
@@ -467,7 +467,7 @@
 
 <p>如果考虑顺序消息，此时条件更加苛刻：为保证消息的顺序性，需要满足从 Provider 到 Broker 到 Consumer 都是单点单线程。所谓单点，自然满足强一致性。因此，在这种场景下可用性是无法得到保证的。</p>
 
-<p>至此，本文提出的第二个问题得到解答：NameServer 在设计上做了 trade-off，在乱序消息的场景下，NameServer 是一个 CP 系统，并不需要强一致性的保证。</p>
+<p>至此，本文提出的第二个问题得到解答：NameServer 在设计上做了 trade-off，在乱序消息的场景下，NameServer 是一个 AP 系统，并不需要强一致性的保证。</p>
 
 <h3 id="broker-失效">Broker 失效</h3>
 
