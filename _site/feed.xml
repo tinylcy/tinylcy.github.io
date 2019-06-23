@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-06-23T21:48:35+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
-</subtitle><entry><title type="html">码出高效码出质量</title><link href="http://localhost:4000/2019/the-art-of-code/" rel="alternate" type="text/html" title="码出高效码出质量" /><published>2019-06-23T00:00:00+08:00</published><updated>2019-06-23T00:00:00+08:00</updated><id>http://localhost:4000/2019/the%20art%20of%20code</id><content type="html" xml:base="http://localhost:4000/2019/the-art-of-code/">&lt;h3 id=&quot;编程规约&quot;&gt;编程规约&lt;/h3&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-06-23T22:34:46+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
+</subtitle><entry><title type="html">码出高效码出质量</title><link href="http://localhost:4000/2019/the-art-of-code/" rel="alternate" type="text/html" title="码出高效码出质量" /><published>2019-06-23T00:00:00+08:00</published><updated>2019-06-23T00:00:00+08:00</updated><id>http://localhost:4000/2019/the%20art%20of%20code</id><content type="html" xml:base="http://localhost:4000/2019/the-art-of-code/">&lt;p&gt;本文是在作者阅读阿里巴巴 Java 开发手册后做的一些整理。在阅读过程中，作者发现有些错误是自己明确知道要去规避的，有些错误是自己已经犯过的，而有些错误是自己还不知道并且可能会在未来犯的。在此记录，做个警戒。在开发过程中，每一行代码都需要存在的理由，多反思，多总结，多怀疑自己。&lt;/p&gt;
+
+&lt;h3 id=&quot;编程规约&quot;&gt;编程规约&lt;/h3&gt;
 
 &lt;h4 id=&quot;命名风格&quot;&gt;命名风格&lt;/h4&gt;
 
@@ -71,11 +73,12 @@
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;为了防止精度损失，禁止使用构造方法 BigDecimal(double) 的方式把 double 值转化为 BigDecimal 对象。优先推荐入参为 String 的构造方法，或使用 BigDecimal 的 valueOf 方法。&lt;/li&gt;
-      &lt;li&gt;序列化类新增属性时，不要修复 serialVersionUID 字段，避免反序列化失败。&lt;/li&gt;
-    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;为了防止精度损失，禁止使用构造方法 BigDecimal(double) 的方式把 double 值转化为 BigDecimal 对象。优先推荐入参为 String 的构造方法，或使用 BigDecimal 的 valueOf 方法。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;序列化类新增属性时，不要修复 serialVersionUID 字段，避免反序列化失败。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
@@ -181,7 +184,7 @@
 &lt;ul&gt;
   &lt;li&gt;不要写一个大而全的数据更新接口。传入为 POJO 类，不管是不是自己的目标更新字段，都进行 update tabel set c1=value1,c2=value2；这是不对的。执行 SQL 时，不要更新无改动的字段，一是易出错；二是效率低；三是增加 binlog 存储。&lt;/li&gt;
   &lt;li&gt;@Transactional 事务不要滥用，事务会影响数据库的 QPS，另外使用事务的地方需要考虑各方面的回滚方案，包括缓存回滚、搜索引擎回滚、消息补偿、统计修正等。&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><summary type="html">编程规约</summary></entry><entry><title type="html">谈谈 RocketMQ NameServer 的设计与实现</title><link href="http://localhost:4000/2019/rocketmq-nameserver/" rel="alternate" type="text/html" title="谈谈 RocketMQ NameServer 的设计与实现" /><published>2019-06-18T00:00:00+08:00</published><updated>2019-06-18T00:00:00+08:00</updated><id>http://localhost:4000/2019/rocketmq%20nameserver</id><content type="html" xml:base="http://localhost:4000/2019/rocketmq-nameserver/">&lt;p&gt;NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？&lt;/p&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">本文是在作者阅读阿里巴巴 Java 开发手册后做的一些整理。在阅读过程中，作者发现有些错误是自己明确知道要去规避的，有些错误是自己已经犯过的，而有些错误是自己还不知道并且可能会在未来犯的。在此记录，做个警戒。在开发过程中，每一行代码都需要存在的理由，多反思，多总结，多怀疑自己。</summary></entry><entry><title type="html">谈谈 RocketMQ NameServer 的设计与实现</title><link href="http://localhost:4000/2019/rocketmq-nameserver/" rel="alternate" type="text/html" title="谈谈 RocketMQ NameServer 的设计与实现" /><published>2019-06-18T00:00:00+08:00</published><updated>2019-06-18T00:00:00+08:00</updated><id>http://localhost:4000/2019/rocketmq%20nameserver</id><content type="html" xml:base="http://localhost:4000/2019/rocketmq-nameserver/">&lt;p&gt;NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？&lt;/p&gt;
 
 &lt;h3 id=&quot;nameserver-启动流程&quot;&gt;NameServer 启动流程&lt;/h3&gt;
 

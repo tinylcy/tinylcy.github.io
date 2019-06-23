@@ -9,8 +9,8 @@
   <!-- Begin Jekyll SEO tag v2.3.0 -->
 <meta property="og:title" content="码出高效码出质量">
 <meta property="og:locale" content="en_US">
-<meta name="description" content="编程规约">
-<meta property="og:description" content="编程规约">
+<meta name="description" content="本文是在作者阅读阿里巴巴 Java 开发手册后做的一些整理。在阅读过程中，作者发现有些错误是自己明确知道要去规避的，有些错误是自己已经犯过的，而有些错误是自己还不知道并且可能会在未来犯的。在此记录，做个警戒。在开发过程中，每一行代码都需要存在的理由，多反思，多总结，多怀疑自己。">
+<meta property="og:description" content="本文是在作者阅读阿里巴巴 Java 开发手册后做的一些整理。在阅读过程中，作者发现有些错误是自己明确知道要去规避的，有些错误是自己已经犯过的，而有些错误是自己还不知道并且可能会在未来犯的。在此记录，做个警戒。在开发过程中，每一行代码都需要存在的理由，多反思，多总结，多怀疑自己。">
 <link rel="canonical" href="http://localhost:4000/2019/the-art-of-code/">
 <meta property="og:url" content="http://localhost:4000/2019/the-art-of-code/">
 <meta property="og:site_name" content="STAR 皆空">
@@ -21,7 +21,7 @@
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"编程规约","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2019/the-art-of-code/","publisher":null,"image":null,"headline":"码出高效码出质量","dateModified":"2019-06-23T00:00:00+08:00","datePublished":"2019-06-23T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2019/the-art-of-code/"},"@context":"http://schema.org"}</script>
+{"name":null,"description":"本文是在作者阅读阿里巴巴 Java 开发手册后做的一些整理。在阅读过程中，作者发现有些错误是自己明确知道要去规避的，有些错误是自己已经犯过的，而有些错误是自己还不知道并且可能会在未来犯的。在此记录，做个警戒。在开发过程中，每一行代码都需要存在的理由，多反思，多总结，多怀疑自己。","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2019/the-art-of-code/","publisher":null,"image":null,"headline":"码出高效码出质量","dateModified":"2019-06-23T00:00:00+08:00","datePublished":"2019-06-23T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2019/the-art-of-code/"},"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -108,7 +108,9 @@
     </p>
   </header>
   <div class="post-content" itemprop="articleBody">
-    <h3 id="编程规约">编程规约</h3>
+    <p>本文是在作者阅读阿里巴巴 Java 开发手册后做的一些整理。在阅读过程中，作者发现有些错误是自己明确知道要去规避的，有些错误是自己已经犯过的，而有些错误是自己还不知道并且可能会在未来犯的。在此记录，做个警戒。在开发过程中，每一行代码都需要存在的理由，多反思，多总结，多怀疑自己。</p>
+
+<h3 id="编程规约">编程规约</h3>
 
 <h4 id="命名风格">命名风格</h4>
 
@@ -181,11 +183,12 @@
     <span class="o">}</span>
 <span class="o">}</span>
 </code></pre></div>    </div>
-
-    <ul>
-      <li>为了防止精度损失，禁止使用构造方法 BigDecimal(double) 的方式把 double 值转化为 BigDecimal 对象。优先推荐入参为 String 的构造方法，或使用 BigDecimal 的 valueOf 方法。</li>
-      <li>序列化类新增属性时，不要修复 serialVersionUID 字段，避免反序列化失败。</li>
-    </ul>
+  </li>
+  <li>
+    <p>为了防止精度损失，禁止使用构造方法 BigDecimal(double) 的方式把 double 值转化为 BigDecimal 对象。优先推荐入参为 String 的构造方法，或使用 BigDecimal 的 valueOf 方法。</p>
+  </li>
+  <li>
+    <p>序列化类新增属性时，不要修复 serialVersionUID 字段，避免反序列化失败。</p>
   </li>
 </ul>
 
