@@ -11,20 +11,20 @@
 <meta property="og:locale" content="en_US">
 <meta name="description" content="Welcome to my awesome blog.">
 <meta property="og:description" content="Welcome to my awesome blog.">
-<link rel="canonical" href="https://tinylcy.github.io/">
-<meta property="og:url" content="https://tinylcy.github.io/">
+<link rel="canonical" href="http://localhost:4000/">
+<meta property="og:url" content="http://localhost:4000/">
 <meta property="og:site_name" content="STAR 皆空">
-<link rel="next" href="https://tinylcy.github.io/p/2">
+<link rel="next" href="http://localhost:4000/p/2">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@">
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":"STAR 皆空","description":"Welcome to my awesome blog.","author":null,"@type":"WebSite","url":"https://tinylcy.github.io/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+{"name":"STAR 皆空","description":"Welcome to my awesome blog.","author":null,"@type":"WebSite","url":"http://localhost:4000/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
-  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="https://tinylcy.github.io/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="http://localhost:4000/feed.xml">
   <link rel="stylesheet" href="/assets/css/nangka.css">
 
   
@@ -95,6 +95,17 @@
         <div class="home">
   <!-- <h1 class="page-heading">Posts</h1> -->
   <ul class="post-list">
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2019/the-art-of-code/">码出高效码出质量</a>
+        </h2>
+          <span class="post-meta">Jun 23, 2019</span>
+        <p class="description">
+            
+                编程规约命名风格  POJO 类中布尔类型变量都不要加 is 前缀，否则部分框架解析会引起序列化错误。注意，在 MySQL 规约中，表达是与否的值采用 is_xxx 的命名方式，所以，需要在 resultMap 设置从 is_xxx 到 xxx 的映射关系。  对于 Service 和 DAO 类，暴露出来的服务一定是接口，内部的实现类用 Impl 的后缀与接口区别。如果是形容能力的接口名称，取对于的形容词为接口名（通常是 able 的形容词）。  各层命名规约          Serv...
+            </p>
+      </li>
     
       <li>
         <h2>
@@ -170,17 +181,6 @@
         <p class="description">
             
                 最近重构了去年造的一个轮子 Vino。Vino 旨在实现一个轻量并且能够保证性能的 Web Server，仅关注 Web Server 的本质部分。在重构过程中，Vino 借鉴了许多优秀开源项目的思想，如 Nginx、Mongoose 和 Webbench。因此，对比上一个版本的 Vino，现在的 Vino 不仅性能得到提升，而且设计也更为优雅、健壮 :D。本文将会对 Vino 目前所具备的关键特性进行阐述，并总结开发过程中的一点心得。单线程 + Non-BlockingVino 整体采用...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/">CUDA Lab: Sum of Squares &amp; Matrix Multiplication</a>
-        </h2>
-          <span class="post-meta">Oct 16, 2017</span>
-        <p class="description">
-            
-                CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。本实验包含两部分。  第一部分（Sum of Squares）：计算数组元素的平方和，并通过不断的优化来提高程序的性能，以此来学习和理解 CUDA 编程需要注意之...
             </p>
       </li>
     

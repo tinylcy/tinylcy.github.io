@@ -1,5 +1,187 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="https://tinylcy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://tinylcy.github.io/" rel="alternate" type="text/html" /><updated>2019-06-19T23:34:08+08:00</updated><id>https://tinylcy.github.io/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
-</subtitle><entry><title type="html">谈谈 RocketMQ NameServer 的设计与实现</title><link href="https://tinylcy.github.io/2019/rocketmq-nameserver/" rel="alternate" type="text/html" title="谈谈 RocketMQ NameServer 的设计与实现" /><published>2019-06-18T00:00:00+08:00</published><updated>2019-06-18T00:00:00+08:00</updated><id>https://tinylcy.github.io/2019/rocketmq%20nameserver</id><content type="html" xml:base="https://tinylcy.github.io/2019/rocketmq-nameserver/">&lt;p&gt;NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-06-23T21:48:35+08:00</updated><id>http://localhost:4000/</id><title type="html">STAR 皆空</title><subtitle>Welcome to my awesome blog.
+</subtitle><entry><title type="html">码出高效码出质量</title><link href="http://localhost:4000/2019/the-art-of-code/" rel="alternate" type="text/html" title="码出高效码出质量" /><published>2019-06-23T00:00:00+08:00</published><updated>2019-06-23T00:00:00+08:00</updated><id>http://localhost:4000/2019/the%20art%20of%20code</id><content type="html" xml:base="http://localhost:4000/2019/the-art-of-code/">&lt;h3 id=&quot;编程规约&quot;&gt;编程规约&lt;/h3&gt;
+
+&lt;h4 id=&quot;命名风格&quot;&gt;命名风格&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;POJO 类中布尔类型变量都不要加 is 前缀，否则部分框架解析会引起序列化错误。注意，在 MySQL 规约中，表达是与否的值采用 is_xxx 的命名方式，所以，需要在 resultMap 设置从 is_xxx 到 xxx 的映射关系。&lt;/li&gt;
+  &lt;li&gt;对于 Service 和 DAO 类，暴露出来的服务一定是接口，内部的实现类用 Impl 的后缀与接口区别。如果是形容能力的接口名称，取对于的形容词为接口名（通常是 able 的形容词）。&lt;/li&gt;
+  &lt;li&gt;各层命名规约
+    &lt;ul&gt;
+      &lt;li&gt;Service/DAO 层方法命名规约
+        &lt;ul&gt;
+          &lt;li&gt;获取单个对象的方法用 get 做前缀&lt;/li&gt;
+          &lt;li&gt;获取多个对象的方法用 list 做前缀，复数形式结尾如：listObjects&lt;/li&gt;
+          &lt;li&gt;获取统计值的方法用 count 做前缀&lt;/li&gt;
+          &lt;li&gt;插入的方法用 save/insert 做前缀&lt;/li&gt;
+          &lt;li&gt;删除的方法用 remove/delete 做前缀&lt;/li&gt;
+          &lt;li&gt;修改的方法用 update 做前缀&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;领域模型命名规约
+        &lt;ul&gt;
+          &lt;li&gt;数据对象：xxxDO&lt;/li&gt;
+          &lt;li&gt;数据传输对象：xxxDTO&lt;/li&gt;
+          &lt;li&gt;展示对象：xxxVO&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;oop-规约&quot;&gt;OOP 规约&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;浮点数之间的等值判断，基本数据类型不能用 == 来比较，包装数据类型不能用 equals 来判断。&lt;/p&gt;
+
+    &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FloatEqualsDemo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;cm&quot;&gt;/****************反例******************/&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;1.0f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.9f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.9f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.8f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// 不会进入此代码块&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;float a == float b&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  
+        &lt;span class=&quot;n&quot;&gt;Float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Float&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;valueOf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Float&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;valueOf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// 不会进入此代码块&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Float x == Float y&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  
+        &lt;span class=&quot;cm&quot;&gt;/****************正例******************/&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;diff&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;diff&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;float a == float b&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  
+        &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1.0&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0.9&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0.8&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+  
+        &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subtract&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subtract&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;BigDecimal m == BigDecimal n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;为了防止精度损失，禁止使用构造方法 BigDecimal(double) 的方式把 double 值转化为 BigDecimal 对象。优先推荐入参为 String 的构造方法，或使用 BigDecimal 的 valueOf 方法。&lt;/li&gt;
+      &lt;li&gt;序列化类新增属性时，不要修复 serialVersionUID 字段，避免反序列化失败。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;集合处理&quot;&gt;集合处理&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ArrayList 的 subList 结果不可强制转换成 ArrayList，否则会抛出 ClassCastException 异常。subList 返回的是 ArrayList  的内部类 SubList，并不是 ArrayList 而是 ArrayList 的一个视图。对于 SubList 子列表的操作最终会反映到原列表上。&lt;/li&gt;
+  &lt;li&gt;使用 Map 的方法 keySet、values、entrySet 返回集合对象时，不可以对去进行添加元素的操作，否则会抛出 UnsupportedOperationException 异常。&lt;/li&gt;
+  &lt;li&gt;Collections 类返回的对象，如 emptyList、singletonList 等都是 immutable list，不可对其进行添加或者删除元素的操作。&lt;/li&gt;
+  &lt;li&gt;使用集合转数组的方法，必须使用集合的 toArray(T[] array)，传入的参数是类型一致，长度为 0 的空数组。&lt;/li&gt;
+  &lt;li&gt;在使用 Collection 接口任何实现类的 addAll() 方法时，都要对输入的集合参数进行 NPE 判断。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;并发处理&quot;&gt;并发处理&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;SImpleDataFormat 是线程不安全的类，一般不要定义 static 变量，如果定义为 static 变量，必须加锁，或者使用 DateUtils 工具类。如果是 JDK8 应用，建议使用 Instant 代替 Date，LocalDateTime 代替 Calendar，DateTimeFormatter 代替 SimpleDateFormat。&lt;/li&gt;
+  &lt;li&gt;必须回收自定义的 ThreadLocal 变量，尤其是在线程池场景下。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;objectThreadLocal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;userInfo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// doSomething();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;objectThreadLocal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;remove&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;对多个资源、数据库表、对象同时加锁时，需要保持一致的加锁顺序，否则可能会造成死锁。&lt;/li&gt;
+  &lt;li&gt;在使用阻塞等待获取锁的方式中，必须在 try 代码块之外获取锁，并且在加锁方法与 try 代码块之间没有任何可能抛出异常的方法调用，避免加锁成功后，在 finally 中无法解锁。
+    &lt;ul&gt;
+      &lt;li&gt;如果在 lock 方法与 try 代码块之间的方法调用抛出异常，那么无法解锁，造成其他线程无法成功获取锁。&lt;/li&gt;
+      &lt;li&gt;如果 lock 方法在 try 代码块之间，可能由于其他方法抛出异常，导致在 finally 代码块中，unlock 对未加锁的对象进行解锁，抛出 IllegalMonitorStateException 异常。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/****************正例******************/&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Lock&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;XxxLock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// lock() 与 try 之间不能抛出异常&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;doOthers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;unlock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;cm&quot;&gt;/****************反例******************/&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Lock&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;XxxLock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 如果 doSomething 方法抛出异常，则会直接执行 finally 代码块&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 无论加锁是否成功，finally 代码块都会执行&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;doOthers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;unlock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;多线程并行处理定时任务时，Timer 运行多个 TimeTask 时，只要其中之一没有捕获抛出的异常，其他任务便会自动终止运行，如果在处理定时任务时使用 ScheduledExecutorService 则没有这个问题。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;控制语句&quot;&gt;控制语句&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当 switch 括号内的变量类型为 String 并且此变量为外部参数时，必须先进行 null 判断。&lt;/li&gt;
+  &lt;li&gt;在高并发场景中，避免使用“等于”作为中断或者退出的条件。如果并发没有控制好，容易产生等值判断被“击穿”的情况，使用大于或者小于的区间判断条件来代替。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;mysql-数据库&quot;&gt;MySQL 数据库&lt;/h3&gt;
+
+&lt;h4 id=&quot;建表规约&quot;&gt;建表规约&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;表达是与否概念的字段，必须使用 is_xxx 的方式命名，数据类型是 unsigned tinyint。&lt;/li&gt;
+  &lt;li&gt;小数类型为 decimal，禁止使用 float 和 double。float 和 double 在存储时存在精度损失的问题，可能导致在比较值的时候，得到不正确的结果。如果存储的数据范围超过 decimal 的范围，建议将数据拆成整数和小数并分开存储。&lt;/li&gt;
+  &lt;li&gt;如果存储的字符串长度几乎相等，使用 char 定长字符串类型。&lt;/li&gt;
+  &lt;li&gt;varchar 是可变长字符串，不预先分配存储空间，长度不要超过 5000，如果存储长度大于此值，定义字段类型为 text，独立出来一张表，用主键来对应，避免影响其他字段索引效率。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;索引规约&quot;&gt;索引规约&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;业务上具有唯一特性的字段，即使是多个字段的组合，也必须建成唯一索引。不要以为 insert 会影响 insert 的速度，这个速度损耗可以忽略不计，但是对提高查询速度是明显的。另外，即使在应用层做了非常完善的校验机制，只要灭有唯一索引，根据墨菲定律，必然会有脏数据产生。&lt;/li&gt;
+  &lt;li&gt;在 varchar 字段上建立索引时，必须要指定索引长度，没有必要对全字段建立索引，根据实际文本区分度决定索引长度即可。可以使用 count(distinct left(列名, 索引长度))/count(*) 的来确定区分度。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;sql-语句&quot;&gt;SQL 语句&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;不要使用 count(列名) 或 count(常亮) 来替代 count(*)。&lt;/li&gt;
+  &lt;li&gt;当某一列的值全为 NULL 时，count(col) 的返回结果为 0，但是 sum(col) 的返回结果为 NULL，因此使用 sum 时需要注意 NPE 问题，建议使用 SELECT IFNULL(SUM(column), 0) FROM table。&lt;/li&gt;
+  &lt;li&gt;代码中写分页查询逻辑是，若 count 为 0 应直接返回，避免执行后面的分页语句。&lt;/li&gt;
+  &lt;li&gt;IN 操作能避免则避免，若实在避免不了，需要仔细评估 IN 后边的集合元素数量，控制在 1000 个之内。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;orm-映射&quot;&gt;ORM 映射&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;不要写一个大而全的数据更新接口。传入为 POJO 类，不管是不是自己的目标更新字段，都进行 update tabel set c1=value1,c2=value2；这是不对的。执行 SQL 时，不要更新无改动的字段，一是易出错；二是效率低；三是增加 binlog 存储。&lt;/li&gt;
+  &lt;li&gt;@Transactional 事务不要滥用，事务会影响数据库的 QPS，另外使用事务的地方需要考虑各方面的回滚方案，包括缓存回滚、搜索引擎回滚、消息补偿、统计修正等。&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">编程规约</summary></entry><entry><title type="html">谈谈 RocketMQ NameServer 的设计与实现</title><link href="http://localhost:4000/2019/rocketmq-nameserver/" rel="alternate" type="text/html" title="谈谈 RocketMQ NameServer 的设计与实现" /><published>2019-06-18T00:00:00+08:00</published><updated>2019-06-18T00:00:00+08:00</updated><id>http://localhost:4000/2019/rocketmq%20nameserver</id><content type="html" xml:base="http://localhost:4000/2019/rocketmq-nameserver/">&lt;p&gt;NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？&lt;/p&gt;
 
 &lt;h3 id=&quot;nameserver-启动流程&quot;&gt;NameServer 启动流程&lt;/h3&gt;
 
@@ -545,7 +727,7 @@
 
 &lt;h3 id=&quot;参考&quot;&gt;参考&lt;/h3&gt;
 
-&lt;p&gt;[1] https://github.com/apache/rocketmq&lt;/p&gt;</content><author><name></name></author><summary type="html">NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？</summary></entry><entry><title type="html">RocketMQ - 初探</title><link href="https://tinylcy.github.io/2018/Understanding-RockerMQ-Overview/" rel="alternate" type="text/html" title="RocketMQ - 初探" /><published>2018-06-09T00:00:00+08:00</published><updated>2018-06-09T00:00:00+08:00</updated><id>https://tinylcy.github.io/2018/Understanding%20RockerMQ%20Overview</id><content type="html" xml:base="https://tinylcy.github.io/2018/Understanding-RockerMQ-Overview/">&lt;p&gt;五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。&lt;/p&gt;
+&lt;p&gt;[1] https://github.com/apache/rocketmq&lt;/p&gt;</content><author><name></name></author><summary type="html">NameServer 作为消息中间件 RocketMQ 的核心组件之一，承担着路由注册中心的作用。本文以结合源码的方式解答三个问题：一是作为路由注册中心，有哪些路由信息注册到了 NameServer？二是 NameServer 通常以集群部署，且集群中的各个节点互相不通信，当 NameServer 集群中各节点路由信息不一致时，RocketMQ 如何保证可用性？三是当 Broker 不可用后，NameServer 并不会立即将变更后的注册信息推送至 Client（Producer/Consumer），此时 RocketMQ 如何保证 Client 正常发送/消费消息？</summary></entry><entry><title type="html">RocketMQ - 初探</title><link href="http://localhost:4000/2018/Understanding-RockerMQ-Overview/" rel="alternate" type="text/html" title="RocketMQ - 初探" /><published>2018-06-09T00:00:00+08:00</published><updated>2018-06-09T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20RockerMQ%20Overview</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-RockerMQ-Overview/">&lt;p&gt;五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。&lt;/p&gt;
 
 &lt;p&gt;本文是 RocketMQ 系列的首篇文章，暂不涉及源码，重点对 RocketMQ 中的核心概念进行梳理。&lt;/p&gt;
 
@@ -705,7 +887,7 @@
 
 &lt;p&gt;[1] &lt;a href=&quot;https://rocketmq.apache.org/&quot;&gt;Apache RocketMQ&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;[2] &lt;a href=&quot;http://alibaba.github.io/RocketMQ-docs/document/design/RocketMQ_design.pdf&quot;&gt;RocketMQ 原理简介&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。</summary></entry><entry><title type="html">Why wait/notify must be called in a synchronized block</title><link href="https://tinylcy.github.io/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/" rel="alternate" type="text/html" title="Why wait/notify must be called in a synchronized block" /><published>2018-04-08T00:00:00+08:00</published><updated>2018-04-08T00:00:00+08:00</updated><id>https://tinylcy.github.io/2018/why%20wait%20and%20notify%20must%20be%20called%20in%20a%20synchronized%20block</id><content type="html" xml:base="https://tinylcy.github.io/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/">&lt;p&gt;在 Java 并发编程中，调用 Object wait/notify 方法的代码段必须要被包含在 synchronized 块中，接着即是耳熟能详的：调用 wait 方法时，先释放锁，然后线程进入阻塞状态，直至被 notify，然后重新尝试获得锁。看似一气呵成的一顿猛如虎的操作，其个中缘由到底是什么？有些我们看起来理所当然的东西，难道真的是理所当然的吗？本篇文章即谈谈，为什么调用 wait/notify 方法的代码段必须要被包含在 synchronized 块中。&lt;/p&gt;
+&lt;p&gt;[2] &lt;a href=&quot;http://alibaba.github.io/RocketMQ-docs/document/design/RocketMQ_design.pdf&quot;&gt;RocketMQ 原理简介&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">五月，我回到杭州实习，做了一点微小的工作，为接下来的正式入职做了一定程度的预热。期间对公司内部的中间件有了些许实践，但也仅仅是浅尝辄止，想想有些心悸，所以决定针对 RocketMQ 做点源码剖析的工作。为什么选择 RocketMQ？理由有五：（1）RocketMQ 是公司开源的一款高性能、高吞吐量的分布式消息中间件（内部代号 MetaQ），方便写文章；（2）理解 Message Queue，知其然知其所以然；（3）理解分布式消息中间件如何实现高性能的网络通信及异常处理（网络传输存在第三种状态，超时）；（4）理解 RocketMQ 的消息的存储机制；（5）读点高质量的代码，权当开阔眼界罢。</summary></entry><entry><title type="html">Why wait/notify must be called in a synchronized block</title><link href="http://localhost:4000/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/" rel="alternate" type="text/html" title="Why wait/notify must be called in a synchronized block" /><published>2018-04-08T00:00:00+08:00</published><updated>2018-04-08T00:00:00+08:00</updated><id>http://localhost:4000/2018/why%20wait%20and%20notify%20must%20be%20called%20in%20a%20synchronized%20block</id><content type="html" xml:base="http://localhost:4000/2018/why-wait-and-notify-must-be-called-in-a-synchronized-block/">&lt;p&gt;在 Java 并发编程中，调用 Object wait/notify 方法的代码段必须要被包含在 synchronized 块中，接着即是耳熟能详的：调用 wait 方法时，先释放锁，然后线程进入阻塞状态，直至被 notify，然后重新尝试获得锁。看似一气呵成的一顿猛如虎的操作，其个中缘由到底是什么？有些我们看起来理所当然的东西，难道真的是理所当然的吗？本篇文章即谈谈，为什么调用 wait/notify 方法的代码段必须要被包含在 synchronized 块中。&lt;/p&gt;
 
 &lt;p&gt;先从 &lt;a href=&quot;https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html&quot;&gt;官方文档&lt;/a&gt; 入手，官方文档展示了一段代码告诉读者们 wait 方法应如何使用。如果当前线程（即调用 obj.wait 方法的线程）不是 monitor 的 owner，抛出 IllegalMonitorStateException。synchronized 关键字在经过编译后，会在同步代码块的前后生成 monitorenter 和 monitorexit 这两个字节码指令，它们都需要一个 reference 类型的参数指明要锁定和解锁的对象，这也是「monitor」的由来。&lt;/p&gt;
 
@@ -769,7 +951,7 @@
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;EOF.&lt;/p&gt;</content><author><name></name></author><summary type="html">在 Java 并发编程中，调用 Object wait/notify 方法的代码段必须要被包含在 synchronized 块中，接着即是耳熟能详的：调用 wait 方法时，先释放锁，然后线程进入阻塞状态，直至被 notify，然后重新尝试获得锁。看似一气呵成的一顿猛如虎的操作，其个中缘由到底是什么？有些我们看起来理所当然的东西，难道真的是理所当然的吗？本篇文章即谈谈，为什么调用 wait/notify 方法的代码段必须要被包含在 synchronized 块中。</summary></entry><entry><title type="html">我对Raft的理解 - Two</title><link href="https://tinylcy.github.io/2018/Understanding-the-Raft-consensus-algorithm-Two/" rel="alternate" type="text/html" title="我对Raft的理解 - Two" /><published>2018-02-10T00:00:00+08:00</published><updated>2018-02-10T00:00:00+08:00</updated><id>https://tinylcy.github.io/2018/Understanding%20the%20Raft%20consensus%20algorithm-Two</id><content type="html" xml:base="https://tinylcy.github.io/2018/Understanding-the-Raft-consensus-algorithm-Two/">&lt;p&gt;我们已对 Raft Leader 选举进行了&lt;a href=&quot;http://tinylcy.me/2018/Understanding-the-Raft-consensus-algorithm-One/&quot;&gt;理解&lt;/a&gt;，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。&lt;/p&gt;
+&lt;p&gt;EOF.&lt;/p&gt;</content><author><name></name></author><summary type="html">在 Java 并发编程中，调用 Object wait/notify 方法的代码段必须要被包含在 synchronized 块中，接着即是耳熟能详的：调用 wait 方法时，先释放锁，然后线程进入阻塞状态，直至被 notify，然后重新尝试获得锁。看似一气呵成的一顿猛如虎的操作，其个中缘由到底是什么？有些我们看起来理所当然的东西，难道真的是理所当然的吗？本篇文章即谈谈，为什么调用 wait/notify 方法的代码段必须要被包含在 synchronized 块中。</summary></entry><entry><title type="html">我对Raft的理解 - Two</title><link href="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/" rel="alternate" type="text/html" title="我对Raft的理解 - Two" /><published>2018-02-10T00:00:00+08:00</published><updated>2018-02-10T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20the%20Raft%20consensus%20algorithm-Two</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-Two/">&lt;p&gt;我们已对 Raft Leader 选举进行了&lt;a href=&quot;http://tinylcy.me/2018/Understanding-the-Raft-consensus-algorithm-One/&quot;&gt;理解&lt;/a&gt;，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。&lt;/p&gt;
 
 &lt;h4 id=&quot;slide-11&quot;&gt;Slide 11&lt;/h4&gt;
 
@@ -918,7 +1100,7 @@
 
 &lt;h4 id=&quot;小结&quot;&gt;小结&lt;/h4&gt;
 
-&lt;p&gt;Raft 为了保证日志复制时的安全性，为 Leader 选举和日志项的 Committed 增加了限制条件。通过分析各种场景，我们理解了 Raft 增加这些限制条件的原因，以及这些限制条件为什么能够保证安全。&lt;/p&gt;</content><author><name></name></author><summary type="html">我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。</summary></entry><entry><title type="html">我对Raft的理解 - One</title><link href="https://tinylcy.github.io/2018/Understanding-the-Raft-consensus-algorithm-One/" rel="alternate" type="text/html" title="我对Raft的理解 - One" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>https://tinylcy.github.io/2018/Understanding%20the%20Raft%20consensus%20algorithm-One</id><content type="html" xml:base="https://tinylcy.github.io/2018/Understanding-the-Raft-consensus-algorithm-One/">&lt;p&gt;重新阅读了 Raft &lt;a href=&quot;https://raft.github.io/raft.pdf&quot;&gt;论文&lt;/a&gt;，结合 John Ousterhout 在斯坦福大学的课程&lt;a href=&quot;https://www.youtube.com/watch?v=YbZ3zDzDnrw&amp;amp;feature=youtu.be&quot;&gt;视频&lt;/a&gt;，对 Raft 重新梳理了一遍，并决定用文字记录下来。&lt;/p&gt;
+&lt;p&gt;Raft 为了保证日志复制时的安全性，为 Leader 选举和日志项的 Committed 增加了限制条件。通过分析各种场景，我们理解了 Raft 增加这些限制条件的原因，以及这些限制条件为什么能够保证安全。&lt;/p&gt;</content><author><name></name></author><summary type="html">我们已对 Raft Leader 选举进行了理解，Leader 一旦被选举出来，对外提供服务，对内协调日志复制。日志复制是 Raft 共识算法最核心的部分，我们逐步递进的去理解 Raft 是如何通过添加限制条件来保证日志能够被正确的复制。</summary></entry><entry><title type="html">我对Raft的理解 - One</title><link href="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-One/" rel="alternate" type="text/html" title="我对Raft的理解 - One" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>http://localhost:4000/2018/Understanding%20the%20Raft%20consensus%20algorithm-One</id><content type="html" xml:base="http://localhost:4000/2018/Understanding-the-Raft-consensus-algorithm-One/">&lt;p&gt;重新阅读了 Raft &lt;a href=&quot;https://raft.github.io/raft.pdf&quot;&gt;论文&lt;/a&gt;，结合 John Ousterhout 在斯坦福大学的课程&lt;a href=&quot;https://www.youtube.com/watch?v=YbZ3zDzDnrw&amp;amp;feature=youtu.be&quot;&gt;视频&lt;/a&gt;，对 Raft 重新梳理了一遍，并决定用文字记录下来。&lt;/p&gt;
 
 &lt;p&gt;Raft 是一个共识算法，何为共识算法？通俗的说，共识算法的目的就是要实现分布式环境下各个节点上数据达成一致。那么节点的数据为什么会出现不一致？原因有很多，例如节点宕机、网络延迟、数据包乱序等等。但是要注意的是，Raft 并不考虑存在恶意的节点的情况，也就是说，不存在主动篡改数据的节点。所以可以理解为：允许节点宕机，但是只要节点没有宕机，那么它就是正常工作的。&lt;/p&gt;
 
@@ -1031,7 +1213,7 @@
 
 &lt;h4 id=&quot;小结&quot;&gt;小结&lt;/h4&gt;
 
-&lt;p&gt;对 Raft Leader 选举过程的理解基本结束，Raft 为了提高算法的可理解性，将问题分解，我们接下来会继续理解 Raft 的剩余部分。&lt;/p&gt;</content><author><name></name></author><summary type="html">重新阅读了 Raft 论文，结合 John Ousterhout 在斯坦福大学的课程视频，对 Raft 重新梳理了一遍，并决定用文字记录下来。</summary></entry><entry><title type="html">2017年度总结与2018年度计划</title><link href="https://tinylcy.github.io/2018/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/" rel="alternate" type="text/html" title="2017年度总结与2018年度计划" /><published>2018-01-01T00:00:00+08:00</published><updated>2018-01-01T00:00:00+08:00</updated><id>https://tinylcy.github.io/2018/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92</id><content type="html" xml:base="https://tinylcy.github.io/2018/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">&lt;p&gt;今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。&lt;/p&gt;
+&lt;p&gt;对 Raft Leader 选举过程的理解基本结束，Raft 为了提高算法的可理解性，将问题分解，我们接下来会继续理解 Raft 的剩余部分。&lt;/p&gt;</content><author><name></name></author><summary type="html">重新阅读了 Raft 论文，结合 John Ousterhout 在斯坦福大学的课程视频，对 Raft 重新梳理了一遍，并决定用文字记录下来。</summary></entry><entry><title type="html">2017年度总结与2018年度计划</title><link href="http://localhost:4000/2018/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/" rel="alternate" type="text/html" title="2017年度总结与2018年度计划" /><published>2018-01-01T00:00:00+08:00</published><updated>2018-01-01T00:00:00+08:00</updated><id>http://localhost:4000/2018/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92</id><content type="html" xml:base="http://localhost:4000/2018/2017%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E4%B8%8E2018%E5%B9%B4%E5%BA%A6%E8%AE%A1%E5%88%92/">&lt;p&gt;今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。&lt;/p&gt;
 
 &lt;p&gt;上半年读了不少 paper 和技术书籍。在阅读的过程中，我喜欢在学习到一个新的知识点后，尽可能的通过一段程序去验证，那么理解的程度很可能会从「 意会」变成「 感同身受」。因此，当我在若干次阅读 JVM 虚拟机规范时都被冗长的 Class 文件格式搞得想困觉时，我做出了一个决定：自己编程实现 Class 文件的解析，这也是 &lt;a href=&quot;https://github.com/tinylcy/ClassAnalyzer&quot;&gt;ClassAnalyzer&lt;/a&gt; 诞生的原因。写完 ClassAnalyzer 后，春节结束，我便动身回到了学校。&lt;/p&gt;
 
@@ -1093,7 +1275,7 @@
   &lt;li&gt;做一次志愿者。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Always be prepared！&lt;/p&gt;</content><author><name></name></author><summary type="html">今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。</summary></entry><entry><title type="html">如何实现一个Web Server</title><link href="https://tinylcy.github.io/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server/" rel="alternate" type="text/html" title="如何实现一个Web Server" /><published>2017-12-09T06:08:34+08:00</published><updated>2017-12-09T06:08:34+08:00</updated><id>https://tinylcy.github.io/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server</id><content type="html" xml:base="https://tinylcy.github.io/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server/">&lt;p&gt;最近重构了去年造的一个轮子 &lt;a href=&quot;https://github.com/tinylcy/vino&quot;&gt;Vino&lt;/a&gt;。Vino 旨在实现一个轻量并且能够保证性能的 Web Server，仅关注 Web Server 的本质部分。在重构过程中，Vino 借鉴了许多优秀开源项目的思想，如 Nginx、Mongoose 和 Webbench。因此，对比上一个版本的 Vino，现在的 Vino 不仅性能得到提升，而且设计也更为优雅、健壮 :D。&lt;/p&gt;
+&lt;p&gt;Always be prepared！&lt;/p&gt;</content><author><name></name></author><summary type="html">今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。</summary></entry><entry><title type="html">如何实现一个Web Server</title><link href="http://localhost:4000/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server/" rel="alternate" type="text/html" title="如何实现一个Web Server" /><published>2017-12-09T06:08:34+08:00</published><updated>2017-12-09T06:08:34+08:00</updated><id>http://localhost:4000/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server</id><content type="html" xml:base="http://localhost:4000/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server/">&lt;p&gt;最近重构了去年造的一个轮子 &lt;a href=&quot;https://github.com/tinylcy/vino&quot;&gt;Vino&lt;/a&gt;。Vino 旨在实现一个轻量并且能够保证性能的 Web Server，仅关注 Web Server 的本质部分。在重构过程中，Vino 借鉴了许多优秀开源项目的思想，如 Nginx、Mongoose 和 Webbench。因此，对比上一个版本的 Vino，现在的 Vino 不仅性能得到提升，而且设计也更为优雅、健壮 :D。&lt;/p&gt;
 
 &lt;p&gt;本文将会对 Vino 目前所具备的关键特性进行阐述，并总结开发过程中的一点心得。&lt;/p&gt;
 
@@ -1175,7 +1357,7 @@
 
 &lt;p&gt;[9] RFC 2616, &lt;a href=&quot;https://tools.ietf.org/html/rfc2616&quot;&gt;https://tools.ietf.org/html/rfc2616&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;[10] How to use epoll? A complete example in C, &lt;a href=&quot;https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c/&quot;&gt;https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c&lt;/a&gt; .&lt;/p&gt;</content><author><name></name></author><category term="Unix/Linux" /><category term="C" /><summary type="html">最近重构了去年造的一个轮子 Vino。Vino 旨在实现一个轻量并且能够保证性能的 Web Server，仅关注 Web Server 的本质部分。在重构过程中，Vino 借鉴了许多优秀开源项目的思想，如 Nginx、Mongoose 和 Webbench。因此，对比上一个版本的 Vino，现在的 Vino 不仅性能得到提升，而且设计也更为优雅、健壮 :D。</summary></entry><entry><title type="html">CUDA Lab: Sum of Squares &amp;amp; Matrix Multiplication</title><link href="https://tinylcy.github.io/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/" rel="alternate" type="text/html" title="CUDA Lab: Sum of Squares &amp; Matrix Multiplication" /><published>2017-10-17T05:24:12+08:00</published><updated>2017-10-17T05:24:12+08:00</updated><id>https://tinylcy.github.io/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication</id><content type="html" xml:base="https://tinylcy.github.io/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/">&lt;p&gt;CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。&lt;/p&gt;
+&lt;p&gt;[10] How to use epoll? A complete example in C, &lt;a href=&quot;https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c/&quot;&gt;https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c&lt;/a&gt; .&lt;/p&gt;</content><author><name></name></author><category term="Unix/Linux" /><category term="C" /><summary type="html">最近重构了去年造的一个轮子 Vino。Vino 旨在实现一个轻量并且能够保证性能的 Web Server，仅关注 Web Server 的本质部分。在重构过程中，Vino 借鉴了许多优秀开源项目的思想，如 Nginx、Mongoose 和 Webbench。因此，对比上一个版本的 Vino，现在的 Vino 不仅性能得到提升，而且设计也更为优雅、健壮 :D。</summary></entry><entry><title type="html">CUDA Lab: Sum of Squares &amp;amp; Matrix Multiplication</title><link href="http://localhost:4000/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/" rel="alternate" type="text/html" title="CUDA Lab: Sum of Squares &amp; Matrix Multiplication" /><published>2017-10-17T05:24:12+08:00</published><updated>2017-10-17T05:24:12+08:00</updated><id>http://localhost:4000/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication</id><content type="html" xml:base="http://localhost:4000/2017/CUDA-Lab-Sum-of-Squares-Matrix-Multiplication/">&lt;p&gt;CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。&lt;/p&gt;
 
 &lt;p&gt;本实验包含两部分。&lt;/p&gt;
 
@@ -1568,7 +1750,7 @@
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;http://blog.csdn.net/column/details/computervision.html&quot;&gt;计算机视觉编程&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://www.smallgui.com/wp-content/uploads/2016/04/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BA%E8%B0%88CUDA.pdf&quot;&gt;深入浅出谈 CUDA&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="CUDA" /><summary type="html">CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。</summary></entry><entry><title type="html">初探Webx之约定胜于配置</title><link href="https://tinylcy.github.io/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/" rel="alternate" type="text/html" title="初探Webx之约定胜于配置" /><published>2017-07-13T06:15:18+08:00</published><updated>2017-07-13T06:15:18+08:00</updated><id>https://tinylcy.github.io/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE</id><content type="html" xml:base="https://tinylcy.github.io/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/">&lt;p&gt;实习期间接触到了早有耳闻的&lt;code class=&quot;highlighter-rouge&quot;&gt;Webx&lt;/code&gt;，于是很自然的按照官方文档运行了一个 &lt;a href=&quot;http://openwebx.org/docs/firstapp.html&quot;&gt;Demo&lt;/a&gt; ，粗略的阅读了一下代码，发现并不能很快的梳理清&lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt;请求的处理逻辑，以及视图层和控制层之间的关联关系。&lt;code class=&quot;highlighter-rouge&quot;&gt;execute()&lt;/code&gt;为什么会被调用？&lt;code class=&quot;highlighter-rouge&quot;&gt;doChinese()&lt;/code&gt;为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解&lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt;请求在&lt;code class=&quot;highlighter-rouge&quot;&gt;Webx&lt;/code&gt;中经历的处理流程，为此我阅读了&lt;code class=&quot;highlighter-rouge&quot;&gt;Webx&lt;/code&gt;部分源码，并以此文作为小结。&lt;/p&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="CUDA" /><summary type="html">CUDA（Compute Unified Device Architecture）是显卡厂商 NVIDIA 推出的运算平台，是一种通用的并行计算架构，该架构使 GPU 能够解决复杂的计算问题。我们可以使用 GPU 来并行例如神经网络、图像处理等在 CPU 上运行起来比较耗时的程序，通过 GPU 并行计算可以大大提高算法的运行速度。</summary></entry><entry><title type="html">初探Webx之约定胜于配置</title><link href="http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/" rel="alternate" type="text/html" title="初探Webx之约定胜于配置" /><published>2017-07-13T06:15:18+08:00</published><updated>2017-07-13T06:15:18+08:00</updated><id>http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE</id><content type="html" xml:base="http://localhost:4000/2017/%E5%88%9D%E6%8E%A2Webx%E4%B9%8B%E7%BA%A6%E5%AE%9A%E8%83%9C%E4%BA%8E%E9%85%8D%E7%BD%AE/">&lt;p&gt;实习期间接触到了早有耳闻的&lt;code class=&quot;highlighter-rouge&quot;&gt;Webx&lt;/code&gt;，于是很自然的按照官方文档运行了一个 &lt;a href=&quot;http://openwebx.org/docs/firstapp.html&quot;&gt;Demo&lt;/a&gt; ，粗略的阅读了一下代码，发现并不能很快的梳理清&lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt;请求的处理逻辑，以及视图层和控制层之间的关联关系。&lt;code class=&quot;highlighter-rouge&quot;&gt;execute()&lt;/code&gt;为什么会被调用？&lt;code class=&quot;highlighter-rouge&quot;&gt;doChinese()&lt;/code&gt;为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解&lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt;请求在&lt;code class=&quot;highlighter-rouge&quot;&gt;Webx&lt;/code&gt;中经历的处理流程，为此我阅读了&lt;code class=&quot;highlighter-rouge&quot;&gt;Webx&lt;/code&gt;部分源码，并以此文作为小结。&lt;/p&gt;
 
 &lt;p&gt;在分析之前，我们需要强调&lt;code class=&quot;highlighter-rouge&quot;&gt;Webx&lt;/code&gt;的一个重要设计理念——约定胜于配置。“约定”即规则，规则是预先定义的，工程师只需要按着规则来做事，就不需要额外的“配置”。对比其它一些框架，往往每增加一个页面，都需要在配置文件中增加若干行内容。&lt;/p&gt;
 
@@ -1819,51 +2001,4 @@
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;strong&gt;所以第二个疑问也得到了解答 :P&lt;/strong&gt;&lt;/p&gt;</content><author><name></name></author><category term="Webx" /><summary type="html">实习期间接触到了早有耳闻的Webx，于是很自然的按照官方文档运行了一个 Demo ，粗略的阅读了一下代码，发现并不能很快的梳理清Web请求的处理逻辑，以及视图层和控制层之间的关联关系。execute()为什么会被调用？doChinese()为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解Web请求在Webx中经历的处理流程，为此我阅读了Webx部分源码，并以此文作为小结。</summary></entry><entry><title type="html">如何实现一个分布式RPC框架</title><link href="https://tinylcy.github.io/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%88%86%E5%B8%83%E5%BC%8FRPC%E6%A1%86%E6%9E%B6/" rel="alternate" type="text/html" title="如何实现一个分布式RPC框架" /><published>2017-07-04T19:57:15+08:00</published><updated>2017-07-04T19:57:15+08:00</updated><id>https://tinylcy.github.io/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%88%86%E5%B8%83%E5%BC%8FRPC%E6%A1%86%E6%9E%B6</id><content type="html" xml:base="https://tinylcy.github.io/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%88%86%E5%B8%83%E5%BC%8FRPC%E6%A1%86%E6%9E%B6/">&lt;p&gt;远程过程调用（&lt;code class=&quot;highlighter-rouge&quot;&gt;Remote Procedure Call&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;）是一个计算机通信协议。该协议允许运行于一台计算机的程序调用另一台计算机的子程序，而程序员无需额外地为这个交互作用编程。&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;的主要目标是让构建分布式应用更加容易，在提供强大的远程调用能力的同时不损失本地调用的语义的简洁性。&lt;/p&gt;
-
-&lt;p&gt;趁实习前的这段业余时间，我实现了一个轻量级的分布式&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;框架，名字叫做 &lt;a href=&quot;https://github.com/tinylcy/buddha&quot;&gt;buddha&lt;/a&gt;，代码量不大，但是麻雀虽小却五脏俱全。本篇文章将一步步阐明&lt;code class=&quot;highlighter-rouge&quot;&gt;buddha&lt;/code&gt;的设计、框架组件的拆解以及需要考虑的因素。&lt;/p&gt;
-
-&lt;h2 id=&quot;序列化与反序列化&quot;&gt;序列化与反序列化&lt;/h2&gt;
-
-&lt;p&gt;在网络中，所有的数据都将会被转化为字节进行传送，所以在代码层面上，一个&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;框架需要实现特定格式的数据与字节数组之间的相互转化。像&lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;已经提供了默认的序列化方式，但是如果是在高并发的场景下，使用&lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;原生的序列化方式可能会遇到性能瓶颈。于是，出现了许多开源的、高效的序列化框架：如&lt;code class=&quot;highlighter-rouge&quot;&gt;Kryo&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;fastjson&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;Protobuf&lt;/code&gt;等。&lt;code class=&quot;highlighter-rouge&quot;&gt;buddha&lt;/code&gt;目前支持&lt;code class=&quot;highlighter-rouge&quot;&gt;Kryo&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;fastjson&lt;/code&gt;两种序列化框架。&lt;/p&gt;
-
-&lt;h2 id=&quot;tcp拆包粘包&quot;&gt;TCP拆包、粘包&lt;/h2&gt;
-
-&lt;p&gt;由于&lt;code class=&quot;highlighter-rouge&quot;&gt;TCP&lt;/code&gt;只关心字节流，并不知晓上层的数据格式。如果客户端应用层一次要发送的数据过大时，&lt;code class=&quot;highlighter-rouge&quot;&gt;TCP&lt;/code&gt;会将该数据进行分解传送，因此在服务端需要进行粘包处理（由&lt;code class=&quot;highlighter-rouge&quot;&gt;TCP&lt;/code&gt;来保证数据的有序性）；如果客户端一次要发送的数据量很小时，&lt;code class=&quot;highlighter-rouge&quot;&gt;TCP&lt;/code&gt;并不会马上把数据发送出去，而是将其存储在缓冲区，当达到某个阈值的时候再发送出去，因此在服务端需要进行拆包的工作。&lt;/p&gt;
-
-&lt;p&gt;通过以上分析，我们了解了&lt;code class=&quot;highlighter-rouge&quot;&gt;TCP&lt;/code&gt;粘包或者拆包的原因，解决这个问题的关键在于向数据包添加边界信息，常用的方法有如下三个。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;发送端给每个数据包添加包首部，首部中至少包含数据包的长度，这样在接收端接收到数据时，通过读取首部的长度信息得到该数据包有效数据的长度。&lt;/li&gt;
-  &lt;li&gt;发送端将每个数据包封装为固定长度（多余用&lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;填充），这样接收端在接收到数据后根据约定好的固定长度读取每个数据包的数据。&lt;/li&gt;
-  &lt;li&gt;使用特殊符号将每个数据包区分开来，接收端也是通过该特殊符号的划分数据包的边界。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;buddha&lt;/code&gt;采用第一种方式来解决&lt;code class=&quot;highlighter-rouge&quot;&gt;TCP&lt;/code&gt;拆包、粘包的问题。&lt;/p&gt;
-
-&lt;h2 id=&quot;bio与nio&quot;&gt;BIO与NIO&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;BIO&lt;/code&gt;往往用于经典的每连接每线程模型，之所以使用多线程，是因为像&lt;code class=&quot;highlighter-rouge&quot;&gt;accept()&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;read()&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;write()&lt;/code&gt;等函数都是同步阻塞的，这意味着当应用为单线程且进行&lt;code class=&quot;highlighter-rouge&quot;&gt;IO&lt;/code&gt;操作时，如果线程阻塞那么该应用必然会进入挂死状态，但是实际上此时&lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt;是处于空闲状态的。开启多线程，就可以让&lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt;去为更多的线程服务，提高&lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt;的利用率。但是在活跃线程数较多的情况下，采用多线程模型回带来如下几个问题。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;线程的创建和销毁代价颇高，在&lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt;操作系统中，线程本质上就是一个进程，创建和销毁线程属于重量级的操作。&lt;/li&gt;
-  &lt;li&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;JVM&lt;/code&gt;中，每个线程会占用固定大小的栈空间，而&lt;code class=&quot;highlighter-rouge&quot;&gt;JVM&lt;/code&gt;的内存空间是有限的，因此如果线程数量过多那么线程本身就会占据过多的资源。&lt;/li&gt;
-  &lt;li&gt;线程的切换成本较高，每次线程切换需要涉及上下文的保存、恢复以及用户态和内核态的切换。如果线程数过多，那么会有较大比例的&lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt;时间花费在线程切换上。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;使用线程池的方式解决前两个问题，但是线程切换带来的开销还是存在。所以在高并发的场景下，传统的&lt;code class=&quot;highlighter-rouge&quot;&gt;BIO&lt;/code&gt;是无能为力的。而&lt;code class=&quot;highlighter-rouge&quot;&gt;NIO&lt;/code&gt;的重要特点是：读、写、注册和接收函数，在等待就绪阶段都是非阻塞的，可以立即返回，这就允许我们不使用多线程充分利用&lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt;。如果一个连接不能读写，可以把这个事件记录下来，然后切换到别的就绪的连接进行数据读写。在&lt;code class=&quot;highlighter-rouge&quot;&gt;buddha&lt;/code&gt;中，&lt;code class=&quot;highlighter-rouge&quot;&gt;Netty&lt;/code&gt;被用来编写结构更加清晰的&lt;code class=&quot;highlighter-rouge&quot;&gt;NIO&lt;/code&gt;程序。&lt;/p&gt;
-
-&lt;h2 id=&quot;服务注册与发现&quot;&gt;服务注册与发现&lt;/h2&gt;
-
-&lt;p&gt;在实际应用中，&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;服务的提供者往往需要使用集群来保证服务的稳定性与可靠性。因此需要实现一个服务注册中心，服务提供者将当前可用的服务地址信息注册至注册中心，而客户端在进行远程调用时，先通过服务注册中心获取当前可用的服务列表，然后获取具体的服务提供者的地址信息（该阶段可以进行负载均衡），根据地址信息向服务提供者发起调用。客户端可以缓存可用服务列表，当注册中心的服务列表发生变更时需要通知客户端。同时，当服务提供者变为不可用状态时也需要通知注册中心服务不可用。&lt;code class=&quot;highlighter-rouge&quot;&gt;buddha&lt;/code&gt;使用&lt;code class=&quot;highlighter-rouge&quot;&gt;ZooKeeper&lt;/code&gt;实现服务注册与发现功能。&lt;/p&gt;
-
-&lt;h2 id=&quot;代码实现&quot;&gt;代码实现&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;buddha&lt;/code&gt;是我学习验证&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;过程中诞生的一个轻量级分布式&lt;code class=&quot;highlighter-rouge&quot;&gt;RPC&lt;/code&gt;框架，代码放在了 &lt;a href=&quot;https://github.com/tinylcy/buddha&quot;&gt;GitHub&lt;/a&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://mindwind.me/blog/2016/05/22/RPC-%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A8%A1%E5%9E%8B%E4%B8%8E%E5%AE%9E%E7%8E%B0%E8%A7%A3%E6%9E%90.html&quot;&gt;RPC 的概念模型与实现解析&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/luxiaoxun/NettyRpc&quot;&gt;NettyRpc&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="DistributedSystems" /><summary type="html">远程过程调用（Remote Procedure Call，RPC）是一个计算机通信协议。该协议允许运行于一台计算机的程序调用另一台计算机的子程序，而程序员无需额外地为这个交互作用编程。RPC的主要目标是让构建分布式应用更加容易，在提供强大的远程调用能力的同时不损失本地调用的语义的简洁性。</summary></entry></feed>
+&lt;p&gt;&lt;strong&gt;所以第二个疑问也得到了解答 :P&lt;/strong&gt;&lt;/p&gt;</content><author><name></name></author><category term="Webx" /><summary type="html">实习期间接触到了早有耳闻的Webx，于是很自然的按照官方文档运行了一个 Demo ，粗略的阅读了一下代码，发现并不能很快的梳理清Web请求的处理逻辑，以及视图层和控制层之间的关联关系。execute()为什么会被调用？doChinese()为什么会被调用？这是我当时的两个疑问，为了解答这些疑问，需要理解Web请求在Webx中经历的处理流程，为此我阅读了Webx部分源码，并以此文作为小结。</summary></entry></feed>

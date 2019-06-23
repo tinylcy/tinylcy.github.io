@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>码出高效码出质量 - STAR 皆空</title>
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<meta property="og:title" content="码出高效码出质量">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="编程规约">
+<meta property="og:description" content="编程规约">
+<link rel="canonical" href="http://localhost:4000/2019/the-art-of-code/">
+<meta property="og:url" content="http://localhost:4000/2019/the-art-of-code/">
+<meta property="og:site_name" content="STAR 皆空">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2019-06-23T00:00:00+08:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta property="article:publisher" content="1234">
+<meta property="fb:app_id" content="1234">
+<script type="application/ld+json">
+{"name":null,"description":"编程规约","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2019/the-art-of-code/","publisher":null,"image":null,"headline":"码出高效码出质量","dateModified":"2019-06-23T00:00:00+08:00","datePublished":"2019-06-23T00:00:00+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2019/the-art-of-code/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="http://localhost:4000/feed.xml">
+  <link rel="stylesheet" href="/assets/css/nangka.css">
+
+  
+
+</head>
+
+  <body>
+    <header class="site-header">
+    <div class="wrapper">
+        <a href="#" class="menu-icon">
+            <svg viewbox="0 0 18 15">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                <path d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                <path d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+            </svg>
+        </a>
+        <a class="site-title" href="/">STAR 皆空</a>
+        <nav class="site-nav">
+            <div class="trigger">
+            
+                
+            
+                
+                        <a class="page-link" href="/about/">关于我</a>
+                
+            
+                
+                        <a class="page-link" href="/archive/">归档</a>
+                
+            
+                
+                        <a class="page-link" href="/darktime/">暗时间</a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">码出高效码出质量</h1>
+    <p class="post-meta">
+       <time datetime="2019-06-23T00:00:00+08:00" itemprop="datePublished">
+          Jun 23, 2019
+       </time>
+       
+        <!-- | <span class="time">
+            4
+          </span>
+           Minute Read -->
+    </p>
+  </header>
+  <div class="post-content" itemprop="articleBody">
+    <h3 id="编程规约">编程规约</h3>
+
+<h4 id="命名风格">命名风格</h4>
+
+<ul>
+  <li>POJO 类中布尔类型变量都不要加 is 前缀，否则部分框架解析会引起序列化错误。注意，在 MySQL 规约中，表达是与否的值采用 is_xxx 的命名方式，所以，需要在 resultMap 设置从 is_xxx 到 xxx 的映射关系。</li>
+  <li>对于 Service 和 DAO 类，暴露出来的服务一定是接口，内部的实现类用 Impl 的后缀与接口区别。如果是形容能力的接口名称，取对于的形容词为接口名（通常是 able 的形容词）。</li>
+  <li>各层命名规约
+    <ul>
+      <li>Service/DAO 层方法命名规约
+        <ul>
+          <li>获取单个对象的方法用 get 做前缀</li>
+          <li>获取多个对象的方法用 list 做前缀，复数形式结尾如：listObjects</li>
+          <li>获取统计值的方法用 count 做前缀</li>
+          <li>插入的方法用 save/insert 做前缀</li>
+          <li>删除的方法用 remove/delete 做前缀</li>
+          <li>修改的方法用 update 做前缀</li>
+        </ul>
+      </li>
+      <li>领域模型命名规约
+        <ul>
+          <li>数据对象：xxxDO</li>
+          <li>数据传输对象：xxxDTO</li>
+          <li>展示对象：xxxVO</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="oop-规约">OOP 规约</h4>
+
+<ul>
+  <li>
+    <p>浮点数之间的等值判断，基本数据类型不能用 == 来比较，包装数据类型不能用 equals 来判断。</p>
+
+    <div class="language-java highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FloatEqualsDemo</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="o">[]</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="cm">/****************反例******************/</span>
+        <span class="kt">float</span> <span class="n">a</span> <span class="o">=</span> <span class="mf">1.0f</span> <span class="o">-</span> <span class="mf">0.9f</span><span class="o">;</span>
+        <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">0.9f</span> <span class="o">-</span> <span class="mf">0.8f</span><span class="o">;</span>
+  
+        <span class="k">if</span> <span class="o">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// 不会进入此代码块</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"float a == float b"</span><span class="o">);</span>
+        <span class="o">}</span>
+  
+        <span class="n">Float</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Float</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">a</span><span class="o">);</span>
+        <span class="n">Float</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Float</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">b</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">y</span><span class="o">))</span> <span class="o">{</span>
+            <span class="c1">// 不会进入此代码块</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Float x == Float y"</span><span class="o">);</span>
+        <span class="o">}</span>
+  
+        <span class="cm">/****************正例******************/</span>
+        <span class="kt">float</span> <span class="n">diff</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="n">f</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">diff</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"float a == float b"</span><span class="o">);</span>
+        <span class="o">}</span>
+  
+        <span class="n">BigDecimal</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="s">"1.0"</span><span class="o">);</span>
+        <span class="n">BigDecimal</span> <span class="n">q</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="s">"0.9"</span><span class="o">);</span>
+        <span class="n">BigDecimal</span> <span class="n">r</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="s">"0.8"</span><span class="o">);</span>
+  
+        <span class="n">BigDecimal</span> <span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">subtract</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+        <span class="n">BigDecimal</span> <span class="n">n</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">subtract</span><span class="o">(</span><span class="n">r</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">n</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"BigDecimal m == BigDecimal n"</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>    </div>
+
+    <ul>
+      <li>为了防止精度损失，禁止使用构造方法 BigDecimal(double) 的方式把 double 值转化为 BigDecimal 对象。优先推荐入参为 String 的构造方法，或使用 BigDecimal 的 valueOf 方法。</li>
+      <li>序列化类新增属性时，不要修复 serialVersionUID 字段，避免反序列化失败。</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="集合处理">集合处理</h4>
+
+<ul>
+  <li>ArrayList 的 subList 结果不可强制转换成 ArrayList，否则会抛出 ClassCastException 异常。subList 返回的是 ArrayList  的内部类 SubList，并不是 ArrayList 而是 ArrayList 的一个视图。对于 SubList 子列表的操作最终会反映到原列表上。</li>
+  <li>使用 Map 的方法 keySet、values、entrySet 返回集合对象时，不可以对去进行添加元素的操作，否则会抛出 UnsupportedOperationException 异常。</li>
+  <li>Collections 类返回的对象，如 emptyList、singletonList 等都是 immutable list，不可对其进行添加或者删除元素的操作。</li>
+  <li>使用集合转数组的方法，必须使用集合的 toArray(T[] array)，传入的参数是类型一致，长度为 0 的空数组。</li>
+  <li>在使用 Collection 接口任何实现类的 addAll() 方法时，都要对输入的集合参数进行 NPE 判断。</li>
+</ul>
+
+<h4 id="并发处理">并发处理</h4>
+
+<ul>
+  <li>SImpleDataFormat 是线程不安全的类，一般不要定义 static 变量，如果定义为 static 变量，必须加锁，或者使用 DateUtils 工具类。如果是 JDK8 应用，建议使用 Instant 代替 Date，LocalDateTime 代替 Calendar，DateTimeFormatter 代替 SimpleDateFormat。</li>
+  <li>必须回收自定义的 ThreadLocal 变量，尤其是在线程池场景下。</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">objectThreadLocal</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">userInfo</span><span class="o">);</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="c1">// doSomething();</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">objectThreadLocal</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>对多个资源、数据库表、对象同时加锁时，需要保持一致的加锁顺序，否则可能会造成死锁。</li>
+  <li>在使用阻塞等待获取锁的方式中，必须在 try 代码块之外获取锁，并且在加锁方法与 try 代码块之间没有任何可能抛出异常的方法调用，避免加锁成功后，在 finally 中无法解锁。
+    <ul>
+      <li>如果在 lock 方法与 try 代码块之间的方法调用抛出异常，那么无法解锁，造成其他线程无法成功获取锁。</li>
+      <li>如果 lock 方法在 try 代码块之间，可能由于其他方法抛出异常，导致在 finally 代码块中，unlock 对未加锁的对象进行解锁，抛出 IllegalMonitorStateException 异常。</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/****************正例******************/</span>
+<span class="n">Lock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">XxxLock</span><span class="o">();</span>
+<span class="n">doSomething</span><span class="o">();</span>
+<span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+<span class="c1">// lock() 与 try 之间不能抛出异常</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">doOthers</span><span class="o">();</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="cm">/****************反例******************/</span>
+<span class="n">Lock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">XxxLock</span><span class="o">();</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="c1">// 如果 doSomething 方法抛出异常，则会直接执行 finally 代码块</span>
+    <span class="n">doSomething</span><span class="o">();</span>
+    <span class="c1">// 无论加锁是否成功，finally 代码块都会执行</span>
+    <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+    <span class="n">doOthers</span><span class="o">();</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>多线程并行处理定时任务时，Timer 运行多个 TimeTask 时，只要其中之一没有捕获抛出的异常，其他任务便会自动终止运行，如果在处理定时任务时使用 ScheduledExecutorService 则没有这个问题。</li>
+</ul>
+
+<h4 id="控制语句">控制语句</h4>
+
+<ul>
+  <li>当 switch 括号内的变量类型为 String 并且此变量为外部参数时，必须先进行 null 判断。</li>
+  <li>在高并发场景中，避免使用“等于”作为中断或者退出的条件。如果并发没有控制好，容易产生等值判断被“击穿”的情况，使用大于或者小于的区间判断条件来代替。</li>
+</ul>
+
+<h3 id="mysql-数据库">MySQL 数据库</h3>
+
+<h4 id="建表规约">建表规约</h4>
+
+<ul>
+  <li>表达是与否概念的字段，必须使用 is_xxx 的方式命名，数据类型是 unsigned tinyint。</li>
+  <li>小数类型为 decimal，禁止使用 float 和 double。float 和 double 在存储时存在精度损失的问题，可能导致在比较值的时候，得到不正确的结果。如果存储的数据范围超过 decimal 的范围，建议将数据拆成整数和小数并分开存储。</li>
+  <li>如果存储的字符串长度几乎相等，使用 char 定长字符串类型。</li>
+  <li>varchar 是可变长字符串，不预先分配存储空间，长度不要超过 5000，如果存储长度大于此值，定义字段类型为 text，独立出来一张表，用主键来对应，避免影响其他字段索引效率。</li>
+</ul>
+
+<h4 id="索引规约">索引规约</h4>
+
+<ul>
+  <li>业务上具有唯一特性的字段，即使是多个字段的组合，也必须建成唯一索引。不要以为 insert 会影响 insert 的速度，这个速度损耗可以忽略不计，但是对提高查询速度是明显的。另外，即使在应用层做了非常完善的校验机制，只要灭有唯一索引，根据墨菲定律，必然会有脏数据产生。</li>
+  <li>在 varchar 字段上建立索引时，必须要指定索引长度，没有必要对全字段建立索引，根据实际文本区分度决定索引长度即可。可以使用 count(distinct left(列名, 索引长度))/count(*) 的来确定区分度。</li>
+</ul>
+
+<h4 id="sql-语句">SQL 语句</h4>
+
+<ul>
+  <li>不要使用 count(列名) 或 count(常亮) 来替代 count(*)。</li>
+  <li>当某一列的值全为 NULL 时，count(col) 的返回结果为 0，但是 sum(col) 的返回结果为 NULL，因此使用 sum 时需要注意 NPE 问题，建议使用 SELECT IFNULL(SUM(column), 0) FROM table。</li>
+  <li>代码中写分页查询逻辑是，若 count 为 0 应直接返回，避免执行后面的分页语句。</li>
+  <li>IN 操作能避免则避免，若实在避免不了，需要仔细评估 IN 后边的集合元素数量，控制在 1000 个之内。</li>
+</ul>
+
+<h4 id="orm-映射">ORM 映射</h4>
+
+<ul>
+  <li>不要写一个大而全的数据更新接口。传入为 POJO 类，不管是不是自己的目标更新字段，都进行 update tabel set c1=value1,c2=value2；这是不对的。执行 SQL 时，不要更新无改动的字段，一是易出错；二是效率低；三是增加 binlog 存储。</li>
+  <li>
+<a href="https://github.com/Transactional" class="user-mention">@Transactional</a> 事务不要滥用，事务会影响数据库的 QPS，另外使用事务的地方需要考虑各方面的回滚方案，包括缓存回滚、搜索引擎回滚、消息补偿、统计修正等。</li>
+</ul>
+
+
+  </div>
+  <footer class="post-footer">
+
+    <!-- Social Share Button-->
+    <!-- <ul class="sharebutton">
+      <li class="share">Share :</li>
+      <li class="fb">
+        <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'facebook-share-dialog','width=626,height=436');return false;">Facebook</a>
+      </li>
+      <li class="linkedin">
+        <a href="http://www.linkedin.com/cws/share?url=http://localhost:4000/2019/the-art-of-code/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Linkedin">Linkedin</a>
+      </li>
+      <li class="twitter">
+        <a href="https://twitter.com/intent/tweet?text=http://localhost:4000/2019/the-art-of-code/ - 码出高效码出质量 by @" target="_blank" title="Share to Twitter">Twitter</a>
+      </li>
+      <li class="gplus">
+        <a href="https://plus.google.com/share?url=http://localhost:4000/2019/the-art-of-code/" onclick="window.open(this.href,&quot;popupwindow&quot;,&quot;status=0,height=500,width=700,resizable=0,top=50,left=100&quot;);return false;" target="_blank" title="Share on Google Plus">Google+</a>
+      </li>
+      <li class="pinterest">
+        <a href="http://pinterest.com/pin/create/link/?url=http://localhost:4000/2019/the-art-of-code/" target="_blank" title="Share to Pinterest">Pinterest</a>
+      </li>
+    </ul> -->
+
+    <!-- Post Navigation -->
+    <div class="post-navigation">
+      <a class="prev" href="/2019/rocketmq-nameserver/">← Previous Post</a>
+      
+    </div>
+      
+
+  </footer>
+</article>
+
+      </div>
+    </div>
+    <footer class="site-footer">
+  <div class="wrapper">
+      <div class="copy">
+          2019 © STAR 皆空
+      </div>
+  </div>
+</footer>
+
+    <script type="text/javascript" src="/assets/js/jquery-1.11.2.min.js"></script>
+
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+  </body>
+</html>
