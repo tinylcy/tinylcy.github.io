@@ -11,21 +11,21 @@
 <meta property="og:locale" content="en_US">
 <meta name="description" content="Welcome to my awesome blog.">
 <meta property="og:description" content="Welcome to my awesome blog.">
-<link rel="canonical" href="http://localhost:4000/p/3/">
-<meta property="og:url" content="http://localhost:4000/p/3/">
+<link rel="canonical" href="https://tinylcy.github.io/p/3/">
+<meta property="og:url" content="https://tinylcy.github.io/p/3/">
 <meta property="og:site_name" content="STAR 皆空">
-<link rel="prev" href="http://localhost:4000/p/2">
-<link rel="next" href="http://localhost:4000/p/4">
+<link rel="prev" href="https://tinylcy.github.io/p/2">
+<link rel="next" href="https://tinylcy.github.io/p/4">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@">
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"http://localhost:4000/p/3/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"https://tinylcy.github.io/p/3/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
-  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="http://localhost:4000/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="https://tinylcy.github.io/feed.xml">
   <link rel="stylesheet" href="/assets/css/nangka.css">
 
   
@@ -96,6 +96,17 @@
         <div class="home">
   <!-- <h1 class="page-heading">Posts</h1> -->
   <ul class="post-list">
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2017/%E8%B0%88%E8%B0%88ThreadLocal/">谈谈ThreadLocal</a>
+        </h2>
+          <span class="post-meta">Feb 24, 2017</span>
+        <p class="description">
+            
+                Java并发编程实战 一书在介绍ThreadLocal类时（第3章），书中有这么两段话，在我初次阅读时不知道如何去理解。  ThreadLocal对象通常用于防止对可变的单实例变量（Singleton）或全局变量进行共享。  当某个频繁执行的操作需要一个临时变量，例如一个缓冲区，而同时又希望避免在每次执行时都重新分配该临时对象，就可以使用这项技术。例如，在Java 5.0之前，Integer.toString()方法使用ThreadLocal对象来保存一个12字节大小的缓冲区，用于对结果进...
+            </p>
+      </li>
     
       <li>
         <h2>
@@ -171,17 +182,6 @@
         <p class="description">
             
                 HashMap简介本文针对HashMap的源码分析基于JDK 7，JDK 8在HashMap的实现上有着较大幅度的改进和优化，这部分优化我将另起一篇来阐述。另外，本文仅分析HashMap众多方法中最常用的方法，其余方法有需要时再研究 <img class="emoji" title=":smile:" alt=":smile:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f604.png" height="20" width="20">。HashMap的继承关系如下。public class HashMap&lt;K,V&gt;    extends AbstractMap&lt;K,V&gt;    implements Map&lt;K,V&gt;, Cloneable, ...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2016/Vector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Vector源码分析</a>
-        </h2>
-          <span class="post-meta">Dec 2, 2016</span>
-        <p class="description">
-            
-                Vector简介Vector在JDK 1.0被引入，基于数组实现，并且是一个动态数组，其容量可以自动增长。在很多方法的实现上，Vector加入了同步语句，因此一般来说Vector是线程安全的，可以在多线程环境中运用。本文对Vector源码的分析基于JDK 1.8.0_111，并仅对常用的方法进行分析。public class Vector&lt;E&gt;    extends AbstractList&lt;E&gt;    implements List&lt;E&gt;, Rando...
             </p>
       </li>
     

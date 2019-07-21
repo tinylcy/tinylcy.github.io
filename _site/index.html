@@ -11,20 +11,20 @@
 <meta property="og:locale" content="en_US">
 <meta name="description" content="Welcome to my awesome blog.">
 <meta property="og:description" content="Welcome to my awesome blog.">
-<link rel="canonical" href="http://localhost:4000/">
-<meta property="og:url" content="http://localhost:4000/">
+<link rel="canonical" href="https://tinylcy.github.io/">
+<meta property="og:url" content="https://tinylcy.github.io/">
 <meta property="og:site_name" content="STAR 皆空">
-<link rel="next" href="http://localhost:4000/p/2">
+<link rel="next" href="https://tinylcy.github.io/p/2">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@">
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":"STAR 皆空","description":"Welcome to my awesome blog.","author":null,"@type":"WebSite","url":"http://localhost:4000/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+{"name":"STAR 皆空","description":"Welcome to my awesome blog.","author":null,"@type":"WebSite","url":"https://tinylcy.github.io/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
-  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="http://localhost:4000/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="https://tinylcy.github.io/feed.xml">
   <link rel="stylesheet" href="/assets/css/nangka.css">
 
   
@@ -95,6 +95,17 @@
         <div class="home">
   <!-- <h1 class="page-heading">Posts</h1> -->
   <ul class="post-list">
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2019/the-design-of-rocketmq-message-storage-system/">谈谈 RocketMQ 消息存储的设计与实现</a>
+        </h2>
+          <span class="post-meta">Jul 21, 2019</span>
+        <p class="description">
+            
+                作为一款高性能的消息中间件，RocketMQ 基于互联网的生产要求对多 Topic 场景做了诸多针对性优化。根据中间件团队提供的 压测报告，在 Producer 和 Consumer 共存的情况下，相比于 Kafka，RocketMQ 的性能指标（TPS 和 RT）随着 Topic 数量的上升表现稳定。本文从消息存储的角度谈谈 RocketMQ 高性能的原因，重点包括四个方面：消息文件存储的结构设计、消息从 Broker 接收到持久化磁盘的流程、刷盘策略和内存映射优化机制。消息文件存储结构...
+            </p>
+      </li>
     
       <li>
         <h2>
@@ -170,17 +181,6 @@
         <p class="description">
             
                 今年事情比较多，重要的事情有两件，一是还有 6 个月就要毕业，这意味着留给我在学校里纯粹打磨技术的时间已经不多了；二是确定了自己的职业生涯将会从阿里开始，这意味着什么我暂时还不确定。去年此时，我认为自己一定会去试水一大堆公司，但是实际上我只投了寥寥几个，整个过程比我预想的要顺利，我想究其原因自然离不开这几年几乎不间断的积累，但是也有运气的成分在。上半年读了不少 paper 和技术书籍。在阅读的过程中，我喜欢在学习到一个新的知识点后，尽可能的通过一段程序去验证，那么理解的程度很可能会从「 意...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server/">如何实现一个Web Server</a>
-        </h2>
-          <span class="post-meta">Dec 8, 2017</span>
-        <p class="description">
-            
-                最近重构了去年造的一个轮子 Vino。Vino 旨在实现一个轻量并且能够保证性能的 Web Server，仅关注 Web Server 的本质部分。在重构过程中，Vino 借鉴了许多优秀开源项目的思想，如 Nginx、Mongoose 和 Webbench。因此，对比上一个版本的 Vino，现在的 Vino 不仅性能得到提升，而且设计也更为优雅、健壮 :D。本文将会对 Vino 目前所具备的关键特性进行阐述，并总结开发过程中的一点心得。单线程 + Non-BlockingVino 整体采用...
             </p>
       </li>
     

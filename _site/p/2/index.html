@@ -11,21 +11,21 @@
 <meta property="og:locale" content="en_US">
 <meta name="description" content="Welcome to my awesome blog.">
 <meta property="og:description" content="Welcome to my awesome blog.">
-<link rel="canonical" href="http://localhost:4000/p/2/">
-<meta property="og:url" content="http://localhost:4000/p/2/">
+<link rel="canonical" href="https://tinylcy.github.io/p/2/">
+<meta property="og:url" content="https://tinylcy.github.io/p/2/">
 <meta property="og:site_name" content="STAR 皆空">
-<link rel="prev" href="http://localhost:4000/">
-<link rel="next" href="http://localhost:4000/p/3">
+<link rel="prev" href="https://tinylcy.github.io/">
+<link rel="next" href="https://tinylcy.github.io/p/3">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@">
 <meta property="article:publisher" content="1234">
 <meta property="fb:app_id" content="1234">
 <script type="application/ld+json">
-{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"http://localhost:4000/p/2/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+{"name":null,"description":"Welcome to my awesome blog.","author":null,"@type":"WebPage","url":"https://tinylcy.github.io/p/2/","publisher":null,"image":null,"headline":"STAR 皆空","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   
-  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="http://localhost:4000/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="STAR 皆空" href="https://tinylcy.github.io/feed.xml">
   <link rel="stylesheet" href="/assets/css/nangka.css">
 
   
@@ -96,6 +96,17 @@
         <div class="home">
   <!-- <h1 class="page-heading">Posts</h1> -->
   <ul class="post-list">
+    
+      <li>
+        <h2>
+          <a class="post-link" href="/2017/%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAWeb-Server/">如何实现一个Web Server</a>
+        </h2>
+          <span class="post-meta">Dec 8, 2017</span>
+        <p class="description">
+            
+                最近重构了去年造的一个轮子 Vino。Vino 旨在实现一个轻量并且能够保证性能的 Web Server，仅关注 Web Server 的本质部分。在重构过程中，Vino 借鉴了许多优秀开源项目的思想，如 Nginx、Mongoose 和 Webbench。因此，对比上一个版本的 Vino，现在的 Vino 不仅性能得到提升，而且设计也更为优雅、健壮 :D。本文将会对 Vino 目前所具备的关键特性进行阐述，并总结开发过程中的一点心得。单线程 + Non-BlockingVino 整体采用...
+            </p>
+      </li>
     
       <li>
         <h2>
@@ -171,17 +182,6 @@
         <p class="description">
             
                 关键字defer用于实现延迟调用，根据Golang官方的定义：A defer statement defers the execution of a function until the surrounding function returns. 。但是，当返回值与defer相互关联时，如果没有正确理解defer与return真正的执行顺序，那么容易出现一些不可描述的现象。我们先运行如下代码，根据运行结果来理解defer，在查看运行结果之前，不妨先想想main函数的输出是什么。packag...
-            </p>
-      </li>
-    
-      <li>
-        <h2>
-          <a class="post-link" href="/2017/%E8%B0%88%E8%B0%88ThreadLocal/">谈谈ThreadLocal</a>
-        </h2>
-          <span class="post-meta">Feb 24, 2017</span>
-        <p class="description">
-            
-                Java并发编程实战 一书在介绍ThreadLocal类时（第3章），书中有这么两段话，在我初次阅读时不知道如何去理解。  ThreadLocal对象通常用于防止对可变的单实例变量（Singleton）或全局变量进行共享。  当某个频繁执行的操作需要一个临时变量，例如一个缓冲区，而同时又希望避免在每次执行时都重新分配该临时对象，就可以使用这项技术。例如，在Java 5.0之前，Integer.toString()方法使用ThreadLocal对象来保存一个12字节大小的缓冲区，用于对结果进...
             </p>
       </li>
     
